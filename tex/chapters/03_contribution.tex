@@ -1,0 +1,91 @@
+\chapter{Applying CEGAR to the Zone Graph} \label{sec:timed_cegar}
+
+In this section we explain our approach of applying CEGAR to the timed
+automaton. Some details of our implementation are also
+discussed.
+
+\section{Existing algorithms}
+  \todo{Hasonló algoritmusok és hátrányaik bemutatása}
+  
+\section{Introducing a new algorithm}
+
+\todo{Szétszedni az ötletet, a megvalósítást, és a szemléltetést}
+
+Our algorithm is explained in this section. To ease presentation, we illustrate
+the algorithm on an example. The timed automaton is on Fig.
+\ref{fig:fischer_product} and the value of the parameter $k$ is 2. The property
+to check is whether the automaton can reach the critical section. 
+
+\subsection{Initial Abstraction} The first step of the CEGAR-approach is to
+construct an initial abstraction, which is an overapproximation of the system's
+state space. In our algorithm, the state space is represented by the zone graph.
+Instead of constructing the zone graph of the system an abstract simpler representation is constructed from the timed automaton.
+
+Erroneous states are represented by (erroneous) locations, so we decided not to apply abstraction on them. 
+However, the zones are overapproximated -- the initial assumption is
+that every valuation is reachable at every location. This means that the initial
+abstraction of the zone graph will contain a node $\langle l,z_\infty \rangle$
+for each location $l$, where $z_\infty$ is the zone defined by the constraint set $\{c \geq 0 \mid c \in \mathcal{C}\}$.
+
+Edges of the abstract zone graph can also be derived from the timed automaton
+itself. If there is no edge in the automaton leading from location $l$ to
+$l'$ there can not be a corresponding edge $\langle l,z \rangle \to \langle l',z' \rangle$ in the (concrete) zone graph regardless of $z$ and $z'$. Thus, there should not be an edge from $\langle l,z_\infty \rangle$ to $\langle l,z'_\infty
+\rangle$ in the abstract zone graph either. All other edges are represented in
+the initial abstraction.
+
+This results in a graph containing locations (extended with the zone
+$z_\infty$) as nodes, and edges of the automaton (without guard and reset statements) --
+an untimed zone graph, derived completely from the automaton as the real zone
+graph is unknown. The initial abstraction derived from the example timed automaton can be
+seen on Fig. \ref{fig:location_graph}.
+
+This will be the model on which we apply model checking.%TODO
+
+\todo{figure}
+
+\subsection{Model Checking} During the reachability analysis only the counterexample traces will be refined in the zone graph. Thus, model checking becomes a pathfinding problem in the current abstraction of the zone graph in each iteration. Either we prove the target state to be unreachable or a new path is found from the initial node to the target node.
+
+The result of pathfinding in the graph on Fig. \ref{fig:location_graph} is denoted by bold arrows.
+
+\subsection{Counterexample Analysis and Refinement} Analyzing the counterexample in the
+original system and refining the abstract representation are two distinct steps of
+CEGAR, but in our approach they are performed together.
+
+The goal of refinement is to eliminate the unreachable states from the abstract representation.
+Refinement is applied by replacing the abstract zones in the counterexample trace with refined zones containing only reachable states. 
+
+In the first iteration, no nodes of the abstract graph has ever been refined,
+so refinement starts from the node that belongs to the initial location where the refined zone is calculated from the initial valuation. In case of the later iterations the first few nodes of the
+trace will already be refined, so the refinement can start from the first
+abstract node. The reachable zone should be calculated from the last refined zone,
+considering the guards and the reset as described in \cite{bengtsson2004timed}.
+
+Of course, as discussed in Section \ref{sec:reach} sometimes the result of the refinement is
+more than one zone. In this case the node in the graph (and the edge pointing
+to it) is replicated, and one of the refined zones are assigned
+to each resulting node. The refinement can be continued from any of these nodes -- the path branches.
+All of these branches should be analyzed (refined) one by one.
+
+
+It is also advised to reuse zones already refined. Suppose at one point of the
+algorithm the zone $z_\infty$ of the node $\langle l,z_\infty \rangle$ is 
+refined to $z$, and $z$ is a
+subzone of a zone $z'$ in a node $\langle l,z' \rangle$ (both nodes
+contain the same location $l$). In this case any state that is reachable from $\langle l,z \rangle$ is also reachable from $\langle l,z' \rangle$, thus any edge leading to  $\langle l,z \rangle$ is redirected to $\langle l,z' \rangle$, and $\langle l,z \rangle$ is removed.
+After that the analysis of the path can continue from that $\langle l,z' \rangle$.
+
+If the erroneous location is reachable through this path, the procedure finds it,
+and the CEGAR algorithm terminates. Otherwise, at some point a guard or a target invariant
+is not satisfied -- the transition is not enabled. The corresponding edge is removed and the analysis of the path terminates.
+
+Let us consider the example. Refining the path on Fig. \ref{fig:location_graph} is performed as follows. Refinements starts with the initial node $\langle S0,z_\infty \rangle$. First, we must consider the edge $\langle C1,z_\infty \rangle \to \langle S0,z_\infty \rangle$. The refinement will eliminate any state that is unreachable in the initial node of the zone graph, but there might be another node in the real zone graph with the location $S0$, so we duplicate the node before the refinement and the edge $\langle C1,z_\infty \rangle \to \langle S0,z_\infty \rangle$ will point to the duplicate. The value of $x_1$ is 0 in the initial state. Before the discrete transition occurs, any delay is enabled (as there is no location invariant on $S0$), so $x_1$ can take any non negative value. Thus $\{x_1 > 0\} = z_\infty$ is the zone assigned to the initial location. Since it is contained in the existing $\langle S0,z_\infty \rangle$ (the duplicate),  $\langle S0,x_1 > 0 \rangle$ (the refined node) can be removed and the analysis of the path continues from the remaining node $\langle S0,z_\infty \rangle$.
+
+The next node to refine is $\langle R0,z_\infty \rangle$. The transition from $\langle S0,z_\infty \rangle$ resets $x_1$, so its initial value in location $R0$ is 0. The invariant of the location limits the maximum value of $x_1$, hence the maximum value of a time transition at location $R0$ is $2$. Thus the reachable zone in $R0$ satisfies $x_1 \leq 2$. The refinement of the trace continues, and $C1$ turns out to be reachable. The refined zone graph is depicted on Fig \ref{fig:refined_graph}.
+
+\section{Realization}
+
+\todo{Megvalósítós részek ide + pszeudokód}
+
+\section{Evaluation}
+
+\todo{Terminálódás, komplexitás, stb.}
