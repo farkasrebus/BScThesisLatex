@@ -20,11 +20,11 @@ formal  analysis by applying model checking techniques is desirable.
 The goal of model checking is to prove that the system represented by the
 model satisfies a certain property, described by some kind of
 logical formula. 
-Our research is limited to reachability analysis where the verification examines if a given set of (error) states is reachable in the model. Reachability criterion defines the states of interest.
+My research is limited to reachability analysis where the verification examines if a given set of (error) states is reachable in the model. Reachability criterion defines the states of interest.
 
 Many algorithms are known for model checking timed systems, the one which
 defines an efficient abstract domain to handle timed behaviors is presented in
-\todo{cite{bengtsson2004timed}}. The abstract domain is called \emph{zone}, and it represents a set of reachable valuations of the clock
+\cite{bengtsson2004timed}. The abstract domain is called \emph{zone}, and it represents a set of reachable valuations of the clock
 variables. The reachability problem is decided by traversing the so-called \emph{zone graph}
 which is a finite representation (abstraction) of the continuous
 state space.
@@ -36,24 +36,24 @@ A possible solution is using abstraction: a less detailed system description is 
 hide unimportant parts of the behaviors providing less complex system
 representations.
 
-The idea of counterexample guided abstraction refinement (CEGAR) \todo{cite{clarke2003counterexample}} is to apply 
+The idea of counterexample guided abstraction refinement (CEGAR) \cite{clarke2003counterexample} is to apply 
 model checking to this simpler system, and then examine the results on the original one.
 If the analysis shows, that the results are not applicable to the original system, some of the hidden parts have to be re-introduced to the representation of the system -- i.e.,
 the abstract system has to be refined. This technique has been successfully applied to verify many different
 formalisms.
 
-Several approaches have been proposed applying CEGAR on timed automata.  In \todo{cite{kemper2007sat}}
+Several approaches have been proposed applying CEGAR on timed automata.  In \cite{kemper2007sat}
 the abstraction is applied on the locations of the automaton. In
-\todo{cite{nagaoka2010abstraction}} the abstraction of a timed automaton is an untimed
-automaton. In \todo{cite{dierks2007automatic, he2010compositional}}, and
-\todo{cite{okano2011clock}} abstraction is applied on the variables of the automaton.
+\cite{nagaoka2010abstraction} the abstraction of a timed automaton is an untimed
+automaton. In \cite{dierks2007automatic, he2010compositional}, and
+\cite{okano2011clock} abstraction is applied on the variables of the automaton.
 
-Our goal is to develop an efficient model checking algorithm applying the
-CEGAR-approach to timed systems. The above-mentioned algorithms modified the timed automaton itself: our new 
+My goal is to develop an efficient model checking algorithm applying the
+CEGAR-approach to timed systems. The above-mentioned algorithms modified the timed automaton itself: my new 
 algorithm focuses on the direct manipulation of the reachability graph, represented as a zone graph, which can
 yield the potential to gain finer abstractions.
 
 The paper is organized as follows... 
 
-\todo{Frissíteni, hivatkozni, végét megírni}
+\todo{befejezni}
 

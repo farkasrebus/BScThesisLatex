@@ -1,16 +1,17 @@
 \chapter{Background}
 \label{chap:background}
 
-In this section we define the important aspects of timed automata and briefly
-explain the relevant parts of the reachability algorithm presented in
-\todo{cite{bengtsson2004timed}}. We present the verification of Fischer's protocol as
-an example. CEGAR is also explained at a high level.
+This section defines the important aspects of timed automata and briefly
+explains the reachability algorithm presented in
+\cite{bengtsson2004timed} and demonstrates it on some examples (based on an example also in \cite{bengtsson2004timed}).
+%The verification of Fischer's protocol is presented as an example. 
+CEGAR is also explained at a high level.
 
 
 \section{Basic Definitions}
 A \emph{valuation} $v(\mathcal{C})$ assigns a non-negative real value
 to each clock variable $c \in \mathcal{C}$, where $\mathcal{C}$ denotes the set of clock
-variables.
+variables. For bravity, the term \emph{clock} is used as a synonym of {clock variable}.
 
 A \emph{clock constraint} is a conjunctive formula of atomic
 constraints of the form $x \sim n$ or $x - y \sim n$ (\emph{difference
@@ -53,13 +54,27 @@ The construction of the graph starts with the initial node  $\langle l_0,z_0 \ra
 where $l_0$ is the initial location and $z_0$ contains the valuations reachable in the initial location by time transition. 
 Next, for each outgoing edge $e$ of the initial location (in the automaton) a new node  $\langle l,z \rangle$ is created (in the zone graph) with an edge
 $\langle l_0,z_0 \rangle \to \langle l,z \rangle$, where $\langle l,z \rangle$ contains the states to which the states in $\langle l_0,z_0 \rangle$ have a discrete transition through $e$. Afterwards $z$ is replaced by $z^\uparrow$.  The procedure is repeated on every newly introduced node of the zone graph. If the states defined by a newly introduced node $\langle l,z \rangle$ are all contained in an already existing node $\langle l,z' \rangle$, $\langle l,z \rangle$ can be removed, and the incoming edge should be redirected to $\langle l,z' \rangle$.
-Unfortunately the described graph can possibly be infinite. 
 
-A concept called \emph{normalization} is introduced in \todo{cite{bengtsson2004timed}}.
-Let $k(c)$ denote the greatest value to which clock $c$ is compared.
+\todo{Example környezet}
+
+For ease of understanding the algorithm is demonstrated on the automaton on Fig \todo{Ábrát rajzolni}. The inital state is  $\langle l_0; z_0 \rangle$ where $z_0$ is a zone containing only te initial valuation $v_0(x)=0, v_0(y)=0$. The initial node is  $\langle l_0; z_0^\uparrow  \rangle$, where $z_0^\uparrow$ contains all states reachable form the initial state by delay. Since as time passes, the values of the two clocks will be incremented by the same value, $x$ and $y$ has the same value in each valuation contained by $z_0^\uparrow$. Since there is no invariant in location $l_0$ $x$ and $y$ can take any positive value. Because of this $z_0$ can be defined by the constraint $x=y$ (that is, $x-y = 0$), and the initial node can be defined as $\langle l_0; x=y  \rangle$.
+There is only one outgoing transition from location $l_0$ and that is $t_1$ with the guard $y>10$. This means $t_1$ is only enabled in $z' \subseteq z_0$ where $z'$ can be defined as $x=y, x>10$. Firing $t_1$ resets $y$, but leaves $x$ untouched resulting in the zone $z=(x>10,y=0)$ satisfying the invariant $x \geq y$ (that is, $x-y \geq 0$). The node of the graph will contain $z^\uparrow$, where the values of both clocks are increased (infinitely as $x \geq y$ will always hold), but the difference of the values is constant. This means $z^\uparrow = (x-y>10)$, and the next node can be defined as $\langle l_1; x-y>10 \rangle$.
+There are two outgoing transitions from this node. Transition $t_2$ resets $x$ resulting in $x=0$ (all we know about $y$ is $y \geq 0$), but since the invariant prohibits $y$ to be greater than $x$, the only valid valuation in this zone is $x=0, y=0 = z_0$, and which means the next node can be defined as $\langle l_1; z' \rangle$.
+On the other hand, $t_3$ is also enabled in $\langle l_1; x-y>10 \rangle$, resulting in $\langle l_2; z_0 \rangle$, which can be extanded to $\langle l_2; z' \rangle$ by delay.
+From $\langle l_1; z' \rangle$ $t_2$ is enabled, resulting again in $\langle l_1; z' \rangle$ which means we do not need a new node in the zone graph, only a loop edge. Transition $t_3$ is also enabled from here, and the result is $\langle l_2, z' \rangle$ again. We can finish the zone graph by drawing and edge between these nodes. (There are no outgoing edges from $\langle l_2, z' \rangle$.) The resulting graph can be seen on Fig. \todo{Ábra}
+
+\todo{Constrainteket szebben leírni, ÉS jel, stb.}
+
+
+Unfortunately the described graph can possibly be infinite. Consider for example the automaton \cite{bengtsson2004timed} on Fig. \todo{Ábra}, with the infinite graph on Fig. \todo{Ábra}.
+
+A concept called \emph{normalization} is introduced in \cite{bengtsson2004timed}.
+Let $k(c)$ denote the greatest value to which clock $c$ is compared in the automaton.
 For any valuations $v$ such that $v(c)>k(c)$ for some $c$, each constraint in the form $c > n$ is satisfied, and each constraint in the form $c = n$ or $c < n$ is unsatisfied, thus the interval $(k(c),\infty)$ can be used as one abstract value for $c$.
-Normalization is applied on $z^\uparrow$ 
-before inclusion is checked.
+
+As an example \todo{Ábra}.
+
+Normalization is applied on $z^\uparrow$ before inclusion is checked.
 %for any valuation $v \in z^\uparrow$, if there is a $v$ such that $v(c)>k(c)$
 % if $z^\uparrow$  contains a valuation where 
 % $v(c)>k(c)$ for some $c \in \mathcal{C}$, then all valuations $v'$ are added to the zone, where 
@@ -68,20 +83,20 @@ before inclusion is checked.
 Using normalization the zone 
 graph is finite, but unreachable states may appear. 
 
-The operation \emph{split} \todo{cite{bengtsson2004timed}} is introduced to eliminate such states. Instead of
+The operation \emph{split} \cite{bengtsson2004timed} is introduced to eliminate such states. Instead of
 normalizing the complete zone, it is first split along the difference constraints,
 then each subzone is normalized, and finally the initially satisfied constraints are reapplied to each zone. If the result is a set of zones, then multiple new nodes have to be introduced to the zone graph. Applying split results in a zone
 graph, that is a correct and finite representation of the state space.
 
-\emph{Example:}
-Fischer's protocol assures mutual exclusion by bounding the execution
-times of the instructions. It can be applied to a number of processes accessing a
-shared variable. Fig. \ref{fig:fischer}  shows the operation of a process.
-The location \emph{critical} indicates that the process is in the critical
-section. The value of the shared variable $id$ ranges between 0 and $n$,
-where $n$ denotes the number of processes. The model also contains a 
-clock variable $x_i$ for each process where $i \in \{1 \ldots n\}$ denotes the
-identifier of the process. The constant $k$ is a parameter of the automaton.
+%\emph{Example:}
+%Fischer's protocol assures mutual exclusion by bounding the execution
+%times of the instructions. It can be applied to a number of processes accessing a
+%shared variable. Fig. \ref{fig:fischer}  shows the operation of a process.
+%The location \emph{critical} indicates that the process is in the critical
+%section. The value of the shared variable $id$ ranges between 0 and $n$,
+%where $n$ denotes the number of processes. The model also contains a 
+%clock variable $x_i$ for each process where $i \in \{1 \ldots n\}$ denotes the
+%identifier of the process. The constant $k$ is a parameter of the automaton.
 
 %\begin{figure}
 %	\centering
@@ -100,15 +115,15 @@ identifier of the process. The constant $k$ is a parameter of the automaton.
 %	\end{minipage}
 %\end{figure}  
 
-\todo{figure}
+%\todo{figure}
 
-The mutual exclusion property would suggest that at any given time
-at most one of the processes is in the \emph{critical} location. In order to
-check the given property we must construct a timed automaton that models the
-operation of a given number of processes.
+%The mutual exclusion property would suggest that at any given time
+%at most one of the processes is in the \emph{critical} location. In order to
+%check the given property we must construct a timed automaton that models the
+%operation of a given number of processes.
 
-As our definition of timed automaton only allows clock variables in the system,
-everything else must be encoded in the location.
+%As our definition of timed automaton only allows clock variables in the system,
+%everything else must be encoded in the location.
 %  First, to represent the
 % location of all processes simultaneously, we construct a product automaton
 % containing one location for each of the $4^n$ -- not necessarily reachable --
@@ -121,10 +136,10 @@ everything else must be encoded in the location.
 % The edges, invariants, etc. should be created approriately.
 % Each location of the result automaton will be denoted by a combination of
 % the four original locations and a number representing $id$'s value. 
-To
-demonstrate, Fig.
-\ref{fig:fischer_product} shows the reachable locations of the product automaton
-of Fischer's protocol where $n=1$. The names of the locations refer to the original locations of the process, the number denotes the value of the variable $id$.
+%To
+%demonstrate, Fig.
+%\ref{fig:fischer_product} shows the reachable locations of the product automaton
+%of Fischer's protocol where $n=1$. The names of the locations refer to the original locations of the process, the number denotes the value of the variable $id$.
 
 
 \section{CEGAR}
@@ -138,7 +153,7 @@ of Fischer's protocol where $n=1$. The names of the locations refer to the origi
 
 \todo{(figure)}
 
-The CEGAR approach introduced in \todo{cite{clarke2003counterexample}} makes
+The CEGAR approach introduced in \cite{clarke2003counterexample} makes
 abstraction refinement a key part of model checking. The idea is illustrated on
 Fig. \ref{fig:cegar}.
 
