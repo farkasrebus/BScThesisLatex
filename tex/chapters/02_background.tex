@@ -55,7 +55,7 @@ where $l_0$ is the initial location and $z_0$ contains the valuations reachable 
 Next, for each outgoing edge $e$ of the initial location (in the automaton) a new node  $\langle l,z \rangle$ is created (in the zone graph) with an edge
 $\langle l_0,z_0 \rangle \to \langle l,z \rangle$, where $\langle l,z \rangle$ contains the states to which the states in $\langle l_0,z_0 \rangle$ have a discrete transition through $e$. Afterwards $z$ is replaced by $z^\uparrow$.  The procedure is repeated on every newly introduced node of the zone graph. If the states defined by a newly introduced node $\langle l,z \rangle$ are all contained in an already existing node $\langle l,z' \rangle$, $\langle l,z \rangle$ can be removed, and the incoming edge should be redirected to $\langle l,z' \rangle$.
 
-\begin{figure}
+\begin{figure} [b]
 	\centering
 		\begin{minipage}[c] {0.25\linewidth}%
 	%		\vspace*{1pt}%
@@ -89,7 +89,7 @@ Since there is no state in $\langle loop, x=y \wedge x<10 \rangle$ where $y \geq
 
 \end{example}
 
-\begin{figure}
+\begin{figure} [b]
 	\centering
 	\begin{minipage}[c] {0.25\linewidth}%
 		%		\vspace*{1pt}%
@@ -136,23 +136,40 @@ Implicitely $y \leq 40$ and $y-x \leq 30$. These constraints have to be removed 
 \end{example}
 
 \begin{figure}
+	\centering
 	\includegraphics [width=0.7\textwidth] {include/figures/loop_real_zonegraph}%TODO: ezt majd még vektorosítani
 	%		\vspace*{4pt}%
-	%		\caption{Timed automaton}
+	\caption{Finite zone graph}
 	\label{fig:looprealgraph}
 \end{figure}
 
 Using normalization the zone graph is finite, but unreachable states may appear in it. If the automaton doesn't have any guard or invarint of the form $c_1 - c_2 < n$, the reachability of the location in question will be answered correctly. Otherwise, the algorithm may terminate with a false positive result.
 
-\todo{Példa}
+\begin{figure} [h]
+	\centering
+	\includegraphics [width=0.7\textwidth] {include/figures/norm_incorrect_aut}%TODO: ezt majd még szépíteni
+	%		\vspace*{4pt}%
+	\caption{Timed automaton with incorrect graph after normalization}
+	\label{fig:splitaut}
+\end{figure}
 
-The operation \emph{split} \cite{bengtsson2004timed} is introduced to eliminate such states. Instead of
+\begin{example}
+	To demonstrate the incorrectness of the algorithm, consider the automaton on Figure \ref{fig:splitaut}, with the error location $S3$. The reachabble states of the automaton (by calculations) are $\langle S0,x=y=z \rangle$, $\langle S1,z \leq x=y \rangle$ and $\langle S2,z \leq y \leq z \leq y \wedge x-y > 2\rangle$ - $S3$ is unreachable. Applying normalization results in the states $\langle S0,x=y=z \rangle$ (unchanged), $\langle S1,z \leq x=y \rangle$ (unchanged), $\langle S2,z \leq y \leq z \leq y \wedge x-y > 1\rangle$ (changed), making $S3$ seem reachable.
+\end{example}
+
+The operation \emph{split} \cite{bengtsson2004timed} is introduced to assure correctness. Instead of
 normalizing the complete zone, it is first split along the difference constraints,
-then each subzone is normalized, and finally the initially satisfied constraints are reapplied to each zone. If the result is a set of zones, then multiple new nodes have to be introduced to the zone graph. Applying split results in a zone
-graph, that is a correct and finite representation of the state space.
+then each subzone is normalized, and finally the initially satisfied constraints are reapplied to each normalized subzone. The result is a set of zones (not just one zone like before), which means multiple new nodes have to be introduced to the zone graph (all with edges erpresenting the same transition from the original node).
 
+\begin{example}
+To demonstrate the effects of split, let us construct the zone graph of the automaton of Figure \ref{fig:splitaut}. The original node remains  $\langle S0,x=y=z \rangle$, but the next node is first split along the difference constraint $x-z<1$. Instead of the node $\langle S1,z \leq x=y \rangle$, this time there are two nodes: $\langle S1, x=y \wedge x-z<1 \rangle$ and $\langle S1, x=y \wedge x-z \geq 1 \rangle$.
 
-\todo{magyarázóábra, példa, stb}
+From  $\langle S1, x=y \wedge x-z<1 \rangle$,  $\langle S2,x-z \leq 1 \wedge z-y \leq 1\rangle$ is reachable, where the transition to location $S3$ is not enabledbecause of the guard $x-z < 1$.
+
+From $\langle S1, x=y \wedge x-z \geq 1 \rangle$ the resulting zone after firing the transition is split along the constraint $z-y<1$, resulting in nodes $\langle S2, x-z \geq 1 \wedge z-y < 1\rangle$, and $\langle S2, x-z \geq 1 \wedge z-y \geq 1\rangle$. The transition to $S3$ is not enabled in either nodes. 
+\end{example}
+
+Applying split results in a zone graph, that is a correct and finite representation of the state space.
 
 %\emph{Example:}
 %Fischer's protocol assures mutual exclusion by bounding the execution
@@ -210,14 +227,12 @@ graph, that is a correct and finite representation of the state space.
 
 \section{CEGAR}
 
-%\begin{figure}[b]
-%	\centering
-%	\includegraphics [width=3.5in] {cegar_flow_black}
-%	\caption{Counterexample guided abstraction refinement}
-%	\label{fig:cegar}
-%\end{figure}
-
-\todo{ábra}
+\begin{figure} [b]
+	\centering
+	\includegraphics [width=0.7\textwidth] {include/figures/cegar_flow_black}
+	\caption{Counterexample guided abstraction refinement}
+	\label{fig:cegar}
+\end{figure}
 
 The CEGAR approach introduced in \cite{clarke2003counterexample} makes
 abstraction refinement a key part of model checking. The idea is illustrated on
