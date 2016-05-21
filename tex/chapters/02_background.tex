@@ -57,14 +57,14 @@ $\langle l_0,z_0 \rangle \to \langle l,z \rangle$, where $\langle l,z \rangle$ c
 
 \begin{figure}
 	\centering
-		\begin{minipage}[c] {0.3\linewidth}%
+		\begin{minipage}[c] {0.25\linewidth}%
 	%		\vspace*{1pt}%
 		\includegraphics [width=\textwidth]{include/figures/loop_example_finite}%
 		%\caption{Example of a timed automaton}
 		\label{fig:loopfinite}
 		\end{minipage}%
 	%	%
-		\begin{minipage}[c] {0.3\linewidth}%
+		\begin{minipage}[c] {0.25\linewidth}%
 			\includegraphics [width=\textwidth] {include/figures/loop_finite_zonegraph}%
 	%		\vspace*{4pt}%
 	%		\caption{Timed automaton}
@@ -91,15 +91,15 @@ Since there is no state in $\langle loop, x=y \wedge x<10 \rangle$ where $y \geq
 
 \begin{figure}
 	\centering
-	\begin{minipage}[c] {0.5\linewidth}%
+	\begin{minipage}[c] {0.25\linewidth}%
 		%		\vspace*{1pt}%
-		\includegraphics [width=0.3\textwidth]{include/figures/loop_example_original}%
+		\includegraphics [width=\textwidth]{include/figures/loop_example_original}%
 		%\caption{Example of a timed automaton}
 		\label{fig:loopinfinite}
 	\end{minipage}%
 	%	%
-	\begin{minipage}[c] {0.5\linewidth}%
-		\includegraphics [width=\textwidth] {include/figures/loop_original_zonegraph}%
+	\begin{minipage}[c] {0.7\linewidth}%
+		\includegraphics [width=\textwidth] {include/figures/loop_original_zonegraph}%TODO: ezt majd még vektorosítani
 		%		\vspace*{4pt}%
 		%		\caption{Timed automaton}
 		\label{fig:loopinfinitegraph}
@@ -110,26 +110,41 @@ Since there is no state in $\langle loop, x=y \wedge x<10 \rangle$ where $y \geq
 Unfortunately the described graph can possibly be infinite. Consider for example the automaton from \cite{bengtsson2004timed} on Figure \ref{fig:loopinfinite}. The only difference between this automaton and the one on figure \ref{fig:loopfinite}, is that in this automaton the transition represented by the loop edge only resets $x$, but not $y$.
 
 \begin{example}
-Constructing the zone graph of this automaton starts similarly, with the nodes $\langle start, x=y \rangle$ and $\langle loop, x=y \wedge x<10 \rangle$, where only the loop-transition is enabled. This time the transition only resets $x$ resulting in $\langle loop, x=0 \wedge y=10 \rangle$.
+Constructing the zone graph of this automaton starts similarly, with the nodes $\langle start, x=y \rangle$ and $\langle loop, x=y \wedge x<10 \rangle$, where only the loop-transition is enabled.
 
-\todo{befejezni, ábrák stb.}
+This time the transition only resets $x$ resulting in $\langle loop, x=0 \wedge y=10 \rangle$. Because of the invariant, only 10 units of delay is enabled, resulting in the node $\langle loop, x \leq 10 \wedge y \leq 20 \wedge y-x=10 \rangle$.
+
+From this node, both transitions are enabled. The loop transition increases the difference between $x$ and $y$ yielding the new node $\langle loop, x \leq 10 \wedge y \leq 30 \wedge y-x=20 \rangle$, while the other transition resets both clocks, resulting in the new node $\langle end, x=y \rangle$.
+
+As we take the new node containing the location $loop$, and apply the loop transition over and over, a new node is always constructed with the difference growing. On the other hand, the other transition always results in $\langle end, x=y \rangle$.
+
+Hence the (infinite) zone graph on Figure \ref{fig:loopinfinitegraph}.
 
 \end{example}
 	
 In order for the zone graph to be finite, a concept called \emph{normalization} is introduced in \cite{bengtsson2004timed}.
 Let $k(c)$ denote the greatest value to which clock $c$ is compared in the automaton.
-For any valuations $v$ such that $v(c)>k(c)$ for some $c$, each constraint in the form $c > n$ is satisfied, and each constraint in the form $c = n$ or $c < n$ is unsatisfied, thus the interval $(k(c),\infty)$ can be used as one abstract value for $c$. \todo{In the example...}
+For any valuations $v$ such that $v(c)>k(c)$ for some $c$, each constraint in the form $c > n$ is satisfied, and each constraint in the form $c = n$ or $c < n$ is unsatisfied, thus the interval $(k(c),\infty)$ can be used as one abstract value for $c$. 
 
-Normalization is applied on $z^\uparrow$ before inclusion is checked.
-%for any valuation $v \in z^\uparrow$, if there is a $v$ such that $v(c)>k(c)$
-% if $z^\uparrow$  contains a valuation where 
-% $v(c)>k(c)$ for some $c \in \mathcal{C}$, then all valuations $v'$ are added to the zone, where 
-% $v'(c')=v(c')$ for all $c' \neq c$, $v'(c)>k(c)$, and $v'(c)$ satisfies 
-% any constraint of $z^\uparrow$, not in the form $c<n$
-Using normalization the zone 
-graph is finite, but unreachable states may appear. 
+Normalization is performed on $z^\uparrow$ (before inclusion is checked) in two steps. The first is removing all constraints of the form $x < m, x \leq m, x-y <m, x-y\leq m$ where $m>k(x)$ (so that $x$ doesn't have an upper bound), and the second is replacing constraints of the form $x > m, x \geq m, x-y >m, x-y\geq m$ where $m>k(x)$ by $x > k(x), x \geq k(x), x-y >k(x), x-y\geq k(x)$ respectively (to define the new lower bounds).
 
-\todo{Ábra a véges gráfról.}
+\begin{example}
+In the automaton depicted on Figure \ref{fig:loopinfinite}, $k(y)=20$ (and $k(x)=10$). This means the exact value of $y$ doesn't really matter, as long as it is greater than 20 - the automaton will behave the exact same way if it is between 30 and 40, or if it is between 40 and 50. %We can combine the zones where $y$ is greater than 20 (and the value of $x$ is the same) into the zone $ x \leq 10 \wedge y>20 \wedge y-x>20$.
+If we take this into consideration when constructing the zone graph, the zone  $x \leq 10 \wedge y-x=30$ can be normalized. In this zone, $y \geq 30 > k(y)=20$, but $x \leq k(x)$. This means we only have to consider constraints bounding $y$.
+Implicitely $y \leq 40$ and $y-x \leq 30$. These constraints have to be removed from the zone. Similarly, $y \geq 30$ and $y-x \geq 30$ have to be replaced by $y \geq 20$ and $y-x \geq 20$. The resulting zone is $x \leq 10 \wedge y \geq 20 \wedge y-x \geq 20$. If we replace the original zone  $x \leq 10 \wedge y-x=30$ by this zone, and continue constructing the zone graph, the resulting graph, depicted on Figure \ref{fig:looprealgraph}.
+
+\end{example}
+
+\begin{figure}
+	\includegraphics [width=0.7\textwidth] {include/figures/loop_real_zonegraph}%TODO: ezt majd még vektorosítani
+	%		\vspace*{4pt}%
+	%		\caption{Timed automaton}
+	\label{fig:looprealgraph}
+\end{figure}
+
+Using normalization the zone graph is finite, but unreachable states may appear in it. If the automaton doesn't have any guard or invarint of the form $c_1 - c_2 < n$, the reachability of the location in question will be answered correctly. Otherwise, the algorithm may terminate with a false positive result.
+
+\todo{Példa}
 
 The operation \emph{split} \cite{bengtsson2004timed} is introduced to eliminate such states. Instead of
 normalizing the complete zone, it is first split along the difference constraints,
