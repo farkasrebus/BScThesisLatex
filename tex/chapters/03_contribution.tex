@@ -40,6 +40,32 @@ My algorithm is explained in this section. To ease understanding it is also demo
  \end{description}
 
  
+ \begin{figure} [h]
+ 	\centering
+ 	\begin{minipage} {0.2\linewidth}%
+ 		\vspace*{10pt}%
+ 		\includegraphics [width=\textwidth]{include/figures/loop_initial_abst}%
+ 		\caption{Initial \\ abstraction}
+ 		\label{fig:loopinitabst}
+ 	\end{minipage}%
+ 	\hspace{20pt}	%
+ 	\begin{minipage} {0.2\linewidth}%
+ 		\includegraphics [width=\textwidth] {include/figures/loop_first_ref}%
+ 		\vspace*{103pt}%
+ 		\caption{Result of analysis}
+ 		\label{fig:loopanal}
+ 	\end{minipage}%
+ 	\hspace{20pt}%
+ 	\begin{minipage} {0.25\linewidth}%
+ 		\includegraphics [width=\textwidth] {include/figures/loop_first_abst}%
+ 		\vspace*{5pt}%
+ 		\caption{After refinement}
+ 		\label{fig:loopref}
+ 	\end{minipage}
+ 	\caption{Timed CEGAR on an example}
+ \end{figure}
+ 
+ 
 \subsection{Details}
 
 It is very important to perform the presented operations correctly. This section explains the algorithm step by step, demonstrating it on the example automaton on Figure \ref{fig:loopinfinite}.
@@ -47,12 +73,12 @@ It is very important to perform the presented operations correctly. This section
 Constructing the initial abstraction is very straight forward: each node of the locationgraph are to be completed with the zone $z_\infty$. After that, model checking is simply a path finding in the current abstraction of the zone graph.
 
 \begin{example}
-	The initial abstraction of the example automaton's zone graph is depicted on Figure \todo{Ábra}. The first counterexample is denoted with bald arrows.
+	The initial abstraction of the example automaton's zone graph is depicted on Figure \ref{fig:loopinitabst}. The first counterexample is denoted with bald arrows.
 \end{example}
 
 Simulation of the counterexample is performed by constructing the relevant part of the real zone graph. In the first iteration each nodes on the path will contain $z_\infty$. In this case, refinement starts from the node that belongs to the initial location and the refined zone is calculated as the initial zone of the zone graph.
 
-The result of pathfinding in the graph on Fig. \ref{fig:location_graph} is denoted by bold arrows. In case of the later iterations the first few nodes of the
+The result of pathfinding in the graph on Figure \ref{fig:loopinitabst} is denoted by bold arrows. In case of the later iterations the first few nodes of the
 trace will already be refined, so the refinement can start from the first
 abstract node. The reachable zone should be calculated from the last refined zone,
 considering the guards and the reset as when constructing the zone graph.
@@ -67,7 +93,7 @@ and the CEGAR algorithm terminates. Otherwise, at some point a guard or a target
 is not satisfied -- the transition is not enabled. The corresponding edge is removed and the analysis of the path terminates.
 
 \begin{example}
-	Consider the example. Since it is the first iteration, we start by constructing the initial node, $\langle start, x=y \rangle$. After that we calculate the next node on the trace $\langle loop, x=y \leq 10 \rangle$. When constructing the zone graph, we continued with the transition represented by the loop-edge but this time we only have to explore the zone graph through the transitions in the counterexample. The next transition is the transition represented by the edge directed to node $\langle end, z_\infty \rangle$. This transition is not enabled in the previously calculated zone, which means the counterexample is spurious. The resulting subgraph of the zonegraph is depicted on Figure \todo{Ábra}.
+	Consider the example. Since it is the first iteration, we start by constructing the initial node, $\langle start, x=y \rangle$. After that we calculate the next node on the trace $\langle loop, x=y \leq 10 \rangle$. When constructing the zone graph, we continued with the transition represented by the loop-edge but this time we only have to explore the zone graph through the transitions in the counterexample. The next transition is the transition represented by the edge directed to node $\langle end, z_\infty \rangle$. This transition is not enabled in the previously calculated zone, which means the counterexample is spurious. The resulting subgraph of the zonegraph is depicted on Figure \ref{fig:loopanal}.
 \end{example}
 
 The goal of refinement is to eliminate the spurious counterexample from the abstract representation. Refinement is applied by replacing the abstract counterexample with the subgarph of the real zonegraph calculated in the \emph{Analysis} phase. This operation has to be performed very carefully.
@@ -80,7 +106,7 @@ contain the same location $l$), then any state that is reachable from $\langle l
 When replacing the node, the outgoing edges should also be considered. The calculated subtree of the real zone graph only contained the edges in the trace, but in the abstract zone graph there are other outgoing edges of the node. These edges are the outgoing edges of the original (abstract) node in the zone graph, and they have to be replicated, as outgoing edges from the added node(s). After this we can continue with the next node.
 
 \begin{example}
-In the example replacing the initial node can simply be performed by replacing the zone $z_\infty$ with the zone $x=y$. On the other hand, replacing the node $loop$ has to be performed carefully. Since the loop-edge is an incoming edge of the node and is not part of the counterexample, the node can not be replaced. Instead, the incoming edge on the trace is redirected to the new node (in other words, the one to the original node is removed). Since a new node is added, we have to think about it's outgoing edges that are not on the trace -- in this case the only one is the loop edge. For reasons explained before, the loop edge has to be redirected to the abstract version of the node. Thus, the refinement is finished, and now the counterexample is eliminated from the abstract zone graph. Th resulting graph is depicted on Figure \todo{Ábra}.
+In the example replacing the initial node can simply be performed by replacing the zone $z_\infty$ with the zone $x=y$. On the other hand, replacing the node $loop$ has to be performed carefully. Since the loop-edge is an incoming edge of the node and is not part of the counterexample, the node can not be replaced. Instead, the incoming edge on the trace is redirected to the new node (in other words, the one to the original node is removed). Since a new node is added, we have to think about it's outgoing edges that are not on the trace -- in this case the only one is the loop edge. For reasons explained before, the loop edge has to be redirected to the abstract version of the node. Thus, the refinement is finished, and now the counterexample is eliminated from the abstract zone graph. Th resulting graph is depicted on Figure \ref{fig:loopref}.
 \end{example}
 
 
@@ -90,4 +116,12 @@ In the example replacing the initial node can simply be performed by replacing t
 
 \section{Evaluation}
 
-\todo{Terminálódás, komplexitás, stb.}
+It is important to prove that the algorithm is correct, and that it terminates. Both proof relies on that of the original algorithm.
+
+The algorithm always terminates, because the abstraction of zone graph gets refined in every iteration. Even at worst case, the algoritm stops when the zone graph is completely refined.
+
+The algorithm is correct, because the original algorithm is correct. If the algorithm finds a counterexample, it is a trace in the original algorithm. Otherwise, if there is a counterexample in the original algorithm, this algorithm finds it at some point.
+
+
+
+%\todo{Terminálódás, komplexitás, stb.}
