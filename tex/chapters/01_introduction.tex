@@ -30,15 +30,15 @@ which is a finite representation (abstraction) of the continuous
 state space.
 
 Model checking faces the so-called state space explosion problem --
-that is, the statespace to be traversed can be exponential in the size of the system.
+that is, the state space to be traversed can be exponential or even larger compared to the size of the system.
 It is especially true for timed systems: complex timing relations can necessiate a huge number of zones to represent the timed behaviors.
-A possible solution is using abstraction: a less detailed system description is desired which can
-hide unimportant parts of the behaviors providing less complex system
+A possible solution is to use abstraction: a less detailed system description is desired which can
+hide unimportant parts of the behaviors providing less complex state space
 representations.
 
-The idea of counterexample guided abstraction refinement (CEGAR) \cite{clarke2003counterexample} is to apply 
+The idea of counterexample-guided abstraction refinement (CEGAR) \cite{clarke2003counterexample} is to apply 
 model checking to this simpler system, and then examine the results on the original one.
-If the analysis shows, that the results are not applicable to the original system, some of the hidden parts have to be re-introduced to the representation of the system -- i.e.,
+If the analysis shows that the results are not applicable to the original system, some of the hidden parts have to be re-introduced to the representation of the system -- i.e.,
 the abstract system has to be refined. This technique has been successfully applied to verify many different
 formalisms.
 
