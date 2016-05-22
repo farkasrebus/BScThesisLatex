@@ -7,18 +7,18 @@ discussed.
 \section{Existing algorithms}
   
  As it was mentioned in Chapter \ref{chap:introduction}, similar approaches have been presented in papers \cite{dierks2007automatic, he2010compositional} and \cite{okano2011clock}. The key idea behind these approaches
- is to apply abstraction by removing clock variables (and the constraints they apper in) from the automaton. The CEGAR-loop is interpreted very similarly in these approaches.
+ is to apply abstraction by removing clock variables (and the constraints they appear in) from the automaton. The CEGAR loop is interpreted very similarly in these approaches.
  
  \begin{description}
- 	\item[Initial abstraction] The location graph (i.e. the automaton without any clock variables) is used as an inital abstraction.
- 	\item[Model-checking] Model-checking is applied on the current abstraction of the automaton using \emph{Uppaal}'s algorithm as a module.
+ 	\item[Initial abstraction] The location graph (i.e. the automaton without any clock variables) is used as an initial abstraction.
+ 	\item[Model checking] Model checking is applied on the current abstraction of the automaton using \emph{Uppaal}'s algorithm as a module.
  	\item[Analysis] Uppaal is also used to simulate the counterexample on the original automaton.
- 	\item[Refinement] Trivially, clock variables (and constraints they apper in) are added to the automaton, but the important part of the task is chosing which of the clocks to add. There are various approaches for that, including checking where the simulation stops with a synchronised linear automaton, using a SAT solver to analyze the trace expression, and a special algorithm developed for this purpose.
+ 	\item[Refinement] Trivially, clock variables (and constraints they appear in) are added to the automaton, but the important part of the task is choosing which of the clocks to add. There are various approaches for that, including checking where the simulation stops with a synchronized linear automaton, using a SAT solver to analyze the trace expression, and a special algorithm developed for this purpose.
  \end{description}
  
- It is easy to see that these algorithms all rely on Uppaal's reachability algprithm (explained in Chapter \ref{chap:background}), but all of them uses it as a 'black box' algorithm -- they run it on different inputs, but they do not modify the algorithm itself. The disadvantage of these approaches, is that Uppaal has to run the same reachability analysis over and over on similar automata without storing any information from the previous calculations.
+ It is easy to see that these algorithms all rely on Uppaal's reachability algorithm (explained in Chapter \ref{chap:background}), but all of them uses it as a 'black box' algorithm -- they run it on different inputs, but they do not modify the algorithm itself. The disadvantage of these approaches, is that Uppaal has to run the same reachability analysis over and over on similar automata without storing any information from the previous calculations.
  
- For example, for some traces even the inital abstraction is enough to see that the error location is unreachable that way. Since CEGAR-based algorthms focus on the traces where the error location is reachable, the model-checking algorithm will keep unnecessarily exploring the same traces (where the location is not reachable) -- with growing complexity in each iteration as the automaton is refined. On the other hand -- especially when using depth first seach -- the counterexamples may be similar: the first few locations and transitions of two consecutive counterexamples are usually the same. Considering this during the analysis of the counterexample could increase efficiency, since the simulation of the first few steps are already completed, it can continue from the first step that differs.
+ For example, for some traces even the initial abstraction is enough to see that the error location is unreachable that way. Since CEGAR-based algorithms focus on the traces where the error location is reachable, the model-checking algorithm will keep unnecessarily exploring the same traces (where the location is not reachable) -- with growing complexity in each iteration as the automaton is refined. On the other hand -- especially when using depth first search -- the counterexamples may be similar: the first few locations and transitions of two consecutive counterexamples are usually the same. Considering this during the analysis of the counterexample could increase efficiency, since the simulation of the first few steps are already completed, it can continue from the first step that differs.
  
 
   
@@ -26,17 +26,17 @@ discussed.
 
 %\todo{Szétszedni az ötletet, a megvalósítást, és a szemléltetést}
 
-My algorithm is explained in this section. To ease understanding it is also demonstrated on the automaton on Figure \ref{fig:loopinfinite}, with the error location being the location $end$.
+My algorithm is explained in this section. To ease understanding it is also demonstrated on the automaton in Figure \ref{fig:loopinfinite}, with the error location being the location $end$.
 
 \subsection{Overview}
 
- Due to these disadvantages discussed above I have decided that my approach of applying CEGAR to the reachability analysis of timed automata will modify the reachability algprithm instead of using it as a black box module. My approach applies abstraction to the zone graph of the automaton, instead of the automaton itself. The reachability algorithm (which will now be a CEGAR-based algorithm) will refine the zonegraph iteration by iteration until reachability can be decided. The CEGAR-loop is interpreted the following way.
+ Due to these disadvantages discussed above I have decided that my approach of applying CEGAR to the reachability analysis of timed automata will modify the reachability algorithm instead of using it as a black box module. My approach applies abstraction to the zone graph of the automaton, instead of the automaton itself. The reachability algorithm (which will now be a CEGAR-based algorithm) will refine the zone graph iteration by iteration until reachability can be decided. The CEGAR loop is interpreted the following way.
 
  \begin{description}
- 	\item[Initial abstraction] The key problem about constructing the initial abstraction of the zone graph is that the zone graph is unknown so the abstraction has to be derived from the automaton itself. The idea is really simple: just like the other approaches I also use the location graph of the automaton as the initial abstraction, except in my algorithm it is considered to be the abastraction of the zone graph, not the automaton. To create an overapproximation of the zones, we simply consider every valuations to be reachable in all locations. The zone containing all valuations is denoted by $z_\infty$.
- 	\item[Model-checking] Since the abstract zone graph is an abstraction of the reachability graph, model checking becomes a pathfinding problem in the current abstraction of the zone graph. The error location is either proven unreachable or a new trace (path in the graph) is found from the initial node to the target node.
- 	\item[Analysis] This part is about finding out if the error location is really reachable on the trace found in the model-checking phase. The way to do that is by finding out how this path of the abstract zone graph would look like in the refined (real) zone graph. This can be achieved by using the reachability algorithm, but only for the given trace. As discussed in Section \ref{sec:reach}, because of the operation \emph{split} sometimes the real zone graph can branch, which means that the result of the simulation may be a tree instead of a simple path. Nevertheless, it is still easy to decide wether the counterexample is valid: if the error location could be reached by the path (on any branch), then the counterexample is valid. Otherwise, simulation will stop somewhere, typically because one of the transitions (on each branches) is not enabled. In this case the counterexample is spurious.
- 	\item[Refinement] In order to avoid the discussed disadvantages, this algorithm stores as many information of the analysis pahase as it can - by replacing the counterexample trace in the abstraction of the zone graph with the calculated subgraph (tree) -- thus refining the abstraction.
+ 	\item[Initial abstraction] The key problem about constructing the initial abstraction of the zone graph is that the zone graph is unknown so the abstraction has to be derived from the automaton itself. The idea is really simple: just like the other approaches I also use the location graph of the automaton as the initial abstraction, except in my algorithm it is considered to be the abstraction of the zone graph, not the automaton. To create an overapproximation of the zones, we simply consider every valuations to be reachable in all locations. The zone containing all valuations is denoted by $z_\infty$.
+ 	\item[Model checking] Since the abstract zone graph is an abstraction of the reachability graph, model checking becomes a pathfinding problem in the current abstraction of the zone graph. The error location is either proven unreachable or a new trace (path in the graph) is found from the initial node to the target node.
+ 	\item[Analysis] This part is about finding out if the error location is really reachable on the trace found in the model-checking phase. The way to do that is by finding out how this path of the abstract zone graph would look like in the refined (real) zone graph. This can be achieved by using the reachability algorithm, but only for the given trace. As discussed in Section \ref{sec:reach}, because of the operation \emph{split} sometimes the real zone graph can branch, which means that the result of the simulation may be a tree instead of a simple path. Nevertheless, it is still easy to decide whether the counterexample is valid: if the error location could be reached by the path (on any branch), then the counterexample is valid. Otherwise, simulation will stop somewhere, typically because one of the transitions (on each branches) is not enabled. In this case the counterexample is spurious.
+ 	\item[Refinement] In order to avoid the discussed disadvantages, this algorithm stores as many information of the analysis phase as it can - by replacing the counterexample trace in the abstraction of the zone graph with the calculated subgraph (tree) -- thus refining the abstraction.
  \end{description}
 
  
@@ -45,8 +45,8 @@ My algorithm is explained in this section. To ease understanding it is also demo
  	\begin{minipage} {0.2\linewidth}%
  		\vspace*{10pt}%
  		\includegraphics [width=\textwidth]{include/figures/loop_initial_abst}%
- 		\caption{Initial \\ abstraction}
- 		\label{fig:loopinitabst}
+ 		\caption{Initial abstraction}
+ 		\label{fig:x}
  	\end{minipage}%
  	\hspace{20pt}	%
  	\begin{minipage} {0.2\linewidth}%
@@ -68,17 +68,17 @@ My algorithm is explained in this section. To ease understanding it is also demo
  
 \subsection{Details}
 
-It is very important to perform the presented operations correctly. This section explains the algorithm step by step, demonstrating it on the example automaton on Figure \ref{fig:loopinfinite}.
+It is very important to perform the presented operations correctly. This section explains the algorithm step by step, demonstrating it on the example automaton in Figure \ref{fig:loopinfinite}.
 
 Constructing the initial abstraction is very straight forward: each node of the locationgraph are to be completed with the zone $z_\infty$. After that, model checking is simply a path finding in the current abstraction of the zone graph.
 
 \begin{example}
-	The initial abstraction of the example automaton's zone graph is depicted on Figure \ref{fig:loopinitabst}. The first counterexample is denoted with bald arrows.
+	The initial abstraction of the example automaton's zone graph is depicted in Figure \ref{fig:x}. The first counterexample is denoted with bald arrows.
 \end{example}
 
 Simulation of the counterexample is performed by constructing the relevant part of the real zone graph. In the first iteration each nodes on the path will contain $z_\infty$. In this case, refinement starts from the node that belongs to the initial location and the refined zone is calculated as the initial zone of the zone graph.
 
-The result of pathfinding in the graph on Figure \ref{fig:loopinitabst} is denoted by bold arrows. In case of the later iterations the first few nodes of the
+The result of pathfinding in the graph in Figure \ref{fig:x} is denoted by bold arrows. In case of the later iterations the first few nodes of the
 trace will already be refined, so the refinement can start from the first
 abstract node. The reachable zone should be calculated from the last refined zone,
 considering the guards and the reset as when constructing the zone graph.
@@ -93,12 +93,12 @@ and the CEGAR algorithm terminates. Otherwise, at some point a guard or a target
 is not satisfied -- the transition is not enabled. The corresponding edge is removed and the analysis of the path terminates.
 
 \begin{example}
-	Consider the example. Since it is the first iteration, we start by constructing the initial node, $\langle start, x=y \rangle$. After that we calculate the next node on the trace $\langle loop, x=y \leq 10 \rangle$. When constructing the zone graph, we continued with the transition represented by the loop-edge but this time we only have to explore the zone graph through the transitions in the counterexample. The next transition is the transition represented by the edge directed to node $\langle end, z_\infty \rangle$. This transition is not enabled in the previously calculated zone, which means the counterexample is spurious. The resulting subgraph of the zonegraph is depicted on Figure \ref{fig:loopanal}.
+	Consider the example. Since it is the first iteration, we start by constructing the initial node, $\langle start, x=y \rangle$. After that we calculate the next node on the trace $\langle loop, x=y \leq 10 \rangle$. When constructing the zone graph, we continued with the transition represented by the loop-edge but this time we only have to explore the zone graph through the transitions in the counterexample. The next transition is the transition represented by the edge directed to node $\langle end, z_\infty \rangle$. This transition is not enabled in the previously calculated zone, which means the counterexample is spurious. The resulting subgraph of the zone graph is depicted in Figure \ref{fig:loopanal}.
 \end{example}
 
-The goal of refinement is to eliminate the spurious counterexample from the abstract representation. Refinement is applied by replacing the abstract counterexample with the subgarph of the real zonegraph calculated in the \emph{Analysis} phase. This operation has to be performed very carefully.
+The goal of refinement is to eliminate the spurious counterexample from the abstract representation. Refinement is applied by replacing the abstract counterexample with the subgraph of the real zone graph calculated in the \emph{Analysis} phase. This operation has to be performed very carefully.
 
-Consider e.g. that the node in the abstract graph that is about to get replaced by one (or more) nodes in the subgarph has other incoming edges than the one in the counterexample. Since it is unknown what states are reachable in the location by the other incoming edges, the node can't be removed. Except, the edge representing the transition in the counterexample has to be redirected to the node with the calculated zone (if there are multiple nodes, it has to be replicated).
+Consider e.g. that the node in the abstract graph that is about to get replaced by one (or more) nodes in the subgraph has other incoming edges than the one in the counterexample. Since it is unknown what states are reachable in the location by the other incoming edges, the node can't be removed. Except, the edge representing the transition in the counterexample has to be redirected to the node with the calculated zone (if there are multiple nodes, it has to be replicated).
 
 Let us suppose that the graph is prepared to place the new node(s). To avoid wasting memory it is advised to use already refined zones in the graph. If the refined zone $z$ of the node $\langle l,z \rangle$ is a subzone of a zone $z'$ in a node $\langle l,z' \rangle$ (both nodes
 contain the same location $l$), then any state that is reachable from $\langle l,z \rangle$ is also reachable from $\langle l,z' \rangle$, thus there is no need to add  $\langle l,z \rangle$ to the graph. Instead, any edge leading to  $\langle l,z \rangle$ should be redirected to $\langle l,z' \rangle$. After that the replacement of the path can not continue from that $\langle l,z' \rangle$, since there might be more states reachable from $\langle l,z' \rangle$ than from $\langle l,z \rangle$. The remaining of the refined zones have to be recalculated and then the replacement can continue.
@@ -106,7 +106,7 @@ contain the same location $l$), then any state that is reachable from $\langle l
 When replacing the node, the outgoing edges should also be considered. The calculated subtree of the real zone graph only contained the edges in the trace, but in the abstract zone graph there are other outgoing edges of the node. These edges are the outgoing edges of the original (abstract) node in the zone graph, and they have to be replicated, as outgoing edges from the added node(s). After this we can continue with the next node.
 
 \begin{example}
-In the example replacing the initial node can simply be performed by replacing the zone $z_\infty$ with the zone $x=y$. On the other hand, replacing the node $loop$ has to be performed carefully. Since the loop-edge is an incoming edge of the node and is not part of the counterexample, the node can not be replaced. Instead, the incoming edge on the trace is redirected to the new node (in other words, the one to the original node is removed). Since a new node is added, we have to think about it's outgoing edges that are not on the trace -- in this case the only one is the loop edge. For reasons explained before, the loop edge has to be redirected to the abstract version of the node. Thus, the refinement is finished, and now the counterexample is eliminated from the abstract zone graph. Th resulting graph is depicted on Figure \ref{fig:loopref}.
+In the example replacing the initial node can simply be performed by replacing the zone $z_\infty$ with the zone $x=y$. On the other hand, replacing the node $loop$ has to be performed carefully. Since the loop-edge is an incoming edge of the node and is not part of the counterexample, the node can not be replaced. Instead, the incoming edge on the trace is redirected to the new node (in other words, the one to the original node is removed). Since a new node is added, we have to think about it's outgoing edges that are not on the trace -- in this case the only one is the loop edge. For reasons explained before, the loop edge has to be redirected to the abstract version of the node. Thus, the refinement is finished, and now the counterexample is eliminated from the abstract zone graph. Th resulting graph is depicted in Figure \ref{fig:loopref}.
 \end{example}
 
 
@@ -118,7 +118,7 @@ In the example replacing the initial node can simply be performed by replacing t
 
 It is important to prove that the algorithm is correct, and that it terminates. Both proof relies on that of the original algorithm.
 
-The algorithm always terminates, because the abstraction of zone graph gets refined in every iteration. Even at worst case, the algoritm stops when the zone graph is completely refined.
+The algorithm always terminates, because the abstraction of zone graph gets refined in every iteration. Even at worst case, the algorithm stops when the zone graph is completely refined.
 
 The algorithm is correct, because the original algorithm is correct. If the algorithm finds a counterexample, it is a trace in the original algorithm. Otherwise, if there is a counterexample in the original algorithm, this algorithm finds it at some point.
 
