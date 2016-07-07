@@ -36,8 +36,8 @@ Two kinds of operations are defined. The state $\langle l,v \rangle$ has a
 \emph{discrete transition} to $\langle l',v' \rangle$  if there is an
 edge $e(l,g,r,l') \in E$ in the automaton such that 
 \begin{itemize}
-	\item $v$ satisfies $g$ 
-	\item $v'$ assigns 0 to any $c \in r$ and assigns $v(c)$ otherwise, and
+	\item $v$ satisfies $g$, 
+	\item $v'$ assigns 0 to any $c \in r$ and assigns $v(c)$ to any $c \not\in r$, and
 	\item $v'$ satisfies $I(l')$. 
 \end{itemize}
 The state $\langle l,v \rangle$ has a \emph{time transition} to $\langle l,v' \rangle$ if
@@ -63,37 +63,30 @@ where $l_0$ is the initial location and $z_0$ contains the valuations reachable 
 Next, for each outgoing edge $e$ of the initial location (in the automaton) a new node  $\langle l,z \rangle$ is created (in the zone graph) with an edge
 $\langle l_0,z_0 \rangle \to \langle l,z \rangle$, where $\langle l,z \rangle$ contains the states to which the states in $\langle l_0,z_0 \rangle$ have a discrete transition through $e$. Afterwards $z$ is replaced by $z^\uparrow$.  The procedure is repeated on every newly introduced node of the zone graph. If the states defined by a newly introduced node $\langle l,z \rangle$ are all contained in an already existing node $\langle l,z' \rangle$, $\langle l,z \rangle$ can be removed, and the incoming edge should be redirected to $\langle l,z' \rangle$.
 
-\begin{figure} [b]
+\begin{figure} [h]
 	\centering
-		\begin{minipage}[c] {0.25\linewidth}%
-	%		\vspace*{1pt}%
-		\includegraphics [width=\textwidth]{include/figures/loop_example_finite}%
-		%\caption{Example of a timed automaton}
-		\label{fig:loopfinite}
-		\end{minipage}%
-	%	%
-		\begin{minipage}[c] {0.25\linewidth}%
-			\includegraphics [width=\textwidth] {include/figures/loop_finite_zonegraph}%
-	%		\vspace*{4pt}%
-	%		\caption{Timed automaton}
-			\label{fig:loopfinitegraph}
-		\end{minipage}
-	\caption{Timed automaton and its zone graph}
+	\includegraphics [width=.7\textwidth]{include/figures/splitexample_aut}%
+	\label{fig:splitexample}
+	\caption{Timed automaton example}
 \end{figure}  
 
-%\todo{Example környezet}
+
 \begin{example}
 	
 
 
-For ease of understanding the algorithm is demonstrated on the automaton in Figure \ref{fig:loopfinite}. The inital state is  $\langle start, z_0 \rangle$ where $z_0$ is a zone containing only the initial valuation $v_0(x)=0, v_0(y)=0$. The initial node is  $\langle start, z_0^\uparrow  \rangle$, where $z_0^\uparrow$ contains all states reachable form the initial state by delay. Since as time passes, the values of the two clocks will be incremented by the same value, $x$ and $y$ has the same value in each valuation contained by $z_0^\uparrow$. Since there is no invariant in location $start$ $x$ and $y$ can take any positive value. Because of this $z_0$ can be defined by the constraint $x=y$ (that is, $x-y = 0$), and the initial node can be defined as $\langle start; x=y  \rangle$.
+For ease of understanding the algorithm is demonstrated on the automaton in Figure \ref{fig:splitexample}. The inital state is  $\langle S0, z_0 \rangle$ where $z_0$ is a zone containing only the initial valuation $v_0 \equiv 0$. The initial node is  $\langle start, z_0^\uparrow  \rangle$, where $z_0^\uparrow$ contains all states reachable form the initial state by delay. Since as time passes, the values of the three clocks will be incremented by the same value, $x$, $y$ and $z$ has the same value in each valuation contained by $z_0^\uparrow$. Since there is no invariant in location $S0$ the clocks can take any positive value. Because of this $z_0$ can be defined by the constraint $x=y=z$ (that is, $x-y = 0 \wedge y-z=0 $), and the initial node can be defined as $\langle S0; x=y=z  \rangle$.
 
-There is only one outgoing transition from location $start$ and that resets both $x$ and $y$, resulting in the same zone $z_0$ like before. The invariant $x \leq 10$ of location $loop$ is satisfied by $z_0$, but we have to consider it when calculating the valuations reachable by delay - only the states satisfying $x \leq 10$ of $z_0^\uparrow$ are reachable. The node of the graph can be defined as $\langle loop, x=y \wedge x<10 \rangle$.
+There is only one outgoing transition from the initial location and that resets $z$, resulting in the zone defined by $x=y \wedge z=0$, which transforms into $z \leq x=y$ when delay is applied. This means the next node of the graph can be defined as $\langle S1, z \leq x=y \rangle$. There is only one outgoing transition from the location $S1$ and it has guard $y>2$. This means the transition is only enabled in the subzone $z \leq x=y>2$ (that is $z \leq x \wedge x=y \wedge y>2$). Th transition resets $y$ resulting in the zone $y=0 \wedge z \leq x > 2$. Delay can be applied and the next node of the graph turns out to be $\langle S2, z \leq x \wedge y \leq z \wedge x-y>2 \rangle$.
 
-There are two outgoing transitions from this node. The loop transition resets the clocks resulting in $z_0$ again in node $loop$. From this we know that instead of creating a new node in the graph, this time we only have to create a loop-edge from the last node.
+There outgoing transition from location $S2$ has a guard $x<z+1 \wedge z<y+1$ from which we can determine $x<y+2$ contradicting the atomic constraint $x-y>2$ in the reachable zone of location $S2$. Thus the transition is never enabled, and location $S3$ is unreachable.  
 
-Since there is no state in $\langle loop, x=y \wedge x \leq 10 \rangle$ where $y \geq 20$ holds, the last transition will never be enabled and the zone graph is finished.
- The result can be seen in Figure \ref{fig:loopfinitegraph}.
+%The invariant $x \leq 10$ of location $loop$ is satisfied by $z_0$, but we have to consider it when calculating the valuations reachable by delay - only the states satisfying $x \leq 10$ of $z_0^\uparrow$ are reachable. The node of the graph can be defined as $\langle loop, x=y \wedge x<10 \rangle$.
+
+%Since there is no state in $\langle loop, x=y \wedge x \leq 10 \rangle$ where $y \geq 20$ holds, the last transition will never be enabled and the zone graph is finished.
+The resulting zone graph is the following.
+
+	\[\langle S0; x=y=z  \rangle \rightarrow \langle S1, z \leq x=y \rangle \rightarrow \langle S2, z \leq x \wedge y \leq z \wedge x-y>2 \rangle \]
 
 \end{example}
 
@@ -115,12 +108,11 @@ Since there is no state in $\langle loop, x=y \wedge x \leq 10 \rangle$ where $y
 	\caption{Timed automaton with infinite zone graph}
 \end{figure} 
 
-Unfortunately, it ispossible that the graph described by the previous algorithm becomes infinite. Consider for example the automaton from \cite{bengtsson2004timed} in Figure \ref{fig:loopinfinite}. The only difference between this automaton and the one in figure \ref{fig:loopfinite}, is that in this automaton the transition represented by the loop edge only resets $x$, but not $y$.
-
+Unfortunately, it is possible that the graph described by the previous algorithm becomes infinite. Consider for example the automaton from \cite{bengtsson2004timed} in Figure \ref{fig:loopinfinite}.
 \begin{example}
-Constructing the zone graph of this automaton starts similarly, with the nodes $\langle start, x=y \rangle$ and $\langle loop, x=y \wedge x<10 \rangle$, where only the loop-transition is enabled.
+Constructing the zone graph of this automaton starts similarly, with the node $\langle start, x=y \rangle$. After that both $x$ and $y$ are reset resulting in the zone defined by $x=y=0$. Location $loop$ has an invariant $x \leq 10$ that limits the applicable delay to 10, resulting in $\langle loop, x=y \leq 10 \rangle$, where only the loop-transition is enabled.
 
-This time the transition only resets $x$ resulting in $\langle loop, x=0 \wedge y=10 \rangle$. Because of the invariant, only 10 units of delay is enabled, resulting in the node $\langle loop, x \leq 10 \wedge y \leq 20 \wedge y-x=10 \rangle$.
+Tthe transition resets $x$ resulting in $\langle loop, x=0 \wedge y=10 \rangle$. Still only 10 units of delay is enabled, resulting in the node $\langle loop, x \leq 10 \wedge y-x=10 \rangle$.
 
 From this node, both transitions are enabled. The loop transition increases the difference between $x$ and $y$ yielding the new node $\langle loop, x \leq 10 \wedge y \leq 30 \wedge y-x=20 \rangle$, while the other transition resets both clocks, resulting in the new node $\langle end, x=y \rangle$.
 
@@ -243,7 +235,7 @@ Applying split results in a zone graph, that is a correct and finite representat
 
 The CEGAR approach introduced in \cite{clarke2003counterexample} makes
 abstraction refinement a key part of model checking. The idea is illustrated on
-Fig. \ref{fig:cegar}.
+Figure \ref{fig:cegar}.
 
 First, an abstract system is constructed. The key idea behind abstraction is
 that the state space of the abstract system overapproximates that of the original
