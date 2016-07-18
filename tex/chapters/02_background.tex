@@ -65,9 +65,9 @@ $\langle l_0,z_0 \rangle \to \langle l,z \rangle$, where $\langle l,z \rangle$ c
 
 \begin{figure} [h]
 	\centering
-	\includegraphics [width=.7\textwidth]{include/figures/splitexample_aut}%
-	\label{fig:splitexample}
+	\includegraphics[width=.7\textwidth]{include/figures/splitexample_aut}
 	\caption{Timed automaton example}
+	\label{fig:splitex}
 \end{figure}  
 
 
@@ -75,7 +75,7 @@ $\langle l_0,z_0 \rangle \to \langle l,z \rangle$, where $\langle l,z \rangle$ c
 	
 
 
-For ease of understanding the algorithm is demonstrated on the automaton in Figure \ref{fig:splitexample}. The inital state is  $\langle S0, z_0 \rangle$ where $z_0$ is a zone containing only the initial valuation $v_0 \equiv 0$. The initial node is  $\langle start, z_0^\uparrow  \rangle$, where $z_0^\uparrow$ contains all states reachable form the initial state by delay. Since as time passes, the values of the three clocks will be incremented by the same value, $x$, $y$ and $z$ has the same value in each valuation contained by $z_0^\uparrow$. Since there is no invariant in location $S0$ the clocks can take any positive value. Because of this $z_0$ can be defined by the constraint $x=y=z$ (that is, $x-y = 0 \wedge y-z=0 $), and the initial node can be defined as $\langle S0; x=y=z  \rangle$.
+For ease of understanding the algorithm is demonstrated on the automaton in Figure \ref{fig:splitex}. The inital state is  $\langle S0, z_0 \rangle$ where $z_0$ is a zone containing only the initial valuation $v_0 \equiv 0$. The initial node is  $\langle start, z_0^\uparrow  \rangle$, where $z_0^\uparrow$ contains all states reachable form the initial state by delay. Since as time passes, the values of the three clocks will be incremented by the same value, $x$, $y$ and $z$ has the same value in each valuation contained by $z_0^\uparrow$. Since there is no invariant in location $S0$ the clocks can take any positive value. Because of this $z_0$ can be defined by the constraint $x=y=z$ (that is, $x-y = 0 \wedge y-z=0 $), and the initial node can be defined as $\langle S0; x=y=z  \rangle$.
 
 There is only one outgoing transition from the initial location and that resets $z$, resulting in the zone defined by $x=y \wedge z=0$, which transforms into $z \leq x=y$ when delay is applied. This means the next node of the graph can be defined as $\langle S1, z \leq x=y \rangle$. There is only one outgoing transition from the location $S1$ and it has guard $y>2$. This means the transition is only enabled in the subzone $z \leq x=y>2$ (that is $z \leq x \wedge x=y \wedge y>2$). Th transition resets $y$ resulting in the zone $y=0 \wedge z \leq x > 2$. Delay can be applied and the next node of the graph turns out to be $\langle S2, z \leq x \wedge y \leq z \wedge x-y>2 \rangle$.
 
@@ -96,19 +96,19 @@ The resulting zone graph is the following.
 		%		\vspace*{1pt}%
 		\includegraphics [width=\textwidth]{include/figures/loop_example_original}%
 		%\caption{Example of a timed automaton}
-		\label{fig:loopinfinite}
 	\end{minipage}%
 	%	%
 	\begin{minipage}[c] {0.7\linewidth}%
 		\includegraphics [width=\textwidth] {include/figures/loop_original_zonegraph}%TODO: ezt majd még vektorosítani
 		%		\vspace*{4pt}%
 		%		\caption{Timed automaton}
-		\label{fig:loopinfinitegraph}
 	\end{minipage}
 	\caption{Timed automaton with infinite zone graph}
+	\label{fig:loopinfinite}
 \end{figure} 
 
 Unfortunately, it is possible that the graph described by the previous algorithm becomes infinite. Consider for example the automaton from \cite{bengtsson2004timed} in Figure \ref{fig:loopinfinite}.
+
 \begin{example}
 Constructing the zone graph of this automaton starts similarly, with the node $\langle start, x=y \rangle$. After that both $x$ and $y$ are reset resulting in the zone defined by $x=y=0$. Location $loop$ has an invariant $x \leq 10$ that limits the applicable delay to 10, resulting in $\langle loop, x=y \leq 10 \rangle$, where only the loop-transition is enabled.
 
@@ -117,7 +117,7 @@ Tthe transition resets $x$ resulting in $\langle loop, x=0 \wedge y=10 \rangle$.
 From this node, both transitions are enabled. The loop transition increases the difference between $x$ and $y$ yielding the new node $\langle loop, x \leq 10 \wedge y \leq 30 \wedge y-x=20 \rangle$, while the other transition resets both clocks, resulting in the new node $\langle end, x=y \rangle$.
 
 As we take the new node containing the location $loop$, and apply the loop transition over and over, a new node is always constructed with the difference growing. On the other hand, the other transition always results in $\langle end, x=y \rangle$.
-Hence the (infinite) zone graph in Figure \ref{fig:loopinfinitegraph}.
+Hence the (infinite) zone graph in Figure \ref{fig:loopinfinite}.
 
 \end{example}
 	
@@ -144,16 +144,8 @@ Implicitely $y \leq 40$ and $y-x \leq 30$. These constraints have to be removed 
 
 Using normalization the zone graph is finite, but unreachable states may appear in it. If the automaton doesn't have any guard or invarint of the form $c_1 - c_2 < n$, the reachability of the location in question will be answered correctly. Otherwise, the algorithm may terminate with a false positive result.
 
-\begin{figure} [h]
-	\centering
-	\includegraphics [width=0.7\textwidth] {include/figures/norm_incorrect_aut}%TODO: ezt majd még szépíteni
-	%		\vspace*{4pt}%
-	\caption{Timed automaton with incorrect graph after normalization}
-	\label{fig:splitaut}
-\end{figure}
-
 \begin{example}
-	To demonstrate the incorrectness of the algorithm, consider the automaton in Figure \ref{fig:splitaut}, with the error location $S3$. The reachabble states of the automaton (by calculations) are $\langle S0,x=y=z \rangle$, $\langle S1,z \leq x=y \rangle$ and $\langle S2,z \leq y \leq z \leq y \wedge x-y > 2\rangle$ -- $S3$ is unreachable. Applying normalization results in the states $\langle S0,x=y=z \rangle$ (unchanged), $\langle S1,z \leq x=y \rangle$ (unchanged), $\langle S2,z \leq y \leq z \leq y \wedge x-y > 1\rangle$ (changed), making $S3$ seem reachable.
+	To demonstrate the incorrectness of the algorithm, consider again the automaton in Figure \ref{fig:splitex}. Recall that the reachabble states of the automaton (by our calculations) were $\langle S0,x=y=z \rangle$, $\langle S1,z \leq x=y \rangle$ and $\langle S2,z \leq y \leq z \leq y \wedge x-y > 2\rangle$ -- $S3$ is unreachable. Applying normalization leaves the states $\langle S0,x=y=z \rangle$ and $\langle S1,z \leq x=y \rangle$ unchanged, but the normalizing the reachable state in $S2$ results in $\langle S2,z \leq y \leq z \leq y \wedge x-y > 1\rangle$, where the guard can be satisfied, thus making $S3$ reachable.
 \end{example}
 
 The operation \emph{split} \cite{bengtsson2004timed} is introduced to assure correctness. Instead of
@@ -161,7 +153,7 @@ normalizing the complete zone, it is first split along the difference constraint
 then each subzone is normalized, and finally the initially satisfied constraints are reapplied to each normalized subzone. The result is a set of zones (not just one zone like before), which means multiple new nodes have to be introduced to the zone graph (all with edges representing the same transition from the original node).
 
 \begin{example}
-To demonstrate the effects of split, let us construct the zone graph of the automaton of Figure \ref{fig:splitaut}. The original node remains  $\langle S0,x=y=z \rangle$, but the next node is first split along the difference constraint $x-z<1$. Instead of the node $\langle S1,z \leq x=y \rangle$, this time there are two nodes: $\langle S1, x=y \wedge x-z<1 \rangle$ and $\langle S1, x=y \wedge x-z \geq 1 \rangle$.
+To demonstrate the effects of split, let us construct the zone graph of the automaton of Figure \ref{fig:splitex}. The original node remains  $\langle S0,x=y=z \rangle$, but the next node is first split along the difference constraint $x-z<1$. Instead of the node $\langle S1,z \leq x=y \rangle$, this time there are two nodes: $\langle S1, x=y \wedge x-z<1 \rangle$ and $\langle S1, x=y \wedge x-z \geq 1 \rangle$.
 
 From  $\langle S1, x=y \wedge x-z<1 \rangle$,  $\langle S2,x-z \leq 1 \wedge z-y \leq 1\rangle$ is reachable, where the transition to location $S3$ is not enabled because of the guard $x-z < 1$.
 
