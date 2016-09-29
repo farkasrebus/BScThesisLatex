@@ -11,15 +11,15 @@ if not exist "out\" mkdir "out\"
 if not exist "out\include\" mkdir "out\include\"
 if not exist "out\chapters\" mkdir "out\chapters\"
 cd tex
-latexmk -pdf -cd -outdir=../out -jobname=Rebus_MSc_thesis -interaction=nonstopmode -file-line-error main
-copy ..\out\Rebus_MSc_thesis.pdf .. >nul
+latexmk -pdf -cd -outdir=../out -jobname=Rebus_TDK_paper -interaction=nonstopmode -file-line-error main
+copy ..\out\Rebus_TDK_paper.pdf .. >nul
 popd
 goto end
 
 :clean
 pushd %~dp0
 rd /q /s "out\" 2>nul
-del /q "Rebus_MSc_thesis.pdf" 2>nul
+del /q "Rebus_TDK_paper.pdf" 2>nul
 popd
 goto :end
 
