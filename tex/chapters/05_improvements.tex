@@ -1,15 +1,93 @@
 \chapter{Improvements}
 
+\todo{Kéne egy jobb cím, hogy ez lehessen alcím}
+
+This chapter provides some improvement ideas of the algorithm defined in Chapter \ref{chap:timed_cegar}. First, some additional background knowledge is presented that provides the base of the improvement methods. Secondly, the improvements
+
 \section{Background}
 
-Szerintem ennek itt külön kell lennie, mivel a nagy background részben furán venné ki magát.
+\todo {Szerintem ennek itt külön kell lennie, mivel a nagy background részben furán venné ki magát. ...Igazából így is fura. Ezt még ki kell találni.}
 
 \subsection{Online pathfinding}
-\subsection{Activity, Equality}
+\subsection{Activity, Equality} %Abstractions on clock variables?
 
-\section{Improvement}
+In \cite{RSS96*73} two abstractions are proposed to reduce the number of clock variables in timed automata, or rather in the locations of timed automata. These abstractions are \emph{exact} (they hide unimportant parts of the system without losing information about the desired property) and can be calculated by simple preprocessing algorithms. The key idea is to examine each of the locations and tell if some clock variable is unnecessary, either because their value is never checked or because they are represented by other clocks having the same value. After these local reductions the number of necessary clock variables of the automaton can be defined by the maximum of necessary clocks in the locations.
 
-\todo{ötletek felsorolása}
+\subsubsection{Activity}
+
+By definition a clock $c$ is considered \emph{active} in a certain location $l$ ($c \in act(l)$) if their value can affect the (future) operation of the system. Practically a clock is active between the point of reset and a point of check (by a guard or a location invariant). Naturally the reset and check events don't always come alternately as there are many paths going though the same location, so calculating activity is not trivial, but it is indeed simple.
+ 
+It is easy to see that $c \in act(l)$ for any $c \in clk(l)$ -- that is, the set of clocks appearing in the invariant of the location or in any of the guards of the outgoing transitions. The algorithm calculates $clk(l)$ for each location $l$ and then expands these sets iteratively by the following rule: for each edge $e(l,g,r,l')$ $act(l) := act(l) \cup ( act(l') \setminus r )$.
+
+\todo{valami szép példa}
+
+\subsubsection{Equality}
+
+Two clocks $c_1$ and $c_2$ are considered \emph{equal} in a location $l$ if $v(c_1)=v(c_2)$ for any valuation $v$ reachable in $l$. The algorithm for calculating $equ(l)$ calculates pairwise equality between clocks. It is also iterative, starting from $equ(l)=\mathcal{C} \times \mathcal{C}$ for each location $l$ and narrowing iteratively considering preceding locations and incoming edges.
+
+Activity and equality can be combined, allowing a high level of abstraction without loss of precision.
+
+\subsubsection{Renaming} \todo{kell ez a rész?}
+
+The paper also suggest renaming methods to avoid unnecessary clock variables. E.g. if the automaton operates on $n$ clocks and applying activity reveals that at most $k < n$ clock variables are needed in each locations, a table of size $n \times |\mathcal{L}|$ can be constructed to show which of the $k$ new clock variables represent a given clock at a given location.
+
+\subsection{Interpolants}
+
+
+\section{Methods of improvement}
+
+\subsection{Model checking using online pathfinding}
+
+\todo{Ide még az Online pathfinding felhasználása Counterexamplekhez}
+
+\subsection{Precision}
+
+In \cite{RSS96*73} activity and equality were treated as if they were some sort of structural properties of the automaton. Obviously, the presented preprocessing methods can be applied before any reachability algorithm (for timed automata), including the one presented in Chapter \ref{chap:timed_cegar}, but -- as this section will prove -- the idea of activity and equality has more to offer. First, an obvious remark to anyone operating on the reachability graph with zones implemented as difference bound matrices: only the rows and columns of active clocks have to be included in the stored matrix (and they can even be sorted into equality groups), thus the nodes of the graph require less space. (This way the renaming process is not necessary.)
+
+It may be even more useful in the algorithm presented in Chapter \ref{chap:timed_cegar}. The described algorithm refines the path completely. Applying the upper-mentioned idea reduces the number of clocks but still provides more information than necessary to decide if a counterexample is feasible.
+
+\todo{példa, ahol a trace activity jóval kevesebb órát tartalmaz, mint a sima}
+
+Instead of refining every node completely the idea is to select the necessary clock variables in each node of the graph, and only refine to that precision. Interestingly, this can be obtained very simply, using the idea of activity.
+
+\subsubsection{Trace Activity}
+
+\emph{Trace activity} is a function that assigns to the nodes of a trace (a counterexample of the reachability graph of a timed automaton) the set of clocks whose values are necessary to decide if it is a valid execution trace.
+
+Let us describe a trace by \[\sigma : n_0 \xrightarrow{e_1} n_1 \dots \xrightarrow{e_k} n_k=n_{error}\] where $n_i$-s represent nodes and $e_i$-s represent edges of the zone graph (and not the automaton).
+
+Calculating trace activity starts from the last node $n_{error}$ containing the location $l_{error}$. Obviously, non of the clocks are necessary in this node since we are only interested in whether or not the location is reachable. However, if there is an invariant of the location $l_{error}$, then it is important for the affected variables to be included in $Act_{\sigma}(n_{k-1})$ to decide if the last transition of $\sigma$, represented by edge $e_k$ is enabled. This can either mean $Act_{\sigma}(n_{error})=\emptyset$ and $clk(Inv(l_{error}))$  -- that is, the clocks apperaing in the invariant of the error location -- will have to be considered when calculating $Act_{\sigma}(n_{k-1})$ or simply $Act_{\sigma}(n_{error})=clk(Inv(l_{error))$. (However, it is quite unusual for error locations to have invariants.) For other nodes trace activity can be calculated by
+
+\[ Act_{\sigma}(n_i) := Act_{\sigma}(n_{i+1}) \setminus r_k \cup g_k \cup clk(Inv(l_i)) \]
+		
+ for all  $0 \leq i \leq k-1$ where $r_k$, $g_k$ and $l_i$ appear in the edge $e(l_i,g_k,r_k,l_{i+1})$ (of the automaton) represented by $e_k$.
+ 
+ \todo{példa}
+ 
+\subsubsection{Application}
+
+Calculating trace activity is simple, but raises questions about operating on zones with different precision. The algorithm explained in Chapter \ref{chap:background} and it's implementation described in \cite{bengtsson2004timed} provide information on calculating the next zone, but do not tell what to do when variables appear and disappear between operations.
+
+\subsubsection{Creating zones}
+
+The first task is to define when (at which operations) does the precision change. As it was stated before activity changes with reset and check events - clocks can apperar when reset is applied, and disappear after guard conditions are checked. Clocks can also disappear \emph{before} guard conditions are applied -- the clocks that are active in the source node only because they appear in the invarint of the location. Of course, the simple solution is to only modify the set of clocks after checking guard conditions and during reset operations.
+
+The next task is to define these operations considering that the matrix has to remain in a closed form. Fortunately, because of the nature of difference bound matrices, operations effecting only one clock variable only modify the row and column belonging to that clock while the other parts (submatrix) remains unchanged. This allows us to simply delete unnecessary rows and columns of the matrix after the guard constraints are applied, and faciliates introducing new variables: new rows and columns have to be added and the values of the matrix elements have to be set to the value \emph{reset} would set them.
+
+\subsubsection{Operations}
+
+These operations were defined to allow adding or removing clocks to and from the base set of a zone while it was created, but sometimes it is necessary to change the base set of a zone after creation. Consider for example, that during some iteration of CEGAR a counterexample $t$ is found with the first few nodes already refined to some precision (because they are also the first part of a previously examined counterexample $t'$). Since trace activity is determined by the subsequent nodes which obviusly differ in $t$ and $t'$ it is possible that the trace activity by $t$ requires different precison than the existing one.
+
+Let $n$ be the first node of $t$ where $Act_t(n) \neq Act_{t'}(n)$. The problem is with the clocks in $Act_{t}(n) \setminus Act_{t'}(n)$. If $n$ is the initial node the clocks can be simply added by adding new rows and columns and making everything equal to everything. Otherwise \todo{valami jobb ötlet, mint újraszámolni az egészet.}
+
+
+\subsubsection{Inclusion}
+
+\todo{Megoldani. Visszatérni a fás megoldáshoz?}
+
+\subsection{\ldots}
+\todo{további ötletek}
+
 
 \section{Implementation details}
 
