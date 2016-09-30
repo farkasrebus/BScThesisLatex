@@ -1,59 +1,8 @@
 \chapter{Introduction}
 \label{chap:introduction}
-It is important to be able to model and verify timed behavior of
-real-time safety-critical systems. One of the most common timed formalisms is 
-the timed automaton that extends the finite automaton formalism
-with real-valued variables -- called clock variables -- representing the elapse
-of time.
 
-A timed automaton can represent two aspects of the behavior. The discrete behavior
-is represented by locations and discrete variables with finite sets of possible
-values. The time-dependent behavior is represented by the clock variables, with
-a continuous domain.
-
-A timed automaton can take two kinds of steps, called transitions: discrete and timed.
-A discrete transition changes the automaton's current location and the values of the discrete variables. In addition, it can also reset clock variables, which means it can set their value to 0.
-Time transitions represent the elapse of time by increasing the value of each clock variable by the same amount. They can not modify the values of discrete variables. Transitions can be restricted by guards and invariants.
-
-In case of real-time safety-critical systems, correctness is critical, thus
-formal  analysis by applying model checking techniques is desirable.
-The goal of model checking is to prove that the system represented by the
-model satisfies a certain property, described by some kind of
-logical formula. 
-My research is limited to reachability analysis where the verification examines if a given set of (error) states is reachable in the model. Reachability criterion defines the states of interest.
-
-Many algorithms are known for model checking timed systems, the one which
-defines an efficient abstract domain to handle timed behaviors is presented in
-\cite{bengtsson2004timed}. The abstract domain is called \emph{zone}, and it represents a set of reachable valuations of the clock
-variables. The reachability problem is decided by traversing the so-called \emph{zone graph}
-which is a finite representation (abstraction) of the continuous
-state space.
-
-Model checking faces the so-called state space explosion problem --
-that is, the state space to be traversed can be exponential or even larger compared to the size of the system.
-It is especially true for timed systems: complex timing relations can necessiate a huge number of zones to represent the timed behaviors.
-A possible solution is to use abstraction: a less detailed system description is desired which can
-hide unimportant parts of the behaviors providing less complex state space
-representations.
-
-The idea of counterexample-guided abstraction refinement (CEGAR) \cite{clarke2003counterexample} is to apply 
-model checking to this simpler system, and then examine the results on the original one.
-If the analysis shows that the results are not applicable to the original system, some of the hidden parts have to be re-introduced to the representation of the system -- i.e.,
-the abstract system has to be refined. This technique has been successfully applied to verify many different
-formalisms.
-
-Several approaches have been proposed applying CEGAR on timed automata.  In \cite{kemper2007sat}
-the abstraction is applied on the locations of the automaton. In
-\cite{nagaoka2010abstraction} the abstraction of a timed automaton is an untimed
-automaton. In \cite{dierks2007automatic, he2010compositional}, and
-\cite{okano2011clock} abstraction is applied on the variables of the automaton.
-
-My goal is to develop an efficient model checking algorithm applying the
-CEGAR approach to timed systems. The above-mentioned algorithms modified the timed automaton itself: my new 
-algorithm focuses on the direct manipulation of the reachability graph, represented as a zone graph, which can
-yield the potential to gain finer abstractions.
 
 %The paper is organized as follows... 
 
-\todo{befejezni}
+\todo{Abstract+ kis módosítás}
 

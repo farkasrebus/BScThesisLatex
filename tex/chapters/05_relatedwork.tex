@@ -1,1 +1,20 @@
 \chapter{Related Work}
+
+\todo{Milyen más Timed CEGAR megközelítések vann, és ehhez képest a miénk miben más, és főleg mibven jobb.}
+
+%\todo{Ez csak ide van hányva.}
+%
+% As it was mentioned in Chapter \ref{chap:introduction}, similar approaches have been presented in papers \cite{dierks2007automatic, he2010compositional} and \cite{okano2011clock}. The key idea behind these approaches
+% is to apply abstraction by removing clock variables (and the constraints they appear in) from the automaton. The CEGAR loop is interpreted very similarly in these approaches.
+% 
+% \begin{description}
+% 	\item[Initial abstraction] The location graph (i.e. the automaton without any clock variables) is used as an initial abstraction.
+% 	\item[Model checking] Model checking is applied on the current abstraction of the automaton using \emph{Uppaal}'s algorithm as a module.
+% 	\item[Analysis] Uppaal is also used to simulate the counterexample on the original automaton.
+% 	\item[Refinement] Trivially, clock variables (and constraints they appear in) are added to the automaton, but the important part of the task is choosing which of the clocks to add. There are various approaches for that, including checking where the simulation stops with a synchronized linear automaton, using a SAT solver to analyze the trace expression, and a special algorithm developed for this purpose.
+% \end{description}
+% 
+% It is easy to see that these algorithms all rely on Uppaal's reachability algorithm (explained in Chapter \ref{chap:background}), but all of them uses it as a 'black box' algorithm -- they run it on different inputs, but they do not modify the algorithm itself. The disadvantage of these approaches, is that Uppaal has to run the same reachability analysis over and over on similar automata without storing any information from the previous calculations.
+% 
+% For example, for some traces even the initial abstraction is enough to see that the error location is unreachable that way. Since CEGAR-based algorithms focus on the traces where the error location is reachable, the model-checking algorithm will keep unnecessarily exploring the same traces (where the location is not reachable) -- with growing complexity in each iteration as the automaton is refined. On the other hand -- especially when using depth first search -- the counterexamples may be similar: the first few locations and transitions of two consecutive counterexamples are usually the same. Considering this during the analysis of the counterexample could increase efficiency, since the simulation of the first few steps are already completed, it can continue from the first step that differs.
+

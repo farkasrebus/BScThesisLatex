@@ -1,14 +1,14 @@
 \chapter{Background}
 \label{chap:background}
 
-This chapter defines the important aspects of timed automata and briefly
-explains the reachability algorithm presented in
-\cite{bengtsson2004timed} and demonstrates it on some examples (based on examples, also from \cite{bengtsson2004timed}).
-%The verification of Fischer's protocol is presented as an example. 
-CEGAR is also explained at a high level.
+
+\todo{Ennek a szerkezete még nincs teljesen kitalálva}
+
+%This chapter defines the important aspects of timed automata and briefly explains the reachability algorithm presented in \cite{bengtsson2004timed} and demonstrates it on some examples (based on examples, also from \cite{bengtsson2004timed}). CEGAR is also explained at a high level.
 
 
-\section{Basic Definitions}
+\section{Timed Automata}
+\subsection{Basic Definitions}
 A \emph{valuation} $v(\mathcal{C})$ assigns a non-negative real value
 to each clock variable $c \in \mathcal{C}$, where $\mathcal{C}$ denotes the set of clock
 variables. For bravity, the term \emph{clock} is used as a synonym of {clock variable}.
@@ -49,7 +49,7 @@ The state $\langle l,v \rangle$ has a \emph{time transition} to $\langle l,v' \r
 
 
 
-\section{Reachability Analysis} \label{sec:reach}  
+\subsection{Reachability Analysis} \label{sec:reach}  
 
 A \emph{zone} is a set of nonnegative clock valuations satisfying a set of clock constraints.
 The set of all valuations reachable from a zone $z$ by time transitions is denoted by $z^\uparrow$.
@@ -162,9 +162,9 @@ From $\langle S1, x=y \wedge x-z \geq 1 \rangle$ the resulting zone after firing
 
 Applying split results in a zone graph, that is a correct and finite representation of the state space \cite{bengtsson2004timed}.
 
-\subsection{Implementation}
+%\subsection{Implementation}
 
-\todo{DBM-ről, műveletekről, komplexitásról beszélni!!!}
+\todo{Műveletekről, komplexitásról beszélni!!!}
 
 %\emph{Example:}
 %Fischer's protocol assures mutual exclusion by bounding the execution
@@ -251,3 +251,4 @@ refined system, and the CEGAR loop starts over.
 The algorithm terminates when no more
 counterexamples are found or when a feasible trace is
 given leading to the erroneous state.
+
