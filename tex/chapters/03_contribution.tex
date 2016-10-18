@@ -1,10 +1,34 @@
 \chapter{Configurable Timed CEGAR} \label{chap:timed_cegar}
 
-%In this section an approach of applying CEGAR to the timed automaton is explained. Some details of implementation are also discussed.
+This chapter presents a configurable framework for CEGAR-based reachability analysis of timed automata. 
 
 \section{Generic CEGAR Framework}
 
-CEGAR dobozok, interfészek, cserélgethetőség, stb. ábrával + egy mini pszeudokód
+The key idea of the framework is to provide various implementations of each phases of the CEGAR-loop, by using correspondent parts of CEGAR-based reachability algorithms. Most of these algorithms already exist for other formalisms, and they have to be adapted to timed automata, but some of them are new approaches. The implemented modules can then be combined (that is, the implementation of each phases can be provided by different algorithms) to form new algorithms, and chosing the most effective parts of the original algorithms can result in an even more effective algorithm then the original ones. \todo{diszkrét változókat megemlíteni}
+
+The architecture of the framework is illustrated on \todo{ábra: (két résszel az automatáshoz és az állapottereshez) amin látszanak hogy pontosan mik lesznek a dobozok (milyen interfészek) és mi megy köztük a nyilakon, stb}. As one can see, there are two different realization of the CEGAR-loop. The reason for this is that not all implementations of the CEGAR-phases can be used interchangably, since there are two distict ways CEGAR-loop can be applied to timed automata. The key difference is the basis of the refinement. While the first approach \todo{ábra a) részét referálni} starts from a pure automaton (without any clock variables) and extends the current automaton with some clocks in each iteration \todo{háttérismereteknél referálni} - and thus refines the \emph{automaton}, the other \todo{ábra b) részét referálni} is based on the refinement of the \emph{statespace} itself. Because of this, only algorithms of the same approach can be combined.
+
+\subsection{Automaton-based refinement}
+
+\todo{Fig ... depicts the architecture...} The initial abstraction is a finite automaton that is derived from the original timed automaton by removing all clock variables and clock constraints. 
+
+In each iteration of the CEGAR-loop, the task of the model checking phase is to determine whether the error location is reachable in the current automaton and provide a trace (counterexample) if there is one. Therefore, the implementation should be a reachability-checking algorithm for timed automata that can find a trace to the location.
+
+The task of the analysis phase is to check if the found trace is feasible in the original automaton and if it isn't, provide a set of clock variables that can then be added to the automaton (with the clock constraints they appear in) so that the model checker won't find this counterExample again. his is quite a complex task and therefore there aren't many implementations of it.
+
+Finally, the only task of the refinement phase is to refine the current abstraction of the automaton, by extending it with the given set of clock variables (and the constraints they appear in). The task is straightforward, and so this part of the CEGAR-loop has only one implementation.
+
+\todo{A pseudocode is provided to demonstrate implementability.}
+
+
+\subsection{Statespace-based refinement}
+
+In case of statespace-based refinement, the representation of the statespace has a defining role. In the proposed framework, the statespace is represented by zone graphs - this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the statespce without considering clock variables (and in some cases discerete variables, too), and to refine the statespace - trace by trace - by deciding which of the 
+\todo{Fig ... depicts the architecture...} 
+
+
+
+\todo{CEGAR dobozok, interfészek, cserélgethetőség, stb. ábrával + egy mini pszeudokód}
 
 \section{Modules}
 

@@ -12,13 +12,80 @@ SAT
 SMT
 
 \section{Formal verification}
-Importance, etc.
+\todo{Importance, etc.}
 \subsection{Timed automata}
-Modeling formalisms, timed systems, etc.
-Definitions, visualization.
-Discrete variables.
+\todo{Modeling formalisms, timed systems, etc.}
+
+\subsubsection{Basic Definitions}
+In order to properly define timed automata, first the idea of \emph{clock variables} must be explained. In case of systems with discrete variables, the values of the variables always remain the same betrween two modifications. However, this is not the case for clock variables (clocks, for short). Even when a system stays in one state, the value of clocks are continuously and steadily increasing. Naturally, their values can be modified, but the only allowed operation on clock variables is \emph{reset}. Reseting a clock means assigning its value to a specific integer (often, that integer can only be 0). It's an instantaneous operation, after which the value of the clock will continue to increase.
+
+Hereinafter follows some basic definitions that are closely related to clock variables and timed automata. 
+
+\begin{definition}
+	A \emph{valuation} $v(\mathcal{C})$ assigns a non-negative real value
+	to each clock variable $c \in \mathcal{C}$, where $\mathcal{C}$ denotes the set of clock
+	variables.
+\end{definition}
+
+In other words a valuation defines the values of the clocks at a given moment of time. The term \emph{valuation} can also be used for discrete variables.
+
+\begin{definition}
+	A \emph{clock constraint} is a conjunctive formula of atomic
+	constraints of the form $x \sim n$ or $x - y \sim n$ (\emph{difference
+		constraint}), where $x,y \in \mathcal{C}$ are clock variables, $\sim \in
+	\{\leq,<,=,>,\geq\}$ and \hbox{$n \in \mathbb{N}$}. $\mathcal{B}(\mathcal{C})$ represents the set of clock
+	constraints.
+\end{definition}
+
+In other words a clock constraint defines upper and lower bounds on the values of clocks (or differences of clocks, in case of difference constraints). Bounds are always integer numbers. Clock constraints are used in guards and invariants of timed automata to control the behaviour by only allowing certain operations if the current valuation satisfies the consraints. 
+
+A \emph{timed automaton} extends a finite automaton with clock variables. It can be defined as follows.
+
+\begin{definition}
+A \emph{timed automaton} $\mathcal{A}$ is a tuple $\langle L, l_0,
+E, I\rangle$ where
+\begin{itemize}
+	\item $L$ is the set of locations,
+	\item $l_0 \in L$ is the initial location,
+	\item $E \subseteq L \times \mathcal{B}(\mathcal{C}) \times 2^\mathcal{C} \times L$ is the set of edges and
+	\item $I: L \to \mathcal{B}(\mathcal{C})$ assigns invariants to locations.  Invariants can be used to ensure the progress of time in the model. \cite{bengtsson2004timed}
+\end{itemize}
+\end{definition}
+
+Graphically a timed automaton can be represented as a labeled graph where the vertices are the locations labelled with their corresponding invariants, and the edges are the automaton's edges, that are defined by the source location, the guard (represented by a clock constraint), the set of clocks to reset, and the target location.
+
+\todo{példa}
+
+A state of $\mathcal{A}$ is a pair $\langle l,v \rangle$ where $l \in L$ is a
+location and $v$ is the current valuation satisfying $I(l)$. In the initial
+state $\langle l_0,v_0 \rangle$ $v_0$ assigns 0 to each clock variable.
+
+Two kinds of operations are defined. The state $\langle l,v \rangle$ has a
+\emph{discrete transition} to $\langle l',v' \rangle$  if there is an
+edge $e(l,g,r,l') \in E$ in the automaton such that 
+\begin{itemize}
+	\item $v$ satisfies $g$, 
+	\item $v'$ assigns 0 to any $c \in r$ and assigns $v(c)$ to any $c \not\in r$, and
+	\item $v'$ satisfies $I(l')$. 
+\end{itemize}
+The state $\langle l,v \rangle$ has a \emph{time transition} (or delay, for short) to $\langle l,v' \rangle$ if
+\begin{itemize}
+	\item $v'$ assigns $v(c)+d$ for some non-negative $d$ to each $c \in \mathcal{C}$ and
+	\item $v'$ satisfies $I(l)$. 
+\end{itemize}
+
+
+There are many variations of timed automata (e.g. this definition only allows to reset clocks to 0, however, resets to greater integers will appear later in this paper). Most of them such as network automata, synchronization, and urgent locations can be easily transformed into conventional timed automata, but this is not always the case. The idea to allow discrete variables as well as clock variables arises simply. Bool, integer, rational, or even self-described typed variables prove useful, but may result in a formalism with bigger expressive power that that of the conventional timed automaton. This becomes important when one wants to analyze a system.
+
+
 \subsection{Reachability}
-Importance, basic algorithms (statespace exploration, SAT based solution, bounded stuff + examples), TA reachability + examples
+
+\todo{Importance, basic algorithms (statespace exploration, SAT based solution, bounded stuff + examples), TA reachability + examples}
+
+\subsubsection{Timed automaton reachability}
+
+
+
 \subsection{CEGAR}
 \subsubsection{Abstraction}
 Idea, usefulness, Times automata - zones, variables, activity, etc.
@@ -28,47 +95,7 @@ Idea, Cegar-loop, basic cegar ideas (variable-based, statespace refinement, etc.
 
 
 %\section{Timed Automata}
-%\subsection{Basic Definitions}
-%A \emph{valuation} $v(\mathcal{C})$ assigns a non-negative real value
-%to each clock variable $c \in \mathcal{C}$, where $\mathcal{C}$ denotes the set of clock
-%variables. For bravity, the term \emph{clock} is used as a synonym of {clock variable}.
-%
-%A \emph{clock constraint} is a conjunctive formula of atomic
-%constraints of the form $x \sim n$ or $x - y \sim n$ (\emph{difference
-%	constraint}), where $x,y \in \mathcal{C}$ are clock variables, $\sim \in
-%\{\leq,<,=,>,\geq\}$ and \hbox{$n \in \mathbb{N}$}. $\mathcal{B}(\mathcal{C})$ represents the set of clock
-%constraints.
-%
-%A \emph{timed automaton} $\mathcal{A}$ is a tuple $\langle L, l_0,
-%E, I\rangle$ where
-%$L$ is the set of locations,
-%$l_0 \in L$ is the initial location,
-%$E \subseteq L \times \mathcal{B}(\mathcal{C}) \times 2^\mathcal{C} \times L$
-%is the set of edges and,
-%$I: L \to \mathcal{B}(\mathcal{C})$ assigns invariants to locations.  Invariants can be used to ensure the progress of time in the model.
-%
-%
-%A state of $\mathcal{A}$ is a pair $\langle l,v \rangle$ where $l \in L$ is a
-%location and $v$ is the current valuation satisfying $I(l)$. In the initial
-%state $\langle l_0,v_0 \rangle$ $v_0$ assigns 0 to each clock variable.
-%
-%Two kinds of operations are defined. The state $\langle l,v \rangle$ has a
-%\emph{discrete transition} to $\langle l',v' \rangle$  if there is an
-%edge $e(l,g,r,l') \in E$ in the automaton such that 
-%\begin{itemize}
-%	\item $v$ satisfies $g$, 
-%	\item $v'$ assigns 0 to any $c \in r$ and assigns $v(c)$ to any $c \not\in r$, and
-%	\item $v'$ satisfies $I(l')$. 
-%\end{itemize}
-%The state $\langle l,v \rangle$ has a \emph{time transition} to $\langle l,v' \rangle$ if
-%\begin{itemize}
-%	\item $v'$ assigns $v(c)+d$ for some non-negative $d$ to each $c \in \mathcal{C}$ and
-%	\item $v'$ satisfies $I(l)$. 
-%\end{itemize}
-%
-%
-%
-%
+
 %\subsection{Reachability Analysis} \label{sec:reach}  
 %
 %A \emph{zone} is a set of nonnegative clock valuations satisfying a set of clock constraints.
