@@ -14,7 +14,7 @@ The architecture of the framework is illustrated on \todo{ábra: (két résszel 
 
 In each iteration of the CEGAR-loop, the task of the model checking phase is to determine whether the error location is reachable in the current automaton and provide a trace (counterexample) if there is one. Therefore, the implementation should be a reachability-checking algorithm for timed automata that can find a trace to the location.
 
-The task of the analysis phase is to check if the found trace is feasible in the original automaton and if it isn't, provide a set of clock variables that can then be added to the automaton (with the clock constraints they appear in) so that the model checker won't find this counterExample again. his is quite a complex task and therefore there aren't many implementations of it.
+The task of the analysis phase is to check if the found trace is feasible in the original automaton and if it isn't, provide a set of clock variables that can then be added to the automaton (with the clock constraints they appear in) so that the model checker won't find this counterexample again. This is quite a complex task and therefore there aren't many implementations of it.
 
 Finally, the only task of the refinement phase is to refine the current abstraction of the automaton, by extending it with the given set of clock variables (and the constraints they appear in). The task is straightforward, and so this part of the CEGAR-loop has only one implementation.
 
@@ -23,7 +23,7 @@ Finally, the only task of the refinement phase is to refine the current abstract
 
 \subsection{Statespace-based refinement}
 
-In case of statespace-based refinement, the representation of the statespace has a defining role. In the proposed framework, the statespace is represented by zone graphs - this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the statespce without considering clock variables (and in some cases discerete variables, too), and to refine the statespace - trace by trace - by deciding which of the clock variables to include for each of the zones on that path. Afer that the graph is refined (clocks are included in the zones), and during the refinement iut turns out whether the counterExample is feasible or not. \todo{Fig ... depicts the architecture...} 
+In case of statespace-based refinement, the representation of the statespace has a defining role. In the proposed framework, the statespace is represented by zone graphs - this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the statespce without considering clock variables (and in some cases discerete variables, too), and to refine the statespace - trace by trace - by deciding which of the clock variables to include for each of the zones on that path. Afer that the graph is refined (clocks are included in the zones), and during the refinement it turns out whether the counterexample is feasible or not. \todo{Fig ... depicts the architecture...} 
 
 Because of the different approaches of abstraction, consructing the initial abstraction is not as straightforward as it was in the automaton-refinement phase. All that can be said is that it is some sort of abstraction of the statespace derived from the automaton without including clock variables.
 
@@ -31,7 +31,7 @@ The task of the model checking phase is to find a path from the initial location
 
 The task of the analysis phase is to decide which of the clock variables to include in the zones on the trace so that it becomes possible to find out whether or not the counterexample is feasible. The result of the analysis should be a function $P: V(G) \to 2^\mathcal{C}$ assigning a set of clocks to the nodes of the current abstraction of zone graph. This set of clocks can be callled the \emph{precision} of the zone.
 
-The task of the refinement phase is to calculate the zones on the trace (up to the given precision) and find out if it was feasible or not. This can be performed by the steps of the algoorithm presented in \todo{utalás háttérismeretek megfelelő részére} with some modifications that help with handling the changes of precision along the counterexample. If the error location is unreachable, a guard or invariant will eventually prove to one of the edges on the trace that it is not enabled. The current abstraction of the zone graph must be modified accordingly.
+The task of the refinement phase is to calculate the zones on the trace (up to the given precision) and find out if it was feasible or not. This can be performed by the steps of the algoorithm presented in \todo{utalás háttérismeretek megfelelő részére} with some modifications that help with handling the changes of precision along the counterexample. If the error location is unreachable, a guard or invariant will eventually prove to one of the edges on the trace that it represents a transition that is not enabled. The current abstraction of the zone graph must be modified accordingly.
 
 \todo{A pseudocode is provided to demonstrate implementability.}
 
@@ -50,9 +50,9 @@ First, model checkers are presented that can be used for the model checking phas
 
 \subsubsection{Zone graph exploration} 
 
-The reachability-checking algorithm described in section \ref{sec:tareach} is an obvious choice for the model checking phase, however, it is important to note that the algorithm does not handle discerete variables. The discrete valuation can be encoded into the location (and calculated on the fly) but in this case termination is not ensured (as section \todo{ref} explains).
+The reachability-checking algorithm described in part \ref{sec:tareach} is an obvious choice for the model checking phase, however, it is important to note that the algorithm does not handle discerete variables. The discrete valuation can be encoded into the location (and calculated on the fly) but in this case termination is not ensured (as part \todo{ref} explains).
 
-\subsubsection{Satisfiability-based model checker}
+\subsubsection{Satisfiability-based model checker}\label{sec:satmc}
 
 Satisfiability-based model checking was introduced in \todo{background ref}. The idea can be directly applied to timed automata -- the only necessary change is to define transformation that can turn a counterexample (an execution trace) into a SAT-problem.
 
@@ -60,9 +60,9 @@ The idea is to separate discrete transitions from time transitions. Consider a c
 
 First, let us assign a variable for each clock in each location, both before and after the delay -- that is, this means $2\cdot n \cdot \abs{\mathcal{C}}$ variables. Let us denote these variables by $c_i$ (for the value of clock $c$ in location $l_i$ before the delay) and $c_i'$ (for the value of clock $c$ in location $l_i$ after the delay). Let us also assign variables for each $d_i$. The first constraints that have to be added is that each of the defined variables are greater or equal to 0.
 
-The initial constraints can simply be described by $c_0 =0$ for each $c \in \mathcal{C}$. Delay transitions can be turned into constraints by the following equation $c_i+d_i=c_i'$ for each $c \in \mathcal{C}, 0 \leq i \leq n$. In case of discrete transitions, guards (clock constraints) can be turned into \todo{solver constraints?} by replacing the clock variables with the defined variables. The guard $g_i$ of a transition $t_i(l_i,g_i,r_i,l_{i+1})$ can be transformed by replacing all clocks $c$ appearing in $g_i$ by $c_i'$. Resets can also be simply transformed into constraints -- for all $c \in r_i$ $c_{i+1}=0$ has to be added to the set of constraints. Note, that this way $c_{i+1}$ is only specified for the reset clocks. For all $c \not \in \r_i$ $c_{i+1}=c_i'$ has to be added to the set of constraints. Invariants can be transformed into \todo{solver constraints?} the same way as guards.
+The initial constraints can simply be described by $c_0 =0$ for each $c \in \mathcal{C}$. Delay transitions can be turned into constraints by the following equation $c_i+d_i=c_i'$ for each $c \in \mathcal{C}, 0 \leq i \leq n$. In case of discrete transitions, guards (clock constraints) can be turned into \todo{solver constraints?} by replacing the clock variables with the defined variables. The guard $g_i$ of a transition $t_i(l_i,g_i,r_i,l_{i+1})$ can be transformed by replacing all clocks $c$ appearing in $g_i$ by $c_i'$. Resets can also be simply transformed into constraints -- for all $c \in r_i$ $c_{i+1}=0$ has to be added to the set of constraints. Note, that this way $c_{i+1}$ is only specified for the reset clocks. For all $c \not\in r_i$ $c_{i+1}=c_i'$ has to be added to the set of constraints. Invariants can be transformed into \todo{solver constraints?} the same way as guards.
 
-Discrete variables can be mapped to \todo{solver variables?} as before since discerete variables and clock variables have no effect on eachother.
+Discrete variables can be mapped to \todo{solver variables?} as before since discerete variables and clock variables have no affect on eachother.
 
 \todo{példa}
 
@@ -82,27 +82,138 @@ Solvers can be useful, not only to decide if a given set of constraints is satis
 
 \subsubsection{Automaton refinement}
 
-
+Given an original automaton $\mathcal{A}$ an abstract automaton $\mathcal{A'}$ and a set of clock variables to be added $C \subseteq \mathcal{C}$, the task is to refine $\mathcal{A'}$ so that each clock $c \in C$ appears in it. The task is to decide which of the guards, resets and invariants to include. Resets are easy to add: the ones that reset clocks in $C$ should be included, others don't. Guards and invariants are clock constraints -- conjunctive formulae of atomic constraints bounding the value of the clocks or the difference of two clocks. Decision can be made for each atomic formula one by one: those in which only clocks in $\mathcal{A'}$ or $C$ appear -- that is, difference constraints are only included if both clocks appear in $\mathcal{A'}$ or $C$.
 
 \todo{a végére ábra az elkészült dobozokról.}
 
 \subsection{Implementations for statespace-based refinement}
 
-\subsubsection{Abstractions} % ezt lehet jobb lenne nem subsubsecionként?
+First, two possible representations of the abstract zone graph are presented. After that implementations of the CEGAR phases are presented, mentioning the statespace representation-dependent behaviours of phases model checking and refinement.
+
+\subsubsection{Graph representation} % ezt lehet jobb lenne nem subsubsecionként?
+The first representation of the abstract zone graph is another zone graph, with zones of varied precisions. To avoid confusion, from now on precisions of the zones will always be denoted: zones will be denoted by $z_{C}$ where $C \subseteq \mathcal{C}$ is the precision of the zone. Zones of the real zone graph (without abstraction) are denoted by $z_{\mathcal{C}}$.
+
+A node $\langle l, z_{C} \rangle$ of the abstract zone graph can represent any nodes $\langle l, z_{\mathcal{C}}' \rangle$ of the real zone graph, that contains the same location $l$, and some zone $z'_{\mathcal{C}}$ for which $z'_C \subseteq z_C$ (where $z'_C$ means a spatial projection of $z_{\mathcal{C}}'$ to the subspace spanned by the clocks in $C$) holds. This means $\langle l, z_{\emptyset} \rangle$ can represent any nodes of the real zone graph containing $l$. 
+
+Because of this the initial abstraction can be constructed by assigninga node $\langle l, z_{\emptyset} \rangle$ to each location $l \in L$. The graph can then be compled with edges: for each $e=(l,g,r,l') \in E$ a new edge of the zone graph should be included pointing from $\langle l, z_{\emptyset} \rangle$ to $\langle l', z_{\emptyset} \rangle$.
+
+\todo{példa}
+
+During the algorithm this graph will be refined by the zones calculated in the refinement phase. Sometimes nodes will get replicated, or edges deleted (the precise algorithm will be described later), but it will remain to be an absraction of the real zone graph. Discrete valuations are also calculated in the refinement phase.
+
+
+ 
+% It is common in both representations that the abstraction of the nodes is based on a set of clocks (precision) to include -- just like in case of the automaton-based refinement. In the initial abstraction no clocks are included in any of the nodes
+
+\subsubsection{Tree representation}
+The other representation of the abstract zone graph is based on the idea of search trees. Instead of keeping track of the full (abstract) zone graph (like we did with the other representation) details of the tree will be uncovered in the model checking phase of the CEGAR loop. However, one thing is common in both representations:  the abstraction of the nodes is based on a set of clocks (precision) to include (just like in case of the automaton-based refinement) and initially all precisions are empty. The statespace exploration will also operate on empty precision sets, and the zones will be calculated in the refinement phase. In this case, discrete valuations can be calculated during statespace exploration (but it is not necessary).
+
+Let us define the formalism to represent the abstract tree graph.
+
+\begin{dfn}
+	The auxiliary graph can be defined as a tuple $\langle N_e, N_u, E^\uparrow, E^\downarrow \rangle$ where
+	\begin{itemize}
+		\item $N_e \subseteq L \times \mathcal{B}(\mathcal{C})$ is the set of explored nodes,
+		\item $N_u \subseteq L \times \mathcal{B}(\mathcal{C})$  is the set of unexplored nodes,
+		\item $E^\uparrow \subseteq (N_e \times N)$, where $N = N_e \cup N_u$ is the set of upward edges and
+		\item $E^\downarrow \subseteq (N_e \times N)$  is the set of downward edges.
+	\end{itemize}
+	 The sets $N_e$ and $N_u$ as well as the sets $E^\uparrow$ and $E^\downarrow$ are disjoint. $T^\downarrow=(N,E^\downarrow)$ is a tree.
+\end{dfn}
+ %The depth of a node $n$ in $T$ is denoted by $d(n)$.
+ 
+Nodes are built from a location and a zone like in the zone graph but in this case nodes are distinguished by their trace reaching them from the initial node. This means the graph can contain multiple nodes with the same zone and the same location, if the represented states can be reached through different traces. The root of $T$ is the initial node of the (abstract) zone graph. A downward edge $e$ points from node $n$ to $n'$ if $n'$ can be reached from $n$ in one step in the zone graph. %In this case $d(n')=d(n)+1$.
+
+Upward edges are used to collapse infinite traces of the representation, when the states are explored in former iterations. An upward edge from a node $n$ to a previously explored node $n'$ means that the states
+represented by $n$ are a subset of the states represented by $n'$, thus it is unnecessary to keep searching for a
+counterexample from $n$, because if there exists one, another one will exist
+from $n'$. Searching for new traces is only continued on nodes without an upward edge. This way, the graph can be kept finite, unless the discrete variables of the automaton prevent it.
+
+Initially, the graph contains only one, unexplored node $\langle l, z_{\emptyset} \rangle$, and as the statespace is explored, unexplored nodes become explored nodes, new unexplored nodes and edges appear, until a counterexample is found. During the refinement phase zones are calculated, new nodes and edges appear and complete subtrees disappear. Statespace exploration will then be continued from the unexplored nodes, and so on. Discrete valuation can be calculated during sttespace exploration.
+
 
 \subsubsection{Statespace exploration}
 
+The task of the model checking phase is to find traces from $l_0$ to $l_{err}$. In case of the graph representation, where $l_{err}$ appears in the node  $\langle l_{err}, z_{\emptyset} \rangle$ even in the initial abstraction, model checking becomes a path finding problem from $\langle l_{0}, z_{\emptyset} \rangle$ to $\langle l_{err}, z_{\emptyset} \rangle$ in the abstract zone graph. This can be performed by any path finding algorithm.
+
+\todo{példát folytatni eszerint}
+
+In case of the tree representation, $l_{err}$ does not appear in the graph and the statespace exploration has to be continued until a node $\langle l_{err}, z_{\emptyset} \rangle$ appears. Statespace exploration has to be performed the following way.
+
+In each iteration a node $n=\langle l, z_{C} \rangle \in N_u$ for some $C$ is chosen. First, it is checked if the states $n$ represents are included in some other node $n'=\langle l, z'_{C} \rangle$ with a zone of the same precision. If this is the case an upward edge is introduced from $n$ to $n'$ and $n$ becomes explored. Otherwise, $n$ has yet to be explored. For each outgoing edge $e(l,g,r,l')$ of $l$ in the automaton a new unexplored node $\langle l, z_{\emptyset} \rangle$ is introduce with an edge pointing to it from $n$, which becomes explored. If any of the new nodes contains $l_{err}$, the algorithm terminates. Otherwise, another unexplored node is chosen, and so on.
+
+\todo{példa folytatása eszerint}
+
+\todo{pszeudokód}
+
 \subsubsection{Trace Activity}
+
+The task of the analysis phase is to determine the precision of each zones on a given counterexample. The abstracion \emph{activity} as described in \todo{háttérism referálni} is able to assign a set of clocks for each locations of the automaton, without affecting its behaviour. Assigning $act(l)$ for each node $n=\langle l, z_{C} \rangle$ would be a good solution of the task, however it can be made more effective by considering the fact that we are only considering an execution trace, and we only need to know if it is feasible.
+
+Based on \emph{activity} a new abstraction can be introduced, called \emph{trace activity} $Act_\sigma(n): N \to 2^\mathcal{C}$ which does the same thing as activity, except for a trace: it assigns precisions to nodes (not locations in this case, because the same location may appear multiple times ion a trace with different activity). The algorithm calculating trace activity operates the following way.
+
+The algorithm iterates over the counterexample trace, but backwards. In the final node  $n_{err}=\langle l_{err}, z_{\emptyset} \rangle$ it is not important to know the valuations, as the only important thing to know if it is reachable. Therefore $Act_\sigma(n_{err})=\emptyset$. After that $Act_\sigma(n_i)$ can be calculated from $Act_\sigma(n_{i+1})$ and the edge $e_i(l_i,g_i,r_i,l_{i+1})$ used by transition $t_i$. Since $r_i$ resets clocks, their values in $l_i$ will have no effect on the systems behavior in $l_{i+1}$. Thus clocks in $r_i$ can be excluded. It is necessary to know if $t_i$ is enabled, so $clk(g_i)$ must be active in $n_i$. It is also important to satisfy the invariant of $l_i$ thus $clk(I(l_i))$ must be included. This gives us the formulae $Act_\sigma(n_i)=(Act_\sigma(n_{i+1}) \setminus r_i) \cup clk(g_i) \cup clk(I(l_i))$. 
+
+\todo{példa}
 
 \subsubsection{Unsat core-based precision}
 
+Unsat core can also be used to determine the necessary precision of a given counterexample. First, the SAT formula described in part \ref{sec:satmc} is checked by a solver. If it is satisfiable, the counterexample is feasible. Thus, there is no need to refine the graph, the CEGAR algorithm can terminate (or $\emptyset$ can be assigned to all nodes as a precision and the algorithm will terminate in the refinement phase). Otherwise, unsat core has to be examined. When constructing the SAT formula, variables were introduced step. Thus precision can be obtained from the unsat core by step: if $c_i$ or $c_i'$ appears in the unsat core $c$ must be included in the precision assigned to $n_i$.
+
+\todo{példa}
+
 \subsubsection{Statespace refinement}
+
+The task of the refinement phase is to assign correct zones of the given precision for each node in the trace. It is important to mention that the zones on the trace may already be refined to some precision $C'$ that is independent from the new precision $C$. In this case the zone has to be refined to the precision $C \cup C'.$.  The initial zone can be calculated as described in part \ref{sec:tareach}, except this time not all variables have to be included.  After that for each edge in the trace, the zone in the next node can be calculated with some little modifications of the corresponding part of the zone graph exploration algorithm regarding the precision change.
+
+Let us assume the zone $z_i$ of node $n_i$ is refined to precision $C_i$ and the next zone $z_{i+1}$ in node $n_{i+1}$ has to be refined to $C_{i+1}$. Consider the DBM implementation of zones. Variables $C_{old}=C_{i} \setminus C_{i+1}$ have to be excluded from the precision. This can be done by performing \emph{free($c$)} for each $c \in C_{old}$, but in \cite{bengtsson2004timed} the operation \emph{free($c$)} only affects the row and the column belonging to $c$. Thus, for space saving purposes, the row and column of $c$ can simply be deleted from the DBM. 
+
+Variables $C_{new}=C_{i+1} \setminus C_i$ have to be introduced. This is a more complex task, since the value is necessary to know. \emph{Trace activity} is constructed in a way that new clocks can only appear when they are reset. In this case, introducing the new variable is simple: add a new row and column to the DBM, belonging to $c$ and call \emph{reset($c$)}. However this is not always the case for \emph{unsat core}. It is possible that some constraints only appear in the unsat core, because they contradict each other, or a variable $c$ may appear in the unsat core, because several constraints combined can result in an unsatisfiable constraint that does not include $c$. 
+
+\todo{példa}
+
+It is clear that in this case the concrete value of the variable $z$ doesn't matter, it is only there so that the constraints it appears in are considered. Because of this, there is no need to assign a precise value to $z$ - introduce a row and a column belonging to $z$ and then call \emph{free($z$)}.
+
+The correct zones on the trace are calculated. It is important to consider that sometimes the \emph{split()} operation results in more than one zones. In this case the corresponding node is replicated and one of the result zones is assigned to each versions of the node. Exploration has to be continued from that node, thus the refinement of a trace may result in a tree.
+
+\todo{pszeudokód az eddigiekről}
+
+The next important question is how to integrate the refined tree to the graph. The answer depends on which representation is used.
+
+In case of the graph representation integrating has to be done carefully. Before changing the abstract zone to the refined one we must consider the other incoming edges of the node. The states reachable from that edge may not be contained in the refined zone, and thus if there is an an edge pointing to the node to refine other than the one in the trace, the node should be duplicated, and the other incoming edges should be pointing to the new node (that doesn't get refined). Also, if the result of \emph{split()} is multiple zones, the node has to be replicated, but this time no edges has to be redirected, and one of the refined zones can be assigned to each nodes.
+
+Discree valuation also has to be calculated at this point. The same discrete valuation has to be assigned for each replicas of the node.
+
+The next step is checking containment. Suppose at one point of the
+algorithm the zone $z_{C}$ in node $n$ %of the node $\langle l,z_{C}\rangle$
+ is 
+refined to  $z_{C'}$ which is a
+subzone of a zone $z'_{C'}$ in a node $n'$ containing the same location. In this case any state that is reachable from $\n$ is also reachable from $n'$, thus any edge leading to  $n$ can be redirected to $n'$, and $n$ can be removed.
+
+If the erroneous location is reachable through this path, the procedure finds it,
+and the CEGAR algorithm terminates. Otherwise, at some point a guard or a target invariant
+is not satisfied -- the transition is not enabled. The corresponding edge is removed and the analysis of the path terminates.
+
+\todo{példa,pszeudokód?}
+
+Incoming edges that are not on the trace are also important in case of tree representatio, however, because of the tree nature of $T$, the other incoming edges of a node $n$ can only be upwards edges, representing that all states represented by some node $n'$ are also represented by $n$. Obviously, this may not be true, after refining the zone in the node, and because of this the edge $n' \to n$ is removed, and $n'$ is marked as unexplored.
+
+Since $T$ is already a tree, it does not cause problems to attach new subtrees to it (because of \emph{split}), but all new nodes have to be marked as unexplored, since only one outgoing edge (of the automaton) were considered when calculating the new subtree, and there could be more.
+
+Containment can also be checked here, just as in case of the graph representation, but it only matters for the leaves of the tree (since the other nodes are already explored). The other possibility is to mark the leaves unexplored and statespace exploration will search for containment.
+
+\todo{példa, pszeudokód?}
+   
+
+
+
+%The zone graph exploratin described in section \ref{sec:tareach} can be used
 
 %Implementált modulok felsorolva, utalással az előző fejezet algoritmusaira. + példák, pszeudokód
 
 
-\section{Combined Algorithms}
-A fenti modulok kombinálhatósága. Ekészült algoritmusok.
+\section{Result}
+\todo{Kis szöveg meg sok sok ábra az elkészült algoritmusokról, a ko9mbinálhatóságról, valamint a keretrendszer kiterjesztési lehetőségeiről}
 
 %\subsection{Timed automaton-based refinement with sat based mocdel checker}
 %\subsection{Timed automaton-based refinement with sat based mocdel checker}
