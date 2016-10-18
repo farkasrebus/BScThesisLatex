@@ -23,14 +23,25 @@ Finally, the only task of the refinement phase is to refine the current abstract
 
 \subsection{Statespace-based refinement}
 
-In case of statespace-based refinement, the representation of the statespace has a defining role. In the proposed framework, the statespace is represented by zone graphs - this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the statespce without considering clock variables (and in some cases discerete variables, too), and to refine the statespace - trace by trace - by deciding which of the 
-\todo{Fig ... depicts the architecture...} 
+In case of statespace-based refinement, the representation of the statespace has a defining role. In the proposed framework, the statespace is represented by zone graphs - this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the statespce without considering clock variables (and in some cases discerete variables, too), and to refine the statespace - trace by trace - by deciding which of the clock variables to include for each of the zones on that path. Afer that the graph is refined (clocks are included in the zones), and during the refinement iut turns out whether the counterExample is feasible or not. \todo{Fig ... depicts the architecture...} 
 
+Because of the different approaches of abstraction, consructing the initial abstraction is not as straightforward as it was in the automaton-refinement phase. All that can be said is that it is some sort of abstraction of the statespace derived from the automaton without including clock variables.
 
+The task of the model checking phase is to find a path from the initial location to the error location in the current abstraction of the zone graph. Because of this, the model checking phase of statespace-based refinement is a pathfinding algorithm.
 
-\todo{CEGAR dobozok, interfészek, cserélgethetőség, stb. ábrával + egy mini pszeudokód}
+The task of the analysis phase is to decide which of the clock variables to include in the zones on the trace so that it becomes possible to find out whether or not the counterexample is feasible. The result of the analysis should be a function $P: V(G) \to 2^\mathcal{C}$ assigning a set of clocks to the nodes of the current abstraction of zone graph. This set of clocks can be callled the \emph{precision} of the zone.
+
+The task of the refinement phase is to calculate the zones on the trace (up to the given precision) and find out if it was feasible or not. This can be performed by the steps of the algoorithm presented in \todo{utalás háttérismeretek megfelelő részére} with some modifications that help with handling the changes of precision along the counterexample. If the error location is unreachable, a guard or invariant will eventually prove to one of the edges on the trace that it is not enabled. The current abstraction of the zone graph must be modified accordingly.
+
+\todo{A pseudocode is provided to demonstrate implementability.}
+
+The presented methods for model checking and refinement describe the essence of the algorithms that seem to be the same, however, the concrete implementation depends of the structure of the abstract zone graph representation. Because of this only those modules can be used interchangably, that are defined for the same representation.
+
 
 \section{Modules}
+
+This section describes the implemented modules of the previously defined interfaces.
+
 
 Implementált modulok felsorolva, utalással az előző fejezet algoritmusaira. + példák, pszeudokód
 
