@@ -4,7 +4,7 @@ This chapter presents a configurable framework for CEGAR-based reachability anal
 
 \section{Generic CEGAR Framework}
 
-The key idea of the framework is to provide various implementations of each phases of the CEGAR-loop, by using correspondent parts of CEGAR-based reachability algorithms. Most of these algorithms already exist for other formalisms, and they have to be adapted to timed automata, but some of them are new approaches. The implemented modules can then be combined (that is, the implementation of each phases can be provided by different algorithms) to form new algorithms, and chosing the most effective parts of the original algorithms can result in an even more effective algorithm then the original ones. \todo{diszkrét változókat megemlíteni}
+The key idea of the framework is to provide various implementations of each phases of the CEGAR-loop, by using correspondent parts of CEGAR-based reachability algorithms. Most of these algorithms already exist (mostly for other formalisms, and they have to be adapted to timed automata), but some of them are new approaches. The implemented modules can then be combined (that is, the implementation of each phases can be provided by different algorithms) to form new algorithms, and chosing the most effective parts of the original algorithms can result in an even more effective algorithm then the original ones. \todo{diszkrét változókat megemlíteni}
 
 The architecture of the framework is illustrated on \todo{ábra: (két résszel az automatáshoz és az állapottereshez) amin látszanak hogy pontosan mik lesznek a dobozok (milyen interfészek) és mi megy köztük a nyilakon, stb}. As one can see, there are two different realization of the CEGAR-loop. The reason for this is that not all implementations of the CEGAR-phases can be used interchangably, since there are two distict ways CEGAR-loop can be applied to timed automata. The key difference is the basis of the refinement. While the first approach \todo{ábra a) részét referálni} starts from a pure automaton (without any clock variables) and extends the current automaton with some clocks in each iteration \todo{háttérismereteknél referálni} - and thus refines the \emph{automaton}, the other \todo{ábra b) részét referálni} is based on the refinement of the \emph{statespace} itself. Because of this, only algorithms of the same approach can be combined.
 
@@ -40,26 +40,75 @@ The presented methods for model checking and refinement describe the essence of 
 
 \section{Modules}
 
-This section describes the implemented modules of the previously defined interfaces.
+This section describes the implementations of the previously defined interfaces - grouped by the base of refinement.
+
+\subsection{Implementations for automaton-based refinement}
+
+%\subsubsection{Model checking phase}
+
+First, model checkers are presented that can be used for the model checking phase of CEGAR algorithms with automaton-based refinement. Secondly, an algorithm is defined for calculating the set of clock variables to refine the automaton, and finally, the general algorithm is described for performing the refinement.
+
+\subsubsection{Zone graph exploration} 
+
+The reachability-checking algorithm described in section \ref{sec:tareach} is an obvious choice for the model checking phase, however, it is important to note that the algorithm does not handle discerete variables. The discrete valuation can be encoded into the location (and calculated on the fly) but in this case termination is not ensured (as section \todo{ref} explains).
+
+\subsubsection{Satisfiability-based model checker}
+
+Satisfiability-based model checking was introduced in \todo{background ref}. The idea can be directly applied to timed automata -- the only necessary change is to define transformation that can turn a counterexample (an execution trace) into a SAT-problem.
+
+The idea is to separate discrete transitions from time transitions. Consider a counterexample sequence $\sigma = l_0 \xrightarrow{t_0} l_1 \xrightarrow{t_1} \cdots \xrightarrow{t_n} l_{err}$.  This representation of $\sigma$ hides the fact that it is important how much time the systems spends in each locations - i.e. delay transitions. Let us denote the amount of time spent in $l_i$ by $d_i$. This way $\sigma$ can be defined by $\sigma = l_0 \xrightarrow{d_0} \xrightarrow{t_0} l_1 \xrightarrow{d_1} \xrightarrow{t_1} \cdots \xrightarrow{d_n} \xrightarrow{t_n} l_{err}$. In this representation $\xrightarrow{d_i}$ can be considered a special kind of transition that increases $v(c)$ for each $c \in \mathcal{C}$ by $d_i$. Based on this the SAT formula can be constructed.
+
+First, let us assign a variable for each clock in each location, both before and after the delay -- that is, this means $2\cdot n \cdot \abs{\mathcal{C}}$ variables. Let us denote these variables by $c_i$ (for the value of clock $c$ in location $l_i$ before the delay) and $c_i'$ (for the value of clock $c$ in location $l_i$ after the delay). Let us also assign variables for each $d_i$. The first constraints that have to be added is that each of the defined variables are greater or equal to 0.
+
+The initial constraints can simply be described by $c_0 =0$ for each $c \in \mathcal{C}$. Delay transitions can be turned into constraints by the following equation $c_i+d_i=c_i'$ for each $c \in \mathcal{C}, 0 \leq i \leq n$. In case of discrete transitions, guards (clock constraints) can be turned into \todo{solver constraints?} by replacing the clock variables with the defined variables. The guard $g_i$ of a transition $t_i(l_i,g_i,r_i,l_{i+1})$ can be transformed by replacing all clocks $c$ appearing in $g_i$ by $c_i'$. Resets can also be simply transformed into constraints -- for all $c \in r_i$ $c_{i+1}=0$ has to be added to the set of constraints. Note, that this way $c_{i+1}$ is only specified for the reset clocks. For all $c \not \in \r_i$ $c_{i+1}=c_i'$ has to be added to the set of constraints. Invariants can be transformed into \todo{solver constraints?} the same way as guards.
+
+Discrete variables can be mapped to \todo{solver variables?} as before since discerete variables and clock variables have no effect on eachother.
+
+\todo{példa}
+
+This allows us to use a SAT-solver to decide if a possible execution trace of a timed automaton is feasible. This can be used for model checking timed automata, by iterating over all possible execution traces and if a trace $\sigma$ is found from $l_0$ to $l_{err}$, it can be checked, and if the derived formula is satisfiable, $\sigma$ is proposed as a counterexample. 
+
+The problem with this model checker is that there may be infinitely many execution traces. Thus, this model checker can only be used as a \emph{bounded} model checker \todo{háttérismerekhez ez is}.
+
+\todo{A pseudocode is provided to demonstrate implementability.}
+
+\subsubsection{Unsat core-based clock selection}
+
+Solvers can be useful, not only to decide if a given set of constraints is satisfiable, but also - if the answer is \emph{unsat} - solvers have various features to show why they can not be satisfied. One of the possible helpful feature is deriving the so called \emph{unsat core} - that is, a minimal set of the given constraints that is unsatisfiable in itself. This set of constraints can be used to determine the set of clock variables with what the current abstraction of the automaton has to be extended. In order to define the refinement set, the variables appearing in the unsat core have to be transformed back to the original variables. The set of original variables appearing in the constraints is the result of the algorithm.
+
+\todo{példa}
+
+\todo{pszeudokód?}
+
+\subsubsection{Automaton refinement}
 
 
-Implementált modulok felsorolva, utalással az előző fejezet algoritmusaira. + példák, pszeudokód
+
+\todo{a végére ábra az elkészült dobozokról.}
+
+\subsection{Implementations for statespace-based refinement}
+
+\subsubsection{Abstractions} % ezt lehet jobb lenne nem subsubsecionként?
+
+\subsubsection{Statespace exploration}
+
+\subsubsection{Trace Activity}
+
+\subsubsection{Unsat core-based precision}
+
+\subsubsection{Statespace refinement}
+
+%Implementált modulok felsorolva, utalással az előző fejezet algoritmusaira. + példák, pszeudokód
 
 
 \section{Combined Algorithms}
 A fenti modulok kombinálhatósága. Ekészült algoritmusok.
 
+%\subsection{Timed automaton-based refinement with sat based mocdel checker}
+%\subsection{Timed automaton-based refinement with sat based mocdel checker}
 
 %
 %\todo{Algoritmusok, leírással, hol használják, hogyan lehet TA-ra alkalmazni, miért jó, stb. + hogyan fog beleilleszkedni a konfigurálható izébe (milyen dobozok)}
-%
-%\subsection{Adapted algorithms}
-%
-%\subsection{Solver-based approaches}
-%
-%\subsection{Statespace refinement}
-%
-%\subsection{Trace Activity}
 
 
 

@@ -21,27 +21,27 @@ In order to properly define timed automata, first the idea of \emph{clock variab
 
 Hereinafter follows some basic definitions that are closely related to clock variables and timed automata. 
 
-\begin{definition}
+\begin{dfn}
 	A \emph{valuation} $v(\mathcal{C})$ assigns a non-negative real value
 	to each clock variable $c \in \mathcal{C}$, where $\mathcal{C}$ denotes the set of clock
 	variables.
-\end{definition}
+\end{dfn}
 
 In other words a valuation defines the values of the clocks at a given moment of time. The term \emph{valuation} can also be used for discrete variables.
 
-\begin{definition}
+\begin{dfn}
 	A \emph{clock constraint} is a conjunctive formula of atomic
 	constraints of the form $x \sim n$ or $x - y \sim n$ (\emph{difference
 		constraint}), where $x,y \in \mathcal{C}$ are clock variables, $\sim \in
 	\{\leq,<,=,>,\geq\}$ and \hbox{$n \in \mathbb{N}$}. $\mathcal{B}(\mathcal{C})$ represents the set of clock
 	constraints.
-\end{definition}
+\end{dfn}
 
 In other words a clock constraint defines upper and lower bounds on the values of clocks (or differences of clocks, in case of difference constraints). Bounds are always integer numbers. Clock constraints are used in guards and invariants of timed automata to control the behaviour by only allowing certain operations if the current valuation satisfies the consraints. 
 
 A \emph{timed automaton} extends a finite automaton with clock variables. It can be defined as follows.
 
-\begin{definition}
+\begin{dfn}
 A \emph{timed automaton} $\mathcal{A}$ is a tuple $\langle L, l_0,
 E, I\rangle$ where
 \begin{itemize}
@@ -50,7 +50,7 @@ E, I\rangle$ where
 	\item $E \subseteq L \times \mathcal{B}(\mathcal{C}) \times 2^\mathcal{C} \times L$ is the set of edges and
 	\item $I: L \to \mathcal{B}(\mathcal{C})$ assigns invariants to locations.  Invariants can be used to ensure the progress of time in the model. \cite{bengtsson2004timed}
 \end{itemize}
-\end{definition}
+\end{dfn}
 
 Graphically a timed automaton can be represented as a labeled graph where the vertices are the locations labelled with their corresponding invariants, and the edges are the automaton's edges, that are defined by the source location, the guard (represented by a clock constraint), the set of clocks to reset, and the target location.
 
@@ -82,9 +82,9 @@ There are many variations of timed automata (e.g. this definition only allows to
 
 \todo{Importance, basic algorithms (statespace exploration, SAT based solution, bounded stuff + examples), TA reachability + examples}
 
-\subsubsection{Timed automaton reachability}
+\subsubsection{Timed automaton reachability} \label{sec:tareach}
 
-
+\todo{complexity, complextity w/ disc vars, encoding disc vars in locations, etc}
 
 \subsection{CEGAR}
 \subsubsection{Abstraction}
