@@ -1,18 +1,63 @@
 \chapter{Background}
 \label{chap:background}
 
-\todo{Ákos dipterv}
-
 
 \section{Mathematical logic}
 
-\subsection{Zeroth order logic}
-SAT
+Mathematical logic is useful for deciding correctness of systems. This section provides some insight about propositional logic, first order logic, and the satisfiability problem. Differenece logic is also introduced.
+
+\subsection{Propositional logic}
+
+Propositional logic (or zeroth order logic) is concerned with the study of formulae of boolean variables, and deciding whether they are true or false. Propositional formulae are composed of truth symbols $\top$ (true) and $\bot$ (flase),  and propositional variables $p,q, \cdots$ with the use of logical connectives. A formula $\phi$ can be an atom (a truth symbol or a variable) or can be constructed from other logical formulae with the following connectives:
+
+\begin{itemize}
+	\item negation: $\neg\phi_1$ is evaluated true iff $\phi_1$ is evaluated false (formal equivalent of 'not'),
+	\item conjunction: $\phi_1 \wedge \phi_2$ is evaluated true iff  both $\phi_1$ and $\phi_2$ is evaluated true (formal equivalent of 'and'),
+	\item disjunction: $\phi_1 \vee \phi_2$ is evaluated true iff  at least one of $\phi_1$ and $\phi_2$ is evaluated true (formal equivalent of 'or'),
+	\item implication: $\phi_1 \to \phi_2$ is evaluated true iff  $\phi_1$ is evaluated false or both $\phi_1$ and $\phi_2$ is evaluated true (formal equivalent of 'if \ldots then'),
+	\item equivalence: $\phi_1 \leftrightarrow \phi_2$ is evaluated true iff   both $\phi_1$ and $\phi_2$ is evaluated true or  both $\phi_1$ and $\phi_2$ is evaluated false (formal equivalent of 'if and only if').
+\end{itemize}
+
+Note, that disjunction, implication, and equivalence can be expressed using negation and conjunction. These operators are only defined to raise the level of descriptive power.
+
+The (boolean) satisfiability problem (SAT, for short) can be defined as follows.
+\begin{description}
+	\item[Input]: A propositional logic formula $\phi$.
+	\item[Output]: \emph{Yes} if $\phi$ is satisfiable (i.e. it is possible to ground the variables appearing in $\phi$ to truth symbols so that $\phi$ is evaluated true), \emph{No} if not.
+\end{description}
+
 \subsection{First order logic}
-SMT
+
+Propositional logic is useful, however, sometimes its expressive power is not enough. First order logic is a extends propositional logic with predicates, functions and the quantifiers $\exists$ (existential quantifier) and $\forall$ (universal quantifier). While propositional logic formulae could only be evaluated to truth values, first order logic formulae can be evaluated to numbers, or any abstract concept.
+
+The basic elements of first order logic are \emph{terms}. Variables and constants (0-ary functions) are terms, as well as $n$-ary functions applied $n$ terms. In first order logic an atom can be $\top, \bot$ or an a $n$-ary predicate applied to $n$ terms. Formuale are gained by applying connectives (the same as in case of propositional logic) and quantifiers to atoms.
+
+The satisfiability problem can be applied to first order logic formulae, but it is undecidable. However, there is a variant of the problem that is applicable, and solveable for most practical problems. Formalization of structures is what bridges the gap.
+
+\begin{dfn}
+	A \emph{first order theory} $\mathcal{T}$ is a pair $(\Sigma,\mathcal{A})$  where
+	\begin{itemize}
+		\item $\Sigma$ is the \emph{signature}, i.e. the set of constant, function and predicate symbols and
+		\item $\mathcal{A}$ is the set of \emph{axioms} where an axiom is a first order logic formula that has no quantifiers in it, and $\Sigma$ contains all constants, functions and predicates appearing in it.
+	\end{itemize}
+\end{dfn}
+
+The \emph{Satisfiable Modulo Theories} (SMT) for short can be defined as follows.
+\begin{description}
+	\item[Input]: A theory $\mathcal{T}=(\Sigma,\mathcal{A})$, and $\Sigma$-formula $\phi$.
+	\item[Output]: \emph{Yes} if $\phi$ is satisfiable in $\mathcal{T}$, \emph{No} if not.
+\end{description}
+
+In many practical theories, SMT becomes solveable.
+
+\subsection{Difference logic}
+
+Atom in (integer) difference logic is a logical expression of the form $x-y<n$ or $x-y \leq n$ where $x$ and $y$ are variables defined over $\mathds{Z}$ and $n$ is a constant. A difference logic formula $\phi$ is a conjunction of one ore more atoms. In case of difference logic, SAT is not only decidable, but polynomial.
+
+Since framework presented in this paper relies on a SAT (SMT) solver (as it is explained in chapter \ref{chap:impl}), this paper does not adress the algorithms for deciding satisfiability (if it is decidable). For more information on satosfiability, the reader is referred to \todo{hivatkozás}.
+
 
 \section{Formal verification}
-\todo{Importance, etc. -> introba}
 
 Formal verification is the act of proving the correctness or incorrectness of a system in a mathematically precise way. In order for that to happen, the system has to be represented by a formal model, and the requirements of the system has to be formally defined as properties of the given model. Verification can be performed by proving that the system (repreented by the formal model) satisfies that property. The property may be a structural criterion or an expectiation about the behaviour of the system.
 
