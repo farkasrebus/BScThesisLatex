@@ -2,19 +2,46 @@
 
 \section{Environment}
 
-\todo{TTMC bemutatása,stb}
+\subsection{\ttmc}
 
-%\section{Designed modules}
+\ttmc is a framework developed by the \bmemit that offers model checking algorithms for various models, such as programs and statecharts. The models are described by domain specific languages, and translated to common formalisms, including the state transition system, the control flow automaton, and the timed automaton. Besides formalisms, abstract domains and frameworks for common model checking approaches are also implemented. \ttmc uses an SMT solver called Z3\footnote{https://github.com/Z3Prover}, that is able to recognize various first order theories, such as difference logic.
+
+I have decided to extend \ttmc with the presented configurable framework for model checking timed automata. The implemented framework relies on the model checker's extended timed automaton representation: the \emph{Timed Control Flow Automaton}, Z3 interface, and a modified version (modifications described in chapter \ref{chap:timed_cegar}) of the zone implementation described in \cite{bengtsson2004timed}.
+
+\subsection{Achitecture}
+
+\todo{Ábra amin látszik ki-bemenet,Solver, stb}
+
+The basic architecture of the framework presented in chapter \ref{chap:timed_cegar} is shown on \todo{ábra ref}.
+
+The input of the algorithm consists of an input of the problem (a timed automaton $\mathcal{A}$ and a location $l_{err} \in L(\mathcal{A})$), and a configuration of the algorithm: compatible implementations of the CEGAR phases, and their parameters (e.g. the bound of the bounded model checker).
+
+The output of the algorithm can be an execution trace by which $l_{err}$ is reachable, \emph{No} if $l_{err}$ is unreachable, or \emph{Undecided}. The latter case can happen for two causes: either the computations on the discrete variables make the problem undecidable, or thr bounded model checker proved that $l_{err}$ is unreachable in the given number of steps. 
+
 
 
 \section{Measurements}
 
+Measurements were performed on a personal computer with a core i5 processor. The program was operating on a maximum of \todo{(ecplipsenek adható max)}  memory.
+
 \subsection{Objectives}
 
-\todo{Célok ismertetése, mérések bemutatása. Mit akarunk mérni, mivel fogjuk összehasonlítani, milyen bemeneteken, és miért.}
+The goal of the measurements is to evaluate the designed algorithm's performance and scalability, and draw conclusions about what combination of algorithms are effective. Inputs were chosen from Uppaal's benchmark automata\footnote{https://www.it.uu.se/research/group/darts/uppaal/benchmarks/}, but only the scalable ones. Uppaal supports extensions of the timed automaton formalism (synchronization channels) that are not implemented in \ttmc. This was solved by generating the complete product automata instead of network automata.
+
+
+%\todo{Célok ismertetése, mérések bemutatása. Mit akarunk mérni, mivel fogjuk összehasonlítani, milyen bemeneteken, és miért.}
 
 \subsection{Inputs}
-\todo{Uppaal inputok, stb.}
+
+This section describes the input models used for measurements.
+
+\subsubsection{Fischer's protocol}
+
+\subsubsection{CSMA/CD protocol}
+
+\subsubsection{Token Ring FDDI Protocol}
+
+
 
 \subsection{Results}
 \todo{Grafikonok + mit mértünk épp, mivel, mi lett az eredménye}

@@ -4,13 +4,11 @@
 
 \section{Mathematical logic}
 
-\todo{Javítani a többi sectiont ez alapján}
-
-Mathematical logic is useful for deciding correctness of systems. This section provides some insight about propositional logic, first order logic, and the satisfiability problem. Differenece logic is also introduced.
+Mathematical logic is useful for deciding correctness of systems. This section provides some insight about propositional logic, first order logic, and the satisfiability problem. Difference logic is also introduced.
 
 \subsection{Propositional logic}
 
-Propositional logic (or zeroth order logic) is concerned with the study of formulae of boolean variables, and deciding whether they are true or false. Propositional formulae are composed of truth symbols $\top$ (true) and $\bot$ (flase),  and propositional variables $p,q, \dots$ with the use of logical connectives. A formula $\varphi$ can be an atom (a truth symbol or a variable) or can be constructed from other logical formulae with the following connectives:
+Propositional logic (or zeroth order logic) is concerned with the study of formulae of boolean variables, and deciding whether they are true or false. Propositional formulae are composed of truth symbols $\top$ (true) and $\bot$ (false),  and propositional variables $p,q, \dots$ with the use of logical connectives. A formula $\varphi$ can be an atom (a truth symbol or a variable) or can be constructed from other logical formulae with the following connectives:
 
 \begin{itemize}
 	\item negation: $\neg\varphi$ is evaluated true iff $\varphi$ is evaluated false (formal equivalent of 'not'),
@@ -25,16 +23,16 @@ Propositional logic (or zeroth order logic) is concerned with the study of formu
 The (boolean) satisfiability problem (SAT, for short) can be defined as follows.
 \begin{description}
 	\item[Input]: A propositional logic formula $\varphi$.
-	\item[Output]: \emph{Yes} if $\varphi$ is satisfiable (i.e. it is possible to ground the variables appearing in $\varphi$ to truth symbols so that $\varphi$ is evaluated true), \emph{No} if not.
+	\item[Output]: \emph{Yes} if $\varphi$ is satisfiabile (i.e. it is possible to ground the variables appearing in $\varphi$ to truth symbols so that $\varphi$ is evaluated true), \emph{No} if not.
 \end{description}
 
 \subsection{First order logic}
 
 Propositional logic is useful, however, sometimes its expressive power is not enough. First order logic is a extends propositional logic with predicates, functions and the quantifiers $\exists$ (existential quantifier) and $\forall$ (universal quantifier). While propositional logic formulae could only be evaluated to truth values, first order logic formulae can be evaluated to numbers, or any abstract concept.
 
-The basic elements of first order logic are \emph{terms}. Variables and constants (0-ary functions) are terms, as well as $n$-ary functions applied $n$ terms. In first order logic an atom can be $\top, \bot$ or an a $n$-ary predicate applied to $n$ terms. Formuale are gained by applying connectives (the same as in case of propositional logic) and quantifiers to atoms.
+The basic elements of first order logic are \emph{terms}. Variables and constants (0-ary functions) are terms, as well as $n$-ary functions applied $n$ terms. In first order logic an atom can be $\top, \bot$ or an a $n$-ary predicate applied to $n$ terms. Formulae are gained by applying connectives (the same as in case of propositional logic) and quantifiers to atoms.
 
-The satisfiability problem can be applied to first order logic formulae, but it is undecidable. However, there is a variant of the problem that is applicable, and solveable for most practical problems. The key idea is to formalize strucures.
+The satisfiability problem can be applied to first order logic formulae, but it is undecidable. However, there is a variant of the problem that is applicable, and solvable for most practical problems. The key idea is to formalize structures.
 
 \begin{dfn}
 	A \emph{first order theory} $\mathcal{T}$ is a pair $(\Sigma,\mathcal{A})$  where
@@ -50,18 +48,18 @@ The \emph{Satisfiable Modulo Theories} (SMT) for short can be defined as follows
 	\item[Output]: \emph{Yes} if $\varphi$ is satisfiable in $\mathcal{T}$, \emph{No} if not.
 \end{description}
 
-In many practical theories, SMT becomes solveable.
+In many practical theories, SMT becomes solvable.
 
 \subsection{Difference logic}
 
 An atom in (integer) difference logic is a logical expression of the form $x-y<n$ or $x-y \leq n$ where $x$ and $y$ are variables defined over $\mathds{Z}$ and $n$ is a constant. A difference logic formula $\varphi$ is a conjunction of one ore more atoms. In case of difference logic, SAT is not only decidable, but polynomial.
 
-Since framework presented in this paper relies on a SAT (SMT) solver (as it is explained in chapter \ref{chap:impl}), this paper does not adress the algorithms for deciding satisfiability (if it is decidable). For more information on satosfiability, the reader is referred to \todo{hivatkozás}.
+Since framework presented in this paper relies on a SAT (SMT) solver (as it is explained in chapter \ref{chap:impl}), this paper does not address the algorithms for deciding satisfiability (if it is decidable). For more information on satisfiability, the reader is referred to \cite{books/daglib/0019162}.
 
 
 \section{Formal verification}
 
-Formal verification is the act of proving the correctness or incorrectness of a system in a mathematically precise way. Model checking is an automatic formal verification technique,where the system has to be represented by a formal model, and the requirements of the system has to be a property of the system formally defined as logical formulae. Verification can be performed by proving that the system (represented by the formal model) satisfies that property.
+Formal verification is the act of proving the correctness or incorrectness of a system in a mathematically precise way. Model checking is an automatic formal verification technique, where the system has to be represented by a formal model, and the requirements of the system has to be a property of the system formally defined as logical formulae. Verification can be performed by proving that the system (represented by the formal model) satisfies that property.
 
 \subsection{Modeling formalisms}
 It is important to find the appropriate representation of the model i.e. the appropriate formalism in order to be able to model and check the property. This paper focuses on \emph{behavior properties} examined on \emph{behavioral models}.
@@ -71,7 +69,7 @@ It is important to find the appropriate representation of the model i.e. the app
 The finite automaton (plural: automata)  is one of the most common formalisms for modeling behavior. This way the system is described by a finite set of possible states, and a set of steps defining the system's state changes.
 
 \begin{dfn}
-	Formally a \emph{finite automaton}, or state machine $\mathcal{A}$ is a touple $\langle S,s_0,T \rangle$ where
+	Formally a \emph{finite automaton}, or state machine $\mathcal{A}$ is a tuple $\langle S,s_0,T \rangle$ where
 	\begin{itemize}
 		\item $S$ is a finite set of states,
 		\item $s_0 \in S$ is the initial state and
@@ -83,33 +81,73 @@ Structurally $\mathcal{A}$ can be represented as a directed graph $G_\mathcal{A}
 
 Initially, the system is in $s_0$. The system can change its state to some other state $s_1$ iff $(s_0,s_1) \in T$. from $s_1$ it can change its state to $s_2$ iff $(s_1,s_2) \in T$, and so on. 
 
+%\begin{figure} [b]
+%	\centering
+%	\begin{minipage}[c] {0.25\linewidth}%
+%		\vspace*{1pt}%
+%		\includegraphics [width=\textwidth]{include/figures/loop_example_original}%
+%		\caption{Example of a timed automaton}
+%	\end{minipage}%
+%	%
+%	\begin{minipage}[c] {0.7\linewidth}%
+%		\includegraphics [width=\textwidth] {include/figures/loop_original_zonegraph}%TODO: ezt majd még vektorosítani
+%		\vspace*{4pt}%
+%		\caption{Timed automaton}
+%	\end{minipage}
+%	\caption{Timed automaton with infinite zone graph}
+%	\label{fig:loopinfinite}
+%\end{figure} 
+
+\begin{figure}
+	\centering
+	\begin{minipage}{0.5\textwidth}
+		\includegraphics[width=\textwidth]{include/figures/loop_example_unclocked}%
+		\caption{Example of a finite automaton}
+		\label{fig:faex}
+	\end{minipage}
+\end{figure}
+
 \begin{example}
-	\todo{példa}
+	Let $\mathcal{A}$ be a finite automaton with states \emph{start}, \emph{loop}, and \emph{end}, and transitions  \emph{start} $\to$ \emph{loop}, \emph{loop} $\to$ \emph{loop}, and \emph{loop} $\to$ \emph{end}, as depicted on Figure \ref{fig:faex}. The initial state is \emph{start}, denoted by double outline.
+	
+	Operation starts form the initial state, \emph{start}. The system can step to \emph{loop} where it can step to \emph{end} or \emph{loop} (itself). Since it is always a possibility to stay in the current state, loop transitions don't have importance in finite automata.
 \end{example}
 
-This formalism is easy to use and verify, but its expressive power is not necessary: there are many types of behavoiurs that can't be modelled this way.
+This formalism is easy to use and verify, but its expressive power is not necessary: there are many types of behaviours that can't be modelled this way.
 
 \subsubsection{Finite automaton extended with variables} \label{sec:extfa}
 
 Many extensions of the finite automaton are known with various levels of expressive power. The following extension lifts the level of expressive power to that of Turing-machines: extending the automaton with variables.
 
 
-
-A finite automaton extended by variables could be (briefly) defined as a touple $\langle L,l_0,v_0, E, I\rangle$ operationg on a set of variables $\mathcal{V}$ where
+\begin{dfn}
+A finite automaton extended by variables could be (briefly) defined as a tuple $\langle L,l_0,v_0, E, I\rangle$ operating on a set of variables $\mathcal{V}$ where
 \begin{itemize}
 	\item $L$ is the set of control locations,
 	\item $l_0 \in L$ is the initial location,
 	\item $v_0$ is a function assigning an initial value to each variable $x \in \mathcal{V}$,
-	\item $E \subseteq L \times \mathcal{B} \times \mathcal{U} \times L$ is the set of edges (where $\mathcal{B}$ can be briefly described as the set of bool valued first oreder logic formulae constructed from the variables of $\mathcal{V}$,  and $\mathcal{U}$ can briefly defined as the set of unary functions operating on subesets of $\mathcal{V}$  assigning new values to variables) and
+	\item $E \subseteq L \times \mathcal{B} \times \mathcal{U} \times L$ is the set of edges (where $\mathcal{B}$ can be briefly described as the set of bool valued first order logic formulae constructed from the variables of $\mathcal{V}$,  and $\mathcal{U}$ can briefly defined as the set of unary functions operating on subsets of $\mathcal{V}$  assigning new values to variables) and
 	\item $I: L \to \mathcal{B}$ assigns invariants to locations.
 \end{itemize}
+\end{dfn}
 
-Instead of states, the graph's nodes are called control locations, since the system's state also depends on the values of the variables. For similar reasons, the edges of the graph are now called edges in the formalism aswell, and they are more expressive: an edge $e=(l,g,a,l')$ represents a transition form $l$ to $l'$, with a guard $g$ and an assignment function $a$. A guard is a condition that has to be satisfied in order for the transition to be enabled. The function $a$ describes how the value of some variables is changed during the transition. Locations can have invariants, that are conditions that have to be satisfied while the system stays in that location.
+Instead of states, the graph's nodes are called control locations, since the system's state also depends on the values of the variables. For similar reasons, the edges of the graph are now called edges in the formalism as well, and they are more expressive: an edge $e=(l,g,a,l')$ represents a transition form $l$ to $l'$, with a guard $g$ and an assignment function $a$. A guard is a condition that has to be satisfied in order for the transition to be enabled. The function $a$ describes how the value of some variables is changed during the transition. Locations can have invariants, that are conditions that have to be satisfied while the system stays in that location.
 
-The system's operation starts from the control location $l_0$, and the variables are intialized as $v_0$ defines. A system can transition from $l$ to some $l'$ if there exist an edge $e=(l,g,a,l')$ where $g$ is satisfied by the variables current values, and $I(l')$ is satisfied by the values $a$ assigns to the variables (or their current value if $a$ is undefined on them).
+The system's operation starts from the control location $l_0$, and the variables are initialized as $v_0$ defines. A system can transition from $l$ to some $l'$ if there exist an edge $e=(l,g,a,l')$ where $g$ is satisfied by the variables current values, and $I(l')$ is satisfied by the values $a$ assigns to the variables (or their current value if $a$ is undefined on them).
+
+\begin{figure}
+	\centering
+	\begin{minipage}{0.6\textwidth}
+		\includegraphics[width=\textwidth]{include/figures/loop_example_discrete}%
+		\caption{Extended finite automaton}
+		\label{fig:efaex}
+	\end{minipage}
+\end{figure}
 
 \begin{example}
-	\todo{példa - előző kiegészítve}
+	Let $\mathcal{A}$ be an extended version of the automaton on figure \ref{fig:faex} as depicted in figure \ref{fig:efaex}. The introduced variables are $x$ and $l$. The variable $l$ is used as a loop counter. The edge \emph{start} $\to$ \emph{loop} assigns 2 to $x$, \emph{loop} $\to$ \emph{loop} squares $x$ and increases the value of the loop counter, \emph{loop} $\to$ \emph{end} doesn't affect the values of the variables, but it is only enables when $x$ is a least 16. Location \emph{loop} has an invariant ensuring that the loop edge is taken at most 5 times.
+	
+	Operation starts in state \emph{start}, $x=0, l=0$. When the system changes its state it can only take edge \emph{start} $\to$ \emph{loop}, resulting in state \emph{loop} $x=2, l=0$. Edge  \emph{loop} $\to$ \emph{end} is not enabled, but the system can take the loop edge resulting in state \emph{loop} $x=4, l=1$. The edge to \emph{end} is still not enabled, but after taking the loop edge again (\emph{loop} $x=16, l=2$) it becomes enabled. The system may keep taking the loop edge up to three times (after which the invariant prohibits it, because it would increase $l$), or transition to \emph{end}.
 \end{example}
 
 \subsection{Reachability}
@@ -121,7 +159,7 @@ The problem can be defined as follows.
 	\item[Output]: \emph{Yes} if it is possible for $S$ to operate in a way that it eventually steps in $s_{err}$, \emph{No} if not.
 \end{description}
 
-When the answer is \emph{Yes}, it is useful to provide a \emph{counterexample}: an execution trace $\sigma = s_0 \to s_1 \to \cdots \to s_{err}$ setting the systems's state to $s_{err}$ where $s_i$-s are states  and $s_i \to s_{i+1}$ notations represent possible steps of the system from $s_i$ to $s_{i+1}$.
+When the answer is \emph{Yes}, it is useful to provide a \emph{counterexample}: an execution trace $\sigma = s_0 \to s_1 \to \cdots \to s_{err}$ setting the system's state to $s_{err}$ where $s_i$-s are states  and $s_i \to s_{i+1}$ notations represent possible steps of the system from $s_i$ to $s_{i+1}$.
 
 Each formalisms have their own interpretation of the problem - regarding how erroneous states and execution traces are described. For example, in case of finite automata, the problem can be interpreted as follows. 
 
@@ -133,7 +171,7 @@ Each formalisms have their own interpretation of the problem - regarding how err
 This problem can be solved by any pathfinding algorithm executed on $G_\mathcal{A}$.
 
 \begin{example}
-	\todo{valami egyszerű példa megoldással}
+	Let the input be the previous automaton on figure \ref{fig:faex} and it's state \emph{end}. A pathfinding algorithm finds a path, e.g. \emph{start} $\to$ \emph{loop} $\to$ \emph{end}, proving the state is reachable. 
 \end{example}
 
 In case of extended finite automata the problem can be interpreted as follows.
@@ -144,11 +182,22 @@ In case of extended finite automata the problem can be interpreted as follows.
 
 Note, that in this case error states are defined solely by the location, however, it is easy to reduce a problem where the values of the variables are also constrained into this form.
 
+\begin{figure}
+	\centering
+	\begin{minipage}{0.7\textwidth}
+		\includegraphics[width=\textwidth]{include/figures/loop_example_error}%
+		\caption{Automaton for checking reachability}
+		\label{fig:efaexerr}
+	\end{minipage}
+\end{figure}
+
 \begin{example}
-	\todo{példa?}
+	Consider the previous system $\mathcal{A}$ depicted on figure \ref{fig:efaex} with the erroneous states defined as the set of states where the current location is \emph{end} and $x \geq 200$.
+	
+	A new automaton can be constructed by extending $\mathcal{A}$'s set of location with a new location \emph{error} that is only reachable if $\mathcal{A}$ can reach location \emph{end} with $x \geq 200$. The new automaton is depicted on figure \ref{fig:efaexerr}.
 \end{example}
 
-The described problem is unsolveable as well as the reachability problem for all other Turing-complete formalisms. This is one of the reasons why the modeling formalism has to be chosen carefully. A 'simple' formalism may not have enough expressive power to percisely model the system, while verification of more complex formalisms may be ineffective or even impossible.
+The described problem is unsolvable as well as the reachability problem for all other Turing-complete formalisms. This is one of the reasons why the modeling formalism has to be chosen carefully. A 'simple' formalism may not have enough expressive power to precisely model the system, while verification of more complex formalisms may be ineffective or even impossible.
 
 \subsubsection{Statespace exploration}
 
@@ -160,7 +209,7 @@ Even if reachability is undecidable (or just ineffective), there are many method
 
 The idea of statespace exploration is to systematically list all possible states in the statespace. If the erroneous state is found the system is proven to be incorrect. Otherwise if all possible states are listed (in case of a finite statespace) and no erroneous state is found, the system is proven to be correct. (In case of an infinite statespace this process may never terminate.)
 
-One of the simplest ways for exploring the statespace is by constructing a search-tree. The root of the tree is the initial state $s_0$ of the system. The statespace is explored by iteratively chosing a leaf with a state $s$ of the tree, and introducing a new edge for all possible enabled transitions $(s,s')$ pointing to a new node with a state $s'$. This way, all possible execution traces are explored, but states may appear more than once if there are more execution traces to reach them.
+One of the simplest ways for exploring the statespace is by constructing a search-tree. The root of the tree is the initial state $s_0$ of the system. The statespace is explored by iteratively choosing a leaf with a state $s$ of the tree, and introducing a new edge for all possible enabled transitions $(s,s')$ pointing to a new node with a state $s'$. This way, all possible execution traces are explored, but states may appear more than once if there are more execution traces to reach them.
 
 It is also possible to construct a state graph, where the statespace is explored similarly, except one state can only appear on one node. This helps reducing the size of the graph, however (in case of an infinite statespace) it still might be infinite. Infinite statspaces can never be completely explored this way (by explicit exploration), however, sometimes, when small counterexamples are expected, it is not necessary.
 
@@ -195,10 +244,10 @@ one, but it is less complex and thus model checking can be performed more effect
 
 Model checking is performed on the abstract model. If the target state is
 unreachable in the abstract model, it is unreachable in the original model
-as well. Otherwise the model checker produces a counterexample -- an execution trace demonstraing how the
+as well. Otherwise the model checker produces a counterexample -- an execution trace demonstrating how the
 system can reach the target state. 
 
-Overapproximation brings such behaviors to the system that are not feasible in the original one. Because of this, the counterexample may not be a valid trace in the real system, so it has to be investigated.
+Overapproximation brings such behaviours to the system that are not feasible in the original one. Because of this, the counterexample may not be a valid trace in the real system, so it has to be investigated.
 If it turns out to be a feasible counterexample, the target state is reachable. Otherwise
 the abstract system has to be refined -- hidden details of the original system have to be reintroduced to the model. The goal of the refinement is to modify the abstract
 system so that it remains an abstraction of the original one, but the spurious
@@ -215,16 +264,16 @@ There are many ways CEGAR can be implemented. An approach is presented here that
 
 When constructing a CEGAR-based algorithm the most important decision to make is the way abstraction is applied to the system. It determines the class of algorithms that can be used for model checking, the nature of the counterexample, and how it can be analyzed, and the possibilities for refinement. 
 
- Abbstraction can be applied to many aspects of a model. An abstraction method commonly used for formalisms operating on variables is to reduce the number of variables in the model,by simply ignoring some of them. The initial abstraction of the model can be the same model without any variables.
+ Abstraction can be applied to many aspects of a model. An abstraction method commonly used for formalisms operating on variables is to reduce the number of variables in the model, by simply ignoring some of them. The initial abstraction of the model can be the same model without any variables.
  
  \begin{example}
- 	\todo{bemutatni egy diszkrét változós automatán - megemlíteni hogy amit kaptunk az egy sima finite automaton}
+ 	Consider again automaton $\mathcal{A}$ depicted on figure \ref{fig:efaex}. Eliminating all variables results in the previous finite automaton depicted on figure \ref{fig:faex}.
  \end{example}
 
 Model checking can be performed by statespace exploration for example, however, there are countless other ways.
 
  \begin{example}
- 	\todo{folytatni az előzőt - állapottér, absztrakt állapotok, stb}
+ 	In the first iteration model the statespace exploration of $\mathcal{A}$ will result in $G(\mathcal{A})$, where the counterexample found can be e.g. $\sigma = \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$.
  \end{example}
  
  A common way of checking whether a counterexample  is feasible is by transforming it into a first order logic formula, and handing it to a solver. If it is satisfiable, the error location is reachable, and the system is incorrect. Consider for example the case of the extended finite automaton. The counterexample is a trace $\sigma = l_0 \xrightarrow{e_0} l_1 \xrightarrow{e_1} \cdots \xrightarrow{e_n} l_{n+1}=l_{err}$.
@@ -233,14 +282,19 @@ Variables have to be defined: for each $x \in \mathcal{V}$ variables $x_0,x_1, \
 
 First, initial conditions are defined. In case of extended finite automata, the initial constraints are the variables' initial values. For each $x \in \mathcal{V}$ $x_0=v_0(x)$ is added to the set of constraints. After that, constraints are added step by step. 
 
-It has to be checked if the guard is satisfied. For each $e_i=(l_i,g_i,a_i,l_{i+1})$ $0 \leq i \leq n$ a variation of $g_i$ is added to the set of constraints: all $x \in \mathcal{V}$ appearing in $g_i$ is replaced by $x_i$. Afer that, the assignment function is considered: for each $x \in \mathcal{V}$ $x_{i+1}=a_i(x)$ is added to the set of constraint if if $a_i(x)$ exsists, and $x_{i+1}=x_i$ is added otherwise. Invariants can be turned into constraints the same way as guards: all $x \in \mathcal{V}$ appearing in $I(l_i)$ is replaced by $x_i$. 
+It has to be checked if the guard is satisfied. For each $e_i=(l_i,g_i,a_i,l_{i+1})$ $0 \leq i \leq n$ a variation of $g_i$ is added to the set of constraints: all $x \in \mathcal{V}$ appearing in $g_i$ is replaced by $x_i$. Afer that, the assignment function is considered: for each $x \in \mathcal{V}$ $x_{i+1}=a_i(x)$ is added to the set of constraint if $a_i(x)$ exists, and $x_{i+1}=x_i$ is added otherwise. Invariants can be turned into constraints the same way as guards: all $x \in \mathcal{V}$ appearing in $I(l_i)$ is replaced by $x_i$. 
 
 \begin{example}
-	\todo{példa : talált trace -> formula}
+	The translation of the counterexample $\sigma = \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$ to a logic formula will contain variables $x_0,x_1,x_2,l_0,l_1$ and $l_2$. The initial constraints are $x_0=0,l_0=0$. Edge \emph{start} $\to$ \emph{loop} assigns 2 to $x$, but leaves $l$ unchanged, yielding the constraints $x_1=2,l_1=l_0$. Location \emph{loop}'s invariant $l \leq 5$ can be transformed to constraint $l_1 \leq 5$. The guard of \emph{loop} $\to$ \emph{end} yields the constraint $x_1 \geq 16$.
+	
+	The formula handed to the solver is $\varphi = x_0=0 \bigwedge l_0=0 \bigwedge x_1=2 \bigwedge l_1=l_0 \bigwedge l_1 \leq 5 \bigwedge x_1 \geq 16$.
 \end{example}
 
-The conjunction of the resulting set of constraints is handed to a solver. If it is satisfiable, the counterexample is feasible, and the erroneous state is reachable. Otherwise it is a spurious counterexample and the abstract system has to be refined. Solvers have useful features for this aswell.
- 
+The conjunction of the resulting set of constraints is handed to a solver. If it is satisfiable, the counterexample is feasible, and the erroneous state is reachable. Otherwise it is a spurious counterexample and the abstract system has to be refined. Solvers have useful features for this as well.
+
+\begin{example}
+	The formula $\varphi = x_0=0 \bigwedge l_0=0 \bigwedge x_1=2 \bigwedge l_1=l_0 \bigwedge l_1 \leq 5 \bigwedge x_1 \geq 16$ is obviously unsatisfiable, because $x_1=2 \wedge x_1 \geq 16$ is unsatisfiable in itself. If the automatons current abstraction is extended with the variable $x$ with all of its assignments, and all constraints in guards and invariants that $x$ appears but $l$ doesn't, this counterexample won't be found anymore.
+\end{example}
 
 
 \section{Timed automata}
@@ -256,7 +310,7 @@ In order to properly define timed automata, first the idea of \emph{clock variab
 	\emph{Clock variables} are a special type of variables, whose value is constantly and steadily increasing.
 \end{dfn}
 
-When a system stays in one state, the value of clocks are increasing. Naturally, their values can be modified, but the only allowed operation on clock variables is \emph{reset}. Reseting a clock means assigning its value to 0. It's an instantaneous operation, after which the value of the clock will continue to increase.
+When a system stays in one state, the value of clocks are increasing. Naturally, their values can be modified, but the only allowed operation on clock variables is \emph{reset}. Resetting a clock means assigning its value to 0. It's an instantaneous operation, after which the value of the clock will continue to increase.
 
 Hereinafter follows some basic definitions that are closely related to clock variables and timed automata. 
 
@@ -293,8 +347,17 @@ E, I\rangle$ where
 The automaton's edges, that are defined by the source location, the guard (represented by a clock constraint), the set of clocks to reset (the timed equivalent of the assignment function), and the target location.
 %Graphically a timed automaton can be represented as a labeled graph where the vertices are the locations labelled with their corresponding invariants.
 
+\begin{figure}
+	\centering
+	\begin{minipage}{0.5\textwidth}
+		\includegraphics[width=\textwidth]{include/figures/timed_lamp}%
+		\caption{Timed automaton model of a lamp}
+		\label{fig:lamp}
+	\end{minipage}
+\end{figure}
+
 \begin{example}
-	\todo{példa}
+	The timed automaton depicted on figure \ref{fig:lamp} models a lamp with three levels of intensity: off (no light), dim, and bright. When it is turned off, one push of the button turns the dim light on, two quick (in 10 time units) pushes of the button turn the bright light on. When it is turned on, it can be switched off with a push of the button.
 \end{example}
 
 \begin{dfn}
@@ -325,7 +388,7 @@ The state $\langle l,v \rangle$ has a \emph{time transition} (or delay, for shor
 \end{dfn}
 
 \begin{example}
-	\todo{példa: előbbi TA működése}
+	The automaton of the previously mentioned lamp operates on one clock variable, $x$. Initially $x=0$ but as long as the system stays in location \emph{off}, its value increases and it can reach any non-negative value. Once it steps to \emph{dim} $x$ is reset, and its value increases from 0 again. The next discrete transition is decided by the amount of time the system spent in location \emph{dim}. If it is at most ten time units, the system steps into location \emph{bright} and continues to increase from its last value in \emph{dim}, that can be any value between 0 and 10. Otherwise, the system steps back to \emph{off} and the value of $x$ continues to increase from its last value in \emph{dim}, that is more than 10.
 \end{example}
 
 There are many extensions of the timed automata formalism. Most of them -- such as network automata, synchronization, and urgent locations -- can be easily transformed into conventional timed automata, but this is not always the case. The idea to allow discrete variables as well as clock variables arises simply, but the same way as in case of finite automaton, growing expressive power yields less efficient model checking.
@@ -355,7 +418,7 @@ Before presenting the algorithm, some basic definitions have to be provided. Fir
 	A \emph{zone graph} is a finite graph consisting of $\langle l,z \rangle$ pairs as nodes, where $l \in L$ refers to some location of a timed automaton and $z$ is a zone. Edges of the zone graph represent transitions. 
 \end{dfn}
 
-A node $\langle l,z \rangle$ of a zone graph represents all states $\langle l,v \rangle$ where $v \in z$. Since edges of the zone graph denote transitions, a zone graph can be considered as an (exact) abstraction of the statspace. The main idea of the algorithm is to explore the zone graph of the timed automaton, and if a node $\langle l_{err},z \rangle$ exists in the graph for some $z \neq \emptyset$, $l_{err}$ is reachable, and the execution trace can be provided by some path-finding algorithm.
+A node $\langle l,z \rangle$ of a zone graph represents all states $\langle l,v \rangle$ where $v \in z$. Since edges of the zone graph denote transitions, a zone graph can be considered as an (exact) abstraction of the statespace. The main idea of the algorithm is to explore the zone graph of the timed automaton, and if a node $\langle l_{err},z \rangle$ exists in the graph for some $z \neq \emptyset$, $l_{err}$ is reachable, and the execution trace can be provided by some path-finding algorithm.
 
 The construction of the graph starts with the initial node  $\langle l_0,z_0 \rangle$,
 where $l_0$ is the initial location and $z_0$ contains the valuations reachable in the initial location by time transitions. 
@@ -365,33 +428,35 @@ $\langle l_0,z_0 \rangle \to \langle l,z \rangle$, where $\langle l,z \rangle$ c
 \begin{figure} 
 	\centering
 	\includegraphics[width=.7\textwidth]{include/figures/splitexample_aut}
-	\caption{Timed automaton example}
+	\caption{Timed automaton}
 	\label{fig:splitex}
 \end{figure}
 
 \begin{example}
 
 
-For ease of understanding the algorithm is demonstrated on the automaton in Figure \ref{fig:splitex}. The inital state is  $\langle S0, z_0 \rangle$ where $z_0$ is a zone containing only the initial valuation $v_0 \equiv 0$. The initial node is  $\langle start, z_0^\uparrow  \rangle$, where $z_0^\uparrow$ contains all states reachable form the initial state by delay. Since as time passes, the values of the three clocks will be incremented by the same value, $x$, $y$ and $z$ has the same value in each valuation contained by $z_0^\uparrow$. Since there is no invariant in location $S0$ the clocks can take any positive value. Because of this $z_0$ can be defined by the constraint $x=y=z$ (that is, $x-y = 0 \wedge y-z=0 $), and the initial node can be defined as $\langle S0; x=y=z  \rangle$.
+For ease of understanding the algorithm is demonstrated on the automaton in Figure \ref{fig:splitex}. The initial state is  $\langle S0, z_0 \rangle$ where $z_0$ is a zone containing only the initial valuation $v_0 \equiv 0$. The initial node is  $\langle start, z_0^\uparrow  \rangle$, where $z_0^\uparrow$ contains all states reachable form the initial state by delay. Since as time passes, the values of the three clocks will be incremented by the same value, $x$, $y$ and $z$ has the same value in each valuation contained by $z_0^\uparrow$. Since there is no invariant in location $S0$ the clocks can take any positive value. Because of this $z_0$ can be defined by the constraint $x=y=z$ (that is, $x-y = 0 \wedge y-z=0 $), and the initial node can be defined as $\langle S0; x=y=z  \rangle$.
 
-There is only one outgoing transition from the initial location and that resets $z$, resulting in the zone defined by $x=y \wedge z=0$, which transforms into $z \leq x=y$ when delay is applied. This means the next node of the graph can be defined as $\langle S1, z \leq x=y \rangle$. There is only one outgoing transition from the location $S1$ and it has guard $y>2$. This means the transition is only enabled in the subzone $z \leq x=y>2$ (that is $z \leq x \wedge x=y \wedge y>2$). Th transition resets $y$ resulting in the zone $y=0 \wedge z \leq x > 2$. Delay can be applied and the next node of the graph turns out to be $\langle S2, z \leq x \wedge y \leq z \wedge x-y>2 \rangle$.
+There is only one outgoing transition from the initial location and that resets $z$, resulting in the zone defined by $x=y \wedge z=0$, which transforms into $z \leq x=y$ when delay is applied. This means the next node of the graph can be defined as $\langle S1, z \leq x=y \rangle$. There is only one outgoing transition from the location $S1$ and it has guard $y>2$. This means the transition is only enabled in the subzone $z \leq x=y>2$ (that is $z \leq x \wedge x=y \wedge y>2$). The transition resets $y$ resulting in the zone $y=0 \wedge z \leq x > 2$. Delay can be applied and the next node of the graph turns out to be $\langle S2, z \leq x \wedge y \leq z \wedge x-y>2 \rangle$.
 
-There outgoing transition from location $S2$ has a guard $x<z+1 \wedge z<y+1$ from which $x<y+2$ can be derived contradicting the atomic constraint $x-y>2$ in the reachable zone of location $S2$. Thus the transition is never enabled, and location $S3$ is unreachable.  
+There outgoing transition from location $S2$ has a guard $x<z+1 \wedge z<y+1$ from which $x<y+2$ can be derived contradicting the atomic constraint $x-y>2$ in the reachable zone of location $S2$. Thus the transition is never enabled, and location $S3$ is unreachable.
+
+The zone graph of this automaton can be drawn as follows.\[\langle S0; x=y=z  \rangle \to \langle S1, z \leq x=y \rangle \to \langle S2, z \leq x \wedge y \leq z \wedge x-y>2 \rangle \]
 
 \end{example}
 
-\begin{figure} [b]
+\begin{figure}
 	\centering
 	\begin{minipage}[c] {0.25\linewidth}%
 				\vspace*{1pt}%
 		\includegraphics [width=\textwidth]{include/figures/loop_example_original}%
-		\caption{Example of a timed automaton}
+		%\caption{A timed automaton}
 	\end{minipage}%
-		%
-	\begin{minipage}[c] {0.7\linewidth}%
+		\hspace{0.1\linewidth}%
+	\begin{minipage}[c] {0.5\linewidth}%
 		\includegraphics [width=\textwidth] {include/figures/loop_original_zonegraph}%TODO: ezt majd még vektorosítani
 				\vspace*{4pt}%
-				\caption{Timed automaton}
+				%\caption{An imed automaton}
 	\end{minipage}
 	\caption{Timed automaton with infinite zone graph}
 	\label{fig:loopinfinite}
@@ -423,22 +488,22 @@ Normalization is performed on $z^\uparrow$ (before inclusion is checked) in two 
 \begin{example}
 In the automaton depicted in Figure \ref{fig:loopinfinite}, $k(y)=20$ (and $k(x)=10$). This means the exact value of $y$ doesn't really matter, as long as it is greater than 20 -- the automaton will behave the exact same way if it is between 30 and 40, or if it is between 40 and 50. %We can combine the zones where $y$ is greater than 20 (and the value of $x$ is the same) into the zone $ x \leq 10 \wedge y>20 \wedge y-x>20$.
 If we take this into consideration when constructing the zone graph, the zone  $x \leq 10 \wedge y-x=30$ can be normalized. In this zone, $y \geq 30 > k(y)=20$, but $x \leq k(x)$. This means we only have to consider constraints bounding $y$.
-Implicitely $y \leq 40$ and $y-x \leq 30$. These constraints have to be removed from the zone. Similarly, $y \geq 30$ and $y-x \geq 30$ have to be replaced by $y \geq 20$ and $y-x \geq 20$. The resulting zone is $x \leq 10 \wedge y \geq 20 \wedge y-x \geq 20$. If we replace the original zone  $x \leq 10 \wedge y-x=30$ by this zone, and continue constructing the zone graph, the resulting graph is depicted in Figure \ref{fig:looprealgraph}.
+Implicitly $y \leq 40$ and $y-x \leq 30$. These constraints have to be removed from the zone. Similarly, $y \geq 30$ and $y-x \geq 30$ have to be replaced by $y \geq 20$ and $y-x \geq 20$. The resulting zone is $x \leq 10 \wedge y \geq 20 \wedge y-x \geq 20$. If we replace the original zone  $x \leq 10 \wedge y-x=30$ by this zone, and continue constructing the zone graph, the resulting graph is depicted in Figure \ref{fig:looprealgraph}.
 
 \end{example}
 
 \begin{figure}
 	\centering
-	\includegraphics [width=0.7\textwidth] {include/figures/loop_real_zonegraph}%TODO: ezt majd még vektorosítani
+	\includegraphics [width=0.4\textwidth] {include/figures/loop_finite_zonegraph}
 			\vspace*{4pt}%
 	\caption{Finite zone graph}
 	\label{fig:looprealgraph}
 \end{figure}
 
-Using normalization the zone graph is finite, but unreachable states may appear in it. If the automaton doesn't have any guard or invarint of the form $c_1 - c_2 < n$, the reachability of the location in question will be answered correctly. Otherwise, the algorithm may terminate with a false positive result.
+Using normalization the zone graph is finite, but unreachable states may appear in it. If the automaton doesn't have any guard or invariant of the form $c_1 - c_2 < n$, the reachability of the location in question will be answered correctly. Otherwise, the algorithm may terminate with a false positive result.
 
 \begin{example}
-	To demonstrate the incorrectness of the algorithm, consider again the automaton in Figure \ref{fig:splitex}. Recall that the reachabble states of the automaton (by our calculations) were $\langle S0,x=y=z \rangle$, $\langle S1,z \leq x=y \rangle$ and $\langle S2,z \leq y \leq z \leq y \wedge x-y > 2\rangle$ -- $S3$ is unreachable. Applying normalization leaves the states $\langle S0,x=y=z \rangle$ and $\langle S1,z \leq x=y \rangle$ unchanged, but the normalizing the reachable state in $S2$ results in $\langle S2,z \leq y \leq z \leq y \wedge x-y > 1\rangle$, where the guard can be satisfied, thus making $S3$ reachable.
+	To demonstrate the incorrectness of the algorithm, consider again the automaton in Figure \ref{fig:splitex}. Recall that the reachable states of the automaton (by our calculations) were $\langle S0,x=y=z \rangle$, $\langle S1,z \leq x=y \rangle$ and $\langle S2,z \leq y \leq z \leq y \wedge x-y > 2\rangle$ -- $S3$ is unreachable. Applying normalization leaves the states $\langle S0,x=y=z \rangle$ and $\langle S1,z \leq x=y \rangle$ unchanged, but the normalizing the reachable state in $S2$ results in $\langle S2,z \leq y \leq z \leq y \wedge x-y > 1\rangle$, where the guard can be satisfied, thus making $S3$ reachable.
 \end{example}
 
 The operation \emph{split} \cite{bengtsson2004timed} is introduced to assure correctness. Instead of
@@ -459,7 +524,7 @@ Applying split results in a zone graph, that is a correct and finite representat
 
 Paper \cite{bengtsson2004timed} also provides an implementation of the zone domain, called \emph{Difference Bound Matrix}, or DBM for short. The idea of DBMs is based on transforming clock constraints to difference logic formulae.
 
-Difference constraints are easy to transform as $c_1 - c_2 \geq n$ is equivalent to $c_2 - c_1 \leq -n$ (same goes for strict inequalities), and $c_1 - c_2 = n$ is equivalent to $c_1 - c_2 \geq n \bigwedge c_1 - c_2 \leq n$. In order to transform constraints of the form $x<n$ or$x \leq n$, $x \in \mathbb{C} n \in \mathds{Z}$ a new variable has to be introduced.
+Difference constraints are easy to transform as $c_1 - c_2 \geq n$ is equivalent to $c_2 - c_1 \leq -n$ (same goes for strict inequalities), and $c_1 - c_2 = n$ is equivalent to $c_1 - c_2 \geq n \bigwedge c_1 - c_2 \leq n$. In order to transform constraints of the form $x<n$ or$x \leq n$, $x \in \mathcal{C}, n \in \mathds{Z}$ a new variable has to be introduced.
 
 \begin{dfn}
 	The variable denoted by $\textbf{0}$ is a special variable that has a constant value of 0. $\textbf{0}$ is not a clock variable, but can appear in clock constraints.
@@ -480,53 +545,60 @@ In order for operations to be effective it is required that the DBM is in a \emp
 	A Difference Bound Matrix $D$ of a zone $z$ is in canonical form if for all $i,j \in (\mathcal{C} \cup \{\textbf{0}\})$, $D_{i,j}$ denotes the strictest bound on $i-j$ that can be derived from $z$.
 \end{dfn}
 
-As zones and DBMs are different representations of the same entity, this paper uses the terms interchangably.
+As zones and DBMs are different representations of the same entity, this paper uses the terms interchangeably.
 
 Many operations are defined on DBMs. The most important ones are the following:
 
 \begin{description}
 	\item [consistent($D$)] is used to decide if $D$ contains any states
 	\item [relation($D$,$D'$)] tells if one of $D$ and $D'$ are contained in the other 
-	\item [satisfied($D$, $m$)] wherem $m$ is a difference constraint tells if $D$ contains any states satisfying $m$ without affecting $D$
-	\item [up($D$)] calcualtes $D^\uparrow$
-	 \item [consistent($D$)] is used to decide if the zone represented by $D$ contains any states
+	\item [satisfied($D$, $m$)] where $m$ is a difference constraint tells if $D$ contains any states satisfying $m$ without affecting $D$
+	\item [up($D$)] calculates $D^\uparrow$
+	% \item [consistent($D$)] is used to decide if the zone represented by $D$ contains any states
 	 \item [and($D$, $m$)] where $m$ is a difference constraint restricts $D$ to the states satisfying $m$
 	 \item [free($D$, $c$)] where $c \in \mathcal{C}$  removes all constraints on $c$
-	 \item [reset($D$, $c$,$n$)] where $c \in \mathcal{C}$, $n \in \mathds{Z}$  resets $c$ to $n$
+	 \item [reset($D$, $c$)] where $c \in \mathcal{C}$ resets $c$
 	 \item [norm($D$, $k$)] where $k:\mathcal{C} \to \mathds{Z}$ normalizes the zone based on $k$ that assigns to each $c \in \mathcal{C}$ the highest value they are compared to in an automaton
 	 \item [split($D$, $\mathcal{G}$)] where $\mathcal{G} \in \mathcal{B}(\mathcal{C})$ splits the zone based on $\mathcal{G}$ that is the set of all difference constraints appearing in an automaton.
 \end{description}
 
-\todo{egy-két mondat arról, hogy mit hogyan használunk az algoritmusban}
+Using these operations the calculation of the next zone on the zone graph can be automated. Let $n=(l,D)$ be an already calculated node of the zone graph, and $e=(l,g,r,l')$ an edge of the timed automaton. Calculating the next node $n'=(l',D)$ (or next nodes) starts by checking guards. This can be performed by calling \emph{and($D$,$m$)} for each atom $m$ of the difference logic formula representation of $g$ and then checking \emph{consistent($D$)} to check if there are any states in $D$ satisfying $g$. If there are, the transition is enabled. In this case $D$ has to be reset: for $c \in r$, \emph{reset($D$,$c$)}. $I(l')$ also has to be satisfied in order for the transition to be enabled. This can be checked similarly to the guard. After this \emph{up} can be used to calculate $D'$, but \emph{and($D$,$m$)} has to be called again for $m \in I(l')$. After that \emph{split} and \emph{norm} are called to ensure correctness and termination.
 
-Implementations (pseudocodes) of these operations are provided in \cite{bengtsson2004timed}. Termination of the algorithm is also proven, but it's complexity is exponantial in the number of clocks. Because of this it is essential to reduce the number of clocks as much as it is possible, without changing the reachability property.
+Implementations (pseudocodes) of these operations are provided in \cite{bengtsson2004timed}. Termination of the algorithm is also proven, but it's complexity is exponential in the number of clocks. Because of this it is essential to reduce the number of clocks as much as it is possible, without changing the reachability property.
 
-\subsubsection{Activity}
+\subsubsection{Activity} \label{sec:acitivity}
 
 In \cite{RSS96*73} abstractions of the automaton are proposed to reduce the number of clock variables without affecting the operation of the automaton. The abstraction that will be used later in this paper is called \emph{activity}. A clock $c$ is considered active  at some location $l$ (denoted by $c \in Act(l)$) if its value  at the location may influence the future evolution of the system. It might be because the clock appears in the invariant of the location, or in the guard of some outgoing edges of the location, or because it is active in one of the posterior locations and its value is not reset until that location.
 \begin{example}
-\todo{példa}
+In the automaton depicted on figure \ref{fig:splitex} clock $z$ is active at location $S2$ because it appears in the guard of the outgoing edge. It is also active in $S1$ because its value in $S1$ determines its value in $S2$ and it is active in $S2$, but it is not active in $S0$ because its value is not important, since it is reset in the outgoing edge anyway.
 \end{example}
 The core of the algorithm for reducing the number of clock variables is to calculate $Act(l)$ for each $l \in L$, and if $Act(l)<\abs{\mathcal{C}}$ holds for each $l \in L$, the automaton can be reconstructed by \emph{renaming} variables location by location (after renaming there will be less clocks). This is true, even if all $c \in \mathcal{C}$ is active in at least one location, however, clocks might be renamed differently in distinct locations.
 
 Before presenting how activity is calculated some new notations are introduced. Let $clk: \mathcal{B}(\mathcal{C}) \to 2^\mathcal{C}$ and assign to each clock constraints the set of clocks appear in it. Define $clk:L \to  2^\mathcal{C}$ such that $c \in clk(l)$ iff $c \in clk(I(l))$ or there exist an edge $(l,g,r,l')$ such that $c \in clk(g)$.
 
-\emph{Activitiy} is calculated by an iterative algorithm starting from $Act_0(l)=clk(l)$ for each $l \in L$. In the $i^{th}$ iteration $Act_{i}(l)$ is derived by edtending $Act_{i-1}(l)$ by $Act_{i-1}(l')\setminus r$ for each edge $(l,g,r,l')$. The algorithm terminates when it reaches a fix point, i.e. when $Act_{i}(l)=Act_{i-1}(l)$ for each $l\in L$.
+\emph{Activity} is calculated by an iterative algorithm starting from $Act_0(l)=clk(l)$ for each $l \in L$. In the $i^{th}$ iteration $Act_{i}(l)$ is derived by extending $Act_{i-1}(l)$ by $Act_{i-1}(l')\setminus r$ for each edge $(l,g,r,l')$. The algorithm terminates when it reaches a fix point, i.e. when $Act_{i}(l)=Act_{i-1}(l)$ for each $l\in L$.
 
 \begin{example}
-	\todo{példa}
+	Let us calculate activity for the complete automaton. $Act_0(l)=clk(l)$ for each $l \in L$. Thus, iteration starts from $Act_0(S0)=\emptyset$, $Act_0(S1)=\{y\}$, $Act_0(S2)=\{x,y,z\}$, and $Act_0(S3)=\emptyset$. 
+	
+	Since $y$ is not reset on edge $S0 \to S1$, $Act_1(S0)=\{y\}$. Since $x$ and $z$ are not reset on edge $S1 \to S2$, $Act_1(S1)=\{y,x,z\}$. Since $Act_0(S3)=\emptyset$, and $S3$ has no outgoing edges $Act_1(S2)=\{x,y,z\}$ and $Act_1(S3)=\emptyset$.
+	
+	Clock $x$ is not reset on edge  $S0 \to S1$ but $z$ is, thus $Act_2(S0)=\{y,x\}$. Other activities are unchanged in this iterations, thus $Act_2(S1)=\{y,x,z\}$, $Act_2(S2)=\{x,y,z\}$, $Act_2(S3)=\emptyset$ and the fix point is reached.
+	
 \end{example}
 
 
 \subsubsection{Complexity}
 
-As it was mentioned, reachability for timed automata without discrete variables is decidable (but it it exponential). It was also mentioned before that reachability for finite autamata extended by (discerete) variables is undecidable. Obviously, reachability of timed automata extended with discrete variables is also undecidable. However it is decidable if the value sets of the discrete variables are finite, because in this case the values can be encoded in the locations. 
+As it was mentioned, reachability for timed automata without discrete variables is decidable (but it it exponential). It was also mentioned before that reachability for finite automata extended by (discrete) variables is undecidable. Obviously, reachability of timed automata extended with discrete variables is also undecidable. However it is decidable if the value sets of the discrete variables are finite, because in this case the values can be encoded in the locations. 
 
-\todo{módszer?}
+%\todo{network autról beszélni}
+
+%\todo{módszer?}
 
 \section{Objectives}
 
-The goal of this paper is to provide an extendable framework for CEGAR-based algorithms deciding reachability of timed automata extended with discerete variables. Since reachability is undecidable for this type of timed automata, termination of the algorithms is not always guaranteed.
+The goal of this paper is to provide an extendable framework for CEGAR-based algorithms deciding reachability of timed automata extended with discrete variables. Since reachability is undecidable for this type of timed automata, termination of the algorithms is not always guaranteed.
 
 %\subsection{CEGAR}
 %\subsubsection{Abstraction}

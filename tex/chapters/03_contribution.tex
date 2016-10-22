@@ -124,7 +124,7 @@ represented by $n$ are a subset of the states represented by $n'$, thus it is un
 counterexample from $n$, because if there exists one, another one will exist
 from $n'$. Searching for new traces is only continued on nodes without an upward edge. This way, the graph can be kept finite, unless the discrete variables of the automaton prevent it.
 
-Initially, the graph contains only one, unexplored node $\langle l, z_{\emptyset} \rangle$, and as the statespace is explored, unexplored nodes become explored nodes, new unexplored nodes and edges appear, until a counterexample is found. During the refinement phase zones are calculated, new nodes and edges appear and complete subtrees disappear. Statespace exploration will then be continued from the unexplored nodes, and so on. Discrete valuation can be calculated during sttespace exploration.
+Initially, the graph contains only one, unexplored node $\langle l, z_{\emptyset} \rangle$, and as the statespace is explored, unexplored nodes become explored nodes, new unexplored nodes and edges appear, until a counterexample is found. During the refinement phase zones are calculated, new nodes and edges appear and complete subtrees disappear. Statespace exploration will then be continued from the unexplored nodes, and so on. Discrete valuation can be calculated during statespace exploration.
 
 
 \subsection{Statespace exploration}
@@ -143,7 +143,7 @@ In each iteration a node $n=\langle l, z_{C} \rangle \in N_u$ for some $C$ is ch
 
 \subsection{Trace Activity}
 
-The task of the analysis phase is to determine the precision of each zones on a given counterexample. The abstracion \emph{activity} as described in \todo{háttérism referálni} is able to assign a set of clocks for each locations of the automaton, without affecting its behaviour. Assigning $act(l)$ for each node $n=\langle l, z_{C} \rangle$ would be a good solution of the task, however it can be made more effective by considering the fact that we are only considering an execution trace, and we only need to know if it is feasible.
+The task of the analysis phase is to determine the precision of each zones on a given counterexample. The abstracion \emph{activity} as described in section \ref{sec:acitivity} is able to assign a set of clocks for each locations of the automaton, without affecting its behaviour. Assigning $act(l)$ for each node $n=\langle l, z_{C} \rangle$ would be a good solution of the task, however it can be made more effective by considering the fact that we are only considering an execution trace, and we only need to know if it is feasible.
 
 Based on \emph{activity} a new abstraction can be introduced, called \emph{trace activity} $Act_\sigma(n): N \to 2^\mathcal{C}$ which does the same thing as activity, except for a trace: it assigns precisions to nodes (not locations in this case, because the same location may appear multiple times ion a trace with different activity). The algorithm calculating trace activity operates the following way.
 
