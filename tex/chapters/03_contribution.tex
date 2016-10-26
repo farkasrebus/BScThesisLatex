@@ -1,6 +1,6 @@
 \chapter{Configurable Timed CEGAR} \label{chap:timed_cegar}
 
-This chapter presents a configurable framework for CEGAR-based reachability analysis of timed automata. \todo{kibővíteni.}
+This chapter presents a configurable framework for CEGAR-based reachability analysis of timed automata. First, the goal of the framework is explained, than the used algorithms and techniques are enumerated and finally, the extensibility of the framework presented. 
 
 \section{Generic CEGAR Framework}
 
@@ -27,43 +27,9 @@ Finally, the only task of the refinement phase is to refine the current abstract
 
 \todo{A pseudocode is provided to demonstrate implementability.}
 
+In the following sections techniques are enumerated that can be used in this realization of the CEGAR-loop: two reachability algorithms, an approach for calculating the clocks to include, and the algorithm for refining the automaton are presented. Algorithms are presented on the automaton in Figure \ref{fig:loopinfinite} with $l_{err}=\text{\emph{end}}$ to ease understanding. From now on $\mathcal{A}$ will refer to that particular timed automaton.
 
-\subsection{State space-based refinement}
-
-\begin{figure} [b]
-	\centering
-	\includegraphics[width=.7\textwidth]{include/figures/alg_arch_ssp}
-	\caption{State space-based refinement}
-	\label{fig:cegarssp}
-\end{figure}
-
-
-In case of state space-based refinement, the representation of the state space has a defining role. In the proposed framework, the state space is represented by zone graphs -- this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the state space without considering clock variables (and in some cases discrete variables, too), and to refine the state space -- trace by trace -- by deciding which of the clock variables to include for each of the zones on that path. Afer that the graph is refined (clocks are included in the zones), and during the refinement it turns out whether the counterexample is feasible or not. Figure \ref{fig:cegarssp} depicts the architecture of this approach.
-
-Because of the different approaches of abstraction, consructing the initial abstraction is not as straightforward as it was in case of automaton-refinement. All that can be said is that it is some sort of abstraction of the state space derived from the automaton without including clock variables.
-
-The task of the model checking phase is to find a path from the initial location to the error location in the current abstraction of the zone graph. Because of this, the model checking phase of state space-based refinement is performed by pathfinding algorithms.
-
-The task of the analysis phase can be divided into two parts:  decide which of the clock variables to include in the zones (i.e. the \emph{precision} of the zone) and calculate the zones on the trace (up to the given precision) and find out if it is feasible or not. 
-
-When performing the first part it is important to find precisions (that might change along the trace) that is not too big (does not include too much variables) to be calculated efficiently, but includes all variables that are necessary to find out if he trace is feasible or not. The result of this part should be a function $P: V(G) \to 2^\mathcal{C}$ assigning precisions to the nodes of the current abstraction of zone graph.
-
-As for the second part, calculating the correct zones can be performed by the steps of the algorithm presented in Section \ref{sec:tareach} with some modifications that help with handling the changes of precision along the zones in counterexample. If the error location is unreachable, a guard or invariant will eventually prove to one of the edges on the trace that it represents a transition that is not enabled.
-
-The task of the refinement phase is to modify the current abstraction of the zone graph according to the states calculated in the analysis phase.
-
-\todo{A pseudocode is provided to demonstrate implementability.}
-
-The presented methods for model checking and refinement describe the essence of the algorithms that seem to be the same, however, the concrete technique depends of the structure of the abstract zone graph representation. Because of this only those modules can be used interchangeably, that are defined for the same representation.
-
-
-\section{Modules}
-
-This section describes the algorithms that can be used in the previously defined CEGAR realizations. Methods for automaton-based refinement are explained: model checkers, an algorithm for calculating the set of clock variables to refine the automaton, and the general algorithm for performing the refinement. Two possible representations of the abstract zone graph are presented. Algorithms for state space-based CEGAR are shown, mentioning the state space representation-dependent behaviours of model checking and refinement.
-
-Algorithms are presented on the automaton in Figure \ref{fig:loopinfinite} with $l_{err}=\text{\emph{end}}$ to ease understanding. From now on $\mathcal{A}$ will refer to that particular timed automaton.
-
-\subsection{Zone graph exploration} 
+\subsubsection{Zone graph exploration} 
 
 \begin{figure} [h]
 	\centering
@@ -74,7 +40,7 @@ Algorithms are presented on the automaton in Figure \ref{fig:loopinfinite} with 
 
 The reachability-checking algorithm described in Section \ref{sec:tareach} is an obvious choice for the model checking phase, however, it is important to note that the algorithm does not handle discerete variables. The discrete valuation can be encoded into the location (and calculated on the fly) but in this case termination is not ensured (as Section \ref{sec:extfa} explains).
 
-\subsection{Satisfiability-based model checker}\label{sec:satmc}
+\subsubsection{Satisfiability-based model checker}\label{sec:satmc}
 
 \begin{figure}[h]
 	\centering
@@ -91,12 +57,11 @@ First, let us assign a variable for each clock in each location, both before and
 
 The initial constraints can simply be described by $c_0 =0$ for each $c \in \mathcal{C}$. Delay transitions can be turned into constraints by the following equation $c_i+d_i=c_i'$ for each $c \in \mathcal{C}, 0 \leq i \leq n$. In case of discrete transitions, guards (clock constraints) can be turned into SMT constraints by replacing the clock variables with the defined variables. The guard $g_i$ of a transition $t_i(l_i,g_i,r_i,l_{i+1})$ can be transformed by replacing all clocks $c$ appearing in $g_i$ by $c_i'$. Resets can also be simply transformed into constraints -- for all $c \in r_i$ $c_{i+1}=0$ has to be added to the set of constraints. Note, that this way $c_{i+1}$ is only specified for the reset clocks. For all $c \not\in r_i$ $c_{i+1}=c_i'$ has to be added to the set of constraints. Invariants can be transformed into SMT constraints the same way as guards.
 
-Discrete variables can be mapped to SMT variables as before since discerete variables and clock variables have no affect on eachother.
+Discrete variables can be mapped to SMT variables as before since discrete variables and clock variables have no affect on each other.
 
-\todo{running example-t bevezetni}
 
 \begin{runningExample}
-	Consider automaton $\mathcal{A}$. Assume the counterexample is $\sigma= \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$. The new variables are $x_0,y_0,x_0',y_0',x_1,y_1,x_1',y_1',x_2,y_2,x_2',y_2',d_0,d_1$ and $d_2$. It is important to define them to be non-negative since they represent the elapse of time. Initial constraints are $x_0=0$ and $y_0=0$. Delay is described by constraints $x_0'=x_0+d_0$, $y_0'=y_0+d_0$, $x_1'=x_1+d_1$, $y_1'=y_1+d_1$, $x_2'=x_2+d_2$ and $y_2'=y_2+d_2$.
+	Consider automaton $\mathcal{A}$ (recall, it is the automaton depicted in Figure \ref{fig:loopinfinite}). Assume the counterexample is $\sigma= \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$. The new variables are $x_0$,$y_0$,$x_0'$,$y_0'$,$x_1$,$y_1$,$x_1'$,$y_1'$,$x_2$,$y_2$,$x_2'$,$y_2'$,$d_0$,$d_1$ and $d_2$. It is important to define them to be non-negative since they represent the elapse of time. Initial constraints are $x_0=0$ and $y_0=0$. Delay is described by constraints $x_0'=x_0+d_0$, $y_0'=y_0+d_0$, $x_1'=x_1+d_1$, $y_1'=y_1+d_1$, $x_2'=x_2+d_2$ and $y_2'=y_2+d_2$.
 	
 	There is no guard on edge \emph{start} $\to$ \emph{loop}, but it resets both variables yielding the constraints $x_1=0$, $y_1=0$. The invariant of location \emph{loop} can be transformed to $x_1 \leq 10$ and $x_1' \leq 10$. The next edge has a guard, $y \geq 20$ that can be transformed to $y_1' \geq 20$, and the resets to $x_2=0$ and $y_2=0$. This results in the formula $\varphi=x_0=0 \wedge y_0=0 \wedge x_0'=x_0+d_0 \wedge y_0'=y_0+d_0 \wedge x_1'=x_1+d_1 \wedge y_1'=y_1+d_1 \wedge x_2'=x_2+d_2 \wedge y_2'=y_2+d_2 \wedge x_1=0 \wedge y_1=0 \wedge x_1 \leq 10 \wedge x_1' \leq 10 \wedge y_1' \geq 20 \wedge x_2=0 \wedge y_2=0$.
 \end{runningExample}
@@ -107,7 +72,8 @@ The problem with this model checker is that there may be infinitely many executi
 
 \todo{A pseudocode is provided to demonstrate implementability.}
 
-\subsection{Unsat core-based clock selection}
+
+\subsubsection{Unsat core-based clock selection}
 
 \begin{figure}[h!]
 	\centering
@@ -123,8 +89,7 @@ Solvers can be useful, not only to decide if a given set of constraints is satis
 	The result of checking satisfiability of $\varphi$ is \emph{No}, and the unsat core is $\varphi_{unsat}=x_1'=x_1+d_1 \wedge y_1'=y_1+d_1 \wedge x_1=0 \wedge y_1=0 \wedge x_1 \leq 10 \wedge x_1' \leq 10 \wedge y_1' \geq 20$. This means the automaton has to be refined with both $x$ and $y$ so that the spurious counterexample is eliminated.
 \end{runningExample}
 
-
-\subsection{Automaton refinement}
+\subsubsection{Automaton refinement}
 
 \begin{figure}[h]
 	\centering
@@ -135,11 +100,46 @@ Solvers can be useful, not only to decide if a given set of constraints is satis
 
 Given an original automaton $\mathcal{A}$ an abstract automaton $\mathcal{A'}$ and a set of clock variables to be added $C \subseteq \mathcal{C}$, the task is to refine $\mathcal{A'}$ so that each clock $c \in C$ appears in it. The task is to decide which of the guards, resets and invariants to include. Resets are easy to add: the ones that reset clocks in $C$ should be included, others don't. Guards and invariants are clock constraints -- conjunctive formulae of atomic constraints bounding the value of the clocks or the difference of two clocks. Decision can be made for each atomic formula one by one: those in which only clocks in $\mathcal{A'}$ or $C$ appear -- that is, difference constraints are only included if both clocks appear in $\mathcal{A'}$ or $C$.
 
+
+
+
+\subsection{State space-based refinement}
+
+\begin{figure} 
+	\centering
+	\includegraphics[width=.7\textwidth]{include/figures/alg_arch_ssp}
+	\caption{State space-based refinement}
+	\label{fig:cegarssp}
+\end{figure}
+
+
+In case of state space-based refinement, the representation of the state space has a defining role. In the proposed framework, the state space is represented by zone graphs -- this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the state space without considering clock variables (and in some cases discrete variables, too), and to refine the state space -- trace by trace -- by deciding which of the clock variables to include for each of the zones on that path. After that the graph is refined (clocks are included in the zones), and during the refinement it turns out whether the counterexample is feasible or not. Figure \ref{fig:cegarssp} depicts the architecture of this approach.
+
+Because of the different approaches of abstraction, constructing the initial abstraction is not as straightforward as it was in case of automaton-refinement. All that can be said is that it is some sort of abstraction of the state space derived from the automaton without including clock variables.
+
+The task of the model checking phase is to find a path from the initial location to the error location in the current abstraction of the zone graph. Because of this, the model checking phase of state space-based refinement is performed by pathfinding algorithms.
+
+The task of the analysis phase can be divided into two parts:  decide which of the clock variables to include in the zones (i.e. the \emph{precision} of the zone) and calculate the zones on the trace (up to the given precision) and find out if it is feasible or not. 
+
+When performing the first part it is important to find precisions (that might change along the trace) that is not too big (does not include too much variables) to be calculated efficiently, but includes all variables that are necessary to find out if he trace is feasible or not. The result of this part should be a function $P: V(G) \to 2^\mathcal{C}$ assigning precisions to the nodes of the current abstraction of zone graph.
+
+As for the second part, calculating the correct zones can be performed by the steps of the algorithm presented in Section \ref{sec:tareach} with some modifications that help with handling the changes of precision along the zones in counterexample. If the error location is unreachable, a guard or invariant will eventually prove to one of the edges on the trace that it represents a transition that is not enabled.
+
+The task of the refinement phase is to modify the current abstraction of the zone graph according to the states calculated in the analysis phase.
+
+\todo{A pseudocode is provided to demonstrate implementability.}
+
+In the following sections techniques are enumerated that can be used in this realization of the CEGAR-loop: two abstractions of the zone graph are presented, and algorithms are shown, mentioning the state space representation-dependent behaviours of model checking and refinement. Only those of these modules can be used interchangeably, that are defined for the same representation.
+
+
+%\section{Modules}
+%This section describes the algorithms that can be used in the previously defined CEGAR realizations. Methods for automaton-based refinement are explained: model checkers, an algorithm for calculating the set of clock variables to refine the automaton, and the general algorithm for performing the refinement. Two possible representations of the abstract zone graph are presented. 
+%Algorithms are presented on the automaton in Figure \ref{fig:loopinfinite} with $l_{err}=\text{\emph{end}}$ to ease understanding. From now on $\mathcal{A}$ will refer to that particular timed automaton.
 %\subsection{Implementations for state space-based refinement}
 
 
 
-\subsection{Graph representation} % ezt lehet jobb lenne nem subsubsecionként?
+\subsubsection{Graph representation}
 
 The first representation of the abstract zone graph is another zone graph, with zones of varied precisions. To avoid confusion, from now on precisions of zones will always be shown: zones will be denoted by $z_{C}$ where $C \subseteq \mathcal{C}$ is the precision of the zone. Zones of the real zone graph (without abstraction) are denoted by $z_{\mathcal{C}}$.
 
@@ -158,7 +158,7 @@ Based on this, the initial abstraction can be constructed by assigning a node $\
 	The initial abstraction for $\mathcal{A}$ is depicted in Figure \ref{fig:graphinit}.
 \end{runningExample}
 
-During the algorithm this graph will be refined by the zones calculated in the refinement phase. Sometimes nodes will get replicated, or edges deleted (the precise algorithm will be described later), but it will remain  an absraction of the concrete zone graph. 
+During the algorithm this graph will be refined by the zones calculated in the refinement phase. Sometimes nodes will get replicated, or edges deleted (the precise algorithm will be described later), but it will remain  an abstraction of the concrete zone graph. 
 
 %Discrete valuations are also calculated in the refinement phase.
 
@@ -166,7 +166,7 @@ During the algorithm this graph will be refined by the zones calculated in the r
  
 % It is common in both representations that the abstraction of the nodes is based on a set of clocks (precision) to include -- just like in case of the automaton-based refinement. In the initial abstraction no clocks are included in any of the nodes
 
-\subsection{Tree representation}
+\subsubsection{Tree representation}
 The other representation of the abstract zone graph is based on the idea of search trees. Instead of keeping track of the full (abstract) zone graph (like we did with the other representation) details of the tree will be uncovered in the model checking phase of the CEGAR loop. However, one thing is common in both representations:  the abstraction of the nodes is based on a set of clocks (precision) to include (just like in case of the automaton-based refinement) and initially all precisions are empty. The state space exploration will also operate on empty precision sets, and the zones will be calculated in the refinement phase. In this case, discrete valuations can be calculated during state space exploration (but it is not necessary).
 
 Let us define the formalism to represent the abstract tree.
@@ -197,7 +197,7 @@ Initially, the graph contains only one, unexplored node $\langle l, z_{\emptyset
 \end{runningExample}
 
 
-\subsection{State space exploration}
+\subsubsection{State space exploration}
 
 \begin{figure}[h]
 	\centering
@@ -222,7 +222,7 @@ In each iteration a node $n=\langle l, z_{C} \rangle \in N_u$ for some $C$ is ch
 
 \todo{pszeudokód}
 
-\subsection{Trace Activity-based precision calculation}
+\subsubsection{Trace Activity-based precision calculation}
 
 \begin{figure}[h]
 	\centering
@@ -231,17 +231,17 @@ In each iteration a node $n=\langle l, z_{C} \rangle \in N_u$ for some $C$ is ch
 	%\label{fig:cegarssp}
 \end{figure}
 
-The task of the analysis phase is to determine the precision of each zones on a given counterexample. The abstracion \emph{activity} as described in Section \ref{sec:acitivity} is able to assign a set of clocks for each locations of the automaton, without affecting its behaviour. Assigning $act(l)$ for each node $n=\langle l, z_{C} \rangle$ would be a good solution of the task, however it can be made more efficient by considering the fact that we are only considering an execution trace, and we only need to know if it is feasible.
+The task of the analysis phase is to determine the precision of each zones on a given counterexample. The abstraction \emph{activity} as described in Section \ref{sec:acitivity} is able to assign a set of clocks for each locations of the automaton, without affecting its behaviour. Assigning $act(l)$ for each node $n=\langle l, z_{C} \rangle$ would be a good solution of the task, however it can be made more efficient by considering the fact that we are only considering an execution trace, and we only need to know if it is feasible.
 
 Based on \emph{activity} a new abstraction can be introduced, called \emph{trace activity} $Act_\sigma(n): N \to 2^\mathcal{C}$ which does the same thing as activity, except for a trace: it assigns precisions to nodes (not locations in this case, because the same location may appear multiple times ion a trace with different activity). The algorithm calculating trace activity operates the following way.
 
-The algorithm iterates over the counterexample trace, but backwards. In the final node  $n_{err}=\langle l_{err}, z_{\emptyset} \rangle$ it is not important to know the valuations, as the only important thing to know if it is reachable. Therefore $Act_\sigma(n_{err})=\emptyset$. After that $Act_\sigma(n_i)$ can be calculated from $Act_\sigma(n_{i+1})$ and the edge $e_i(l_i,g_i,r_i,l_{i+1})$ used by transition $t_i$. Since $r_i$ resets clocks, their values in $l_i$ will have no efficient on the systems behavior in $l_{i+1}$. Thus clocks in $r_i$ can be excluded. It is necessary to know if $t_i$ is enabled, so $\textit{clk}(g_i)$ must be active in $n_i$. It is also important to satisfy the invariant of $l_i$ thus $\textit{clk}(I(l_i))$ must be included. This gives us the formula $Act_\sigma(n_i)=(Act_\sigma(n_{i+1}) \setminus r_i) \cup \textit{clk}(g_i) \cup \textit{clk}(I(l_i))$. 
+The algorithm iterates over the counterexample trace, but backwards. In the final node  $n_{err}=\langle l_{err}, z_{\emptyset} \rangle$ it is not important to know the valuations, as the only important thing to know if it is reachable. Therefore $Act_\sigma(n_{err})=\emptyset$. After that $Act_\sigma(n_i)$ can be calculated from $Act_\sigma(n_{i+1})$ and the edge $e_i(l_i,g_i,r_i,l_{i+1})$ used by transition $t_i$. Since $r_i$ resets clocks, their values in $l_i$ will have no efficient on the systems behaviour in $l_{i+1}$. Thus clocks in $r_i$ can be excluded. It is necessary to know if $t_i$ is enabled, so $\textit{clk}(g_i)$ must be active in $n_i$. It is also important to satisfy the invariant of $l_i$ thus $\textit{clk}(I(l_i))$ must be included. This gives us the formula $Act_\sigma(n_i)=(Act_\sigma(n_{i+1}) \setminus r_i) \cup \textit{clk}(g_i) \cup \textit{clk}(I(l_i))$. 
 
 \begin{runningExample}
 	Calculating trace activity of $\sigma= n_0 \to n_1 \to n_3$ starts from the erroneous node $n_3$ by $Act_\sigma(n_3)=\emptyset$. Both $x$ and $y$ are reset on edge \emph{loop} $\to$ \emph{end} and only $y$ is tested, but $x$ appears in \emph{loop}'s invariant, thus $Act_\sigma(n_1)=\{x,y\}$. Since both clocks are reset on edge \emph{start} $\to$ \emph{loop}, $Act_\sigma(n_0)=\emptyset$.
 \end{runningExample}
 
-\subsection{Unsat core-based precision calculation}
+\subsubsection{Unsat core-based precision calculation}
 
 \begin{figure}[h]
 	\centering
@@ -257,7 +257,7 @@ Unsat core can also be used to determine the necessary precision of a given coun
 	As it was mentioned, the unsat core of $\varphi$ is $\varphi_{unsat}=x_1'=x_1+d_1 \wedge y_1'=y_1+d_1 \wedge x_1=0 \wedge y_1=0 \wedge x_1 \leq 10 \wedge x_1' \leq 10 \wedge y_1' \geq 20$. The included variables representing clock variables are $x_1',x_1,y_1'$ and $y_1$. This results in precision $\emptyset$ for $n_0$, $\{x,y\}$ for $n_1$ and $\emptyset$ for $n_3$.
 \end{runningExample}
 
-\subsection{State space calculation}
+\subsubsection{State space calculation}
 
 \begin{figure}[h]
 	\centering
@@ -288,7 +288,7 @@ The correct zones on the trace are calculated. It is important to consider that 
 \todo{pszeudokód az eddigiekről}
 
 
-\subsection{State space refinement}
+\subsubsection{State space refinement}
 
 \begin{figure}[h]
 	\centering
@@ -363,7 +363,7 @@ Figure \ref{fig:cegartafin} depicts the presented techniques for automaton-based
 	\label{fig:cegarsspfin}
 \end{figure}
 
-The presented framework is extensible in may ways. New techniques can be added to the framework and combined with existing ones. New representations can be defined for state space-based refinement, and even a new aspect of abstraction can be introduced with it's own CEGAR-loop realization.
+The presented framework is extensible in may ways. New techniques can be added to the framework and combined with existing ones, e.g. an online pathfinding algorithm can be studied in place of the current depth first search algorithm represented by the graph exploration module. New representations can be defined for state space-based refinement (e.g. zones can be represented by \emph{potential graphs} \cite{conf/sas/GangeNSSS16}), and even a new aspect of abstraction can be introduced with it's own CEGAR-loop realization (e.g. abstraction can be applied to locations \cite{kemper2007sat}).
 
 
 %\todo{Kis szöveg meg sok sok ábra az elkészült algoritmusokról, a kombinálhatóságról, valamint a keretrendszer kiterjesztési lehetőségeiről}

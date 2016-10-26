@@ -56,7 +56,7 @@ In many practical theories, SMT becomes decidable \cite{series/txtcs/KroeningS08
 
 An atom in (integer) difference logic is a logical expression of the form $x-y<n$ or $x-y \leq n$ where $x$ and $y$ are variables defined over $\mathds{Z}$ and $n$ is a constant. A difference logic formula $\varphi$ is a conjunction of one ore more atoms. In case of difference logic, satisfiability is not only decidable, but polynomial \cite{series/txtcs/KroeningS08}.
 
-Since the framework presented in this paper relies on a SAT (SMT) solver (as it is explained in chapter \ref{chap:impl}), this paper does not address the algorithms for deciding satisfiability (if it is decidable). For more information on satisfiability, the reader is referred to \cite{books/daglib/0019162}.
+Since the framework presented in this paper relies on a SAT (SMT) solver (as it is explained in Chapter \ref{chap:impl}), this paper does not address the algorithms for deciding satisfiability (if it is decidable). For more information on satisfiability, the reader is referred to \cite{books/daglib/0019162}.
 
 
 \section{Formal verification}
@@ -70,7 +70,7 @@ In formal verification behaviour is often represented with state-based formalism
 
 \subsubsection{Finite automata}
 
-The finite automaton (plural: automata)  is one of the most common formalisms for modeling behavior. This way the system is described by a finite set of possible states, and a set of steps defining the system's state changes.
+The finite automaton (plural: automata)  is one of the most common formalisms for modelling behavior. This way the system is described by a finite set of possible states, and a set of steps defining the system's state changes.
 
 \begin{dfn}
 	Formally a \emph{finite automaton}, or state machine $\mathcal{A}$ is a tuple $\langle S,s_0,T \rangle$ where
@@ -201,7 +201,7 @@ Note, that in this case error states are defined solely by the location, however
 	A new automaton can be constructed by extending $\mathcal{A}$'s set of location with a new location \emph{error} that is only reachable if $\mathcal{A}$ can reach location \emph{end} with $x \geq 200$. The new automaton is depicted in Figure \ref{fig:efaexerr}.
 \end{example}
 
-The described problem is unsolvable as well as the reachability problem for all other Turing-complete formalisms. This is one of the reasons why the modeling formalism has to be chosen carefully. A simple formalism may not have enough expressive power to precisely model the system, while verification of more complex formalisms may be ineffective or even impossible.
+The described problem is unsolvable as well as the reachability problem for all other Turing-complete formalisms. This is one of the reasons why the modelling formalism has to be chosen carefully. A simple formalism may not have enough expressive power to precisely model the system, while verification of more complex formalisms may be ineffective or even impossible.
 
 \subsubsection{State space exploration}
 
@@ -303,7 +303,7 @@ The conjunction of the resulting set of constraints is handed to a solver. If it
 
 \section{Verification of Timed Systems}
 
-The timed automaton is a common formalism for modeling timed systems. It is an extension of the finite automaton with clock variables. In this section clock variables and timed automata are introduced, an algorithm is described (and the implementation briefly explained) for deciding reachability, and information is provided on the complexity of the problem.
+The timed automaton is a common formalism for modelling timed systems. It is an extension of the finite automaton with clock variables. In this section clock variables and timed automata are introduced, an algorithm is described (and the implementation briefly explained) for deciding reachability, and information is provided on the complexity of the problem.
 
 \subsection{Basic Definitions}
 
@@ -328,7 +328,7 @@ In other words a valuation defines the values of the clocks at a given moment of
 
 \begin{dfn}
 	A \emph{clock constraint} is a conjunctive formula of atomic
-	constraints of the form $x \sim n$ or $x -- y \sim n$ (\emph{difference
+	constraints of the form $x \sim n$ or $x - y \sim n$ (\emph{difference
 		constraint}), where $x,y \in \mathcal{C}$ are clock variables, $\sim \in \{\leq,<,=,>,\geq\}$ and \hbox{$n \in \mathbb{N}$}. $\mathcal{B}(\mathcal{C})$ represents the set of clock
 	constraints.
 \end{dfn}
@@ -504,7 +504,7 @@ Implicitly $y \leq 40$ and $y-x \leq 30$. These constraints have to be removed f
 	\label{fig:looprealgraph}
 \end{figure}
 
-Using normalization the zone graph is finite, but unreachable states may appear in it. If the automaton doesn't have any guard or invariant of the form $c_1 -- c_2 < n$, the reachability of the location in question will be answered correctly. Otherwise, the algorithm may terminate with a false positive result.
+Using normalization the zone graph is finite, but unreachable states may appear in it. If the automaton doesn't have any guard or invariant of the form $c_1 - c_2 < n$, the reachability of the location in question will be answered correctly. Otherwise, the algorithm may terminate with a false positive result.
 
 \begin{example}
 	To demonstrate the incorrectness of the algorithm, consider again the automaton in Figure \ref{fig:splitex}. Recall that the reachable states of the automaton (by our calculations) were $\langle S0,x=y=z \rangle$, $\langle S1,z \leq x=y \rangle$ and $\langle S2,z \leq y \leq z \leq y \wedge x-y > 2\rangle$ -- $S3$ is unreachable. Applying normalization leaves the states $\langle S0,x=y=z \rangle$ and $\langle S1,z \leq x=y \rangle$ unchanged, but the normalizing the reachable state in $S2$ results in $\langle S2,z \leq y \leq z \leq y \wedge x-y > 1\rangle$, where the guard can be satisfied, thus making $S3$ reachable.
@@ -528,7 +528,7 @@ Applying split results in a zone graph, that is a correct and finite representat
 
 Paper \cite{bengtsson2004timed} also provides an implementation of the zone domain, called \emph{Difference Bound Matrix}, or DBM for short. The idea of DBMs is based on transforming clock constraints to difference logic formulae.
 
-Difference constraints are easy to transform as $c_1 -- c_2 \geq n$ is equivalent to $c_2 -- c_1 \leq -n$ (same goes for strict inequalities), and $c_1 -- c_2 = n$ is equivalent to $c_1 -- c_2 \geq n \wedge c_1 -- c_2 \leq n$. In order to transform constraints of the form $x<n$ or $x \leq n$, $x \in \mathcal{C}, n \in \mathds{Z}$ a new variable has to be introduced.
+Difference constraints are easy to transform as $c_1 - c_2 \geq n$ is equivalent to $c_2 - c_1 \leq -n$ (same goes for strict inequalities), and $c_1- c_2 = n$ is equivalent to $c_1 - c_2 \geq n \wedge c_1 - c_2 \leq n$. In order to transform constraints of the form $x<n$ or $x \leq n$, $x \in \mathcal{C}, n \in \mathds{Z}$ a new variable has to be introduced. 
 
 \begin{dfn}
 	The variable denoted by $\textbf{0}$ is a special variable that has a constant value of 0. $\textbf{0}$ is not a clock variable, but can appear in clock constraints.
@@ -538,7 +538,7 @@ Using $\textbf{0}$ $x \sim n$,  $\sim \in \{\leq,<,=,>,\geq\}$ can be transforme
 
 
 \begin{dfn}
-	A \emph{Difference Bound Matrix} $D$ of a zone $z$ operating on $\mathcal{C}$ is a square matrix of $\abs{\mathcal{C}}+1$ rows (and columns). A row and a column is assigned to each $c \in (\mathcal{C} \cup \{\textbf{0}\})$. Each element $D_{i,j}$ of the matrix describes an upper bound on $i -- j$, by storing whether the inequality is strict ($<$ or $\leq$) and the bound $n$. It is possible that there is no upper bound on $i-j$, in this case $D_{i,j}=\infty$.
+	A \emph{Difference Bound Matrix} $D$ of a zone $z$ operating on $\mathcal{C}$ is a square matrix of $\abs{\mathcal{C}}+1$ rows (and columns). A row and a column is assigned to each $c \in (\mathcal{C} \cup \{\textbf{0}\})$. Each element $D_{i,j}$ of the matrix describes an upper bound on $i - j$, by storing whether the inequality is strict ($<$ or $\leq$) and the bound $n$. It is possible that there is no upper bound on $i-j$, in this case $D_{i,j}=\infty$.
 	
 	The DBM $D$ of zone $z$ stores all constraints bounding $z$.
 \end{dfn}
