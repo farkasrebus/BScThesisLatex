@@ -4,46 +4,79 @@
 
 \subsection{\ttmc}
 
-\ttmc is a framework developed by the \bmemit that offers model checking algorithms for various models, such as programs and statecharts. The models are described by domain specific languages, and translated to common formalisms, including the state transition system, the control flow automaton, and the timed automaton. Besides formalisms, abstract domains and frameworks for common model checking approaches are also implemented. \ttmc uses an SMT solver called Z3\footnote{https://github.com/Z3Prover}, that is able to recognize various first order theories, such as difference logic.
+\ttmc\ is a framework developed by the \bmemit\ that offers model checking algorithms for various models, such as programs and statecharts. The models are described by domain specific languages, and translated to common formalisms, including the state transition system, the control flow automaton, and the timed automaton. Besides formalisms, abstract domains and frameworks for common model checking approaches are also implemented. \ttmc \  an SMT solver called Z3\footnote{https://github.com/Z3Prover}, that is able to recognize various first order theories, such as difference logic.
 
-I have decided to extend \ttmc with the presented configurable framework for model checking timed automata. The implemented framework relies on the model checker's extended timed automaton representation: the \emph{Timed Control Flow Automaton}, Z3 interface, and a modified version (modifications described in chapter \ref{chap:timed_cegar}) of the zone implementation described in \cite{bengtsson2004timed}.
+I have decided to extend \ttmc\ with the presented configurable framework for model checking timed automata. The implemented framework relies on the model checker's extended timed automaton representation: the \emph{Timed Control Flow Automaton}, Z3 interface, and a modified version (modifications described in chapter \ref{chap:timed_cegar}) of the zone implementation described in \cite{bengtsson2004timed}.
 
 \subsection{Achitecture}
 
-\todo{Ábra amin látszik ki-bemenet,Solver, stb}
+\begin{figure}
+	\centering
+	\includegraphics[width=.7\textwidth]{include/figures/architecture}
+	\caption{Basic architecture of the framework}
+	\label{fig:arc}
+\end{figure}
 
-The basic architecture of the framework presented in chapter \ref{chap:timed_cegar} is shown on \todo{ábra ref}.
+The basic architecture of the framework presented in chapter \ref{chap:timed_cegar} is shown in Figure \ref{fig:arc}.
 
 The input of the algorithm consists of an input of the problem (a timed automaton $\mathcal{A}$ and a location $l_{err} \in L(\mathcal{A})$), and a configuration of the algorithm: compatible implementations of the CEGAR phases, and their parameters (e.g. the bound of the bounded model checker).
 
-The output of the algorithm can be an execution trace by which $l_{err}$ is reachable, \emph{No} if $l_{err}$ is unreachable, or \emph{Undecided}. The latter case can happen for two causes: either the computations on the discrete variables make the problem undecidable, or thr bounded model checker proved that $l_{err}$ is unreachable in the given number of steps. 
+The output of the algorithm can be an execution trace by which $l_{err}$ is reachable, \emph{No} if $l_{err}$ is unreachable, or \emph{Undecided}. The latter case can happen for two causes: either the computations on the discrete variables make the problem undecidable, or the bounded model checker proved that $l_{err}$ is unreachable in the given number of steps. 
 
 
 
 \section{Measurements}
 
-Measurements were performed on a personal computer with a core i5 processor. The program was operating on a maximum of \todo{(ecplipsenek adható max)}  memory.
+The goal of the measurements is to evaluate the designed algorithm's performance and scalability, and draw conclusions about what combination of algorithms are effective. The inputs are scalable automata chosen from Uppaal's benchmark data\footnote{https://www.it.uu.se/research/group/darts/uppaal/benchmarks/}. Uppaal supports extensions of the timed automaton formalism (network automata with synchronization channels) that are not implemented in \ttmc, but can be transformed to the timed control flow automata formalism. This transformation was performed before the measurements.
 
-\subsection{Objectives}
-
-The goal of the measurements is to evaluate the designed algorithm's performance and scalability, and draw conclusions about what combination of algorithms are effective. Inputs were chosen from Uppaal's benchmark automata\footnote{https://www.it.uu.se/research/group/darts/uppaal/benchmarks/}, but only the scalable ones. Uppaal supports extensions of the timed automaton formalism (synchronization channels) that are not implemented in \ttmc. This was solved by generating the complete product automata instead of network automata.
-
+Measurements were performed on a personal computer with a core i5 processor. The program was operating on a maximum of 4GB memory, however, this wasn't fully used, as it was the solver that run out of memory in most cases.
 
 %\todo{Célok ismertetése, mérések bemutatása. Mit akarunk mérni, mivel fogjuk összehasonlítani, milyen bemeneteken, és miért.}
 
 \subsection{Inputs}
 
-This section describes the input models used for measurements.
+This section describes the input models used for measurements. These models are widely used in benchmarks of timed automata-related algorithms.
 
 \subsubsection{Fischer's protocol}
 
+\begin{figure}
+	\centering
+	\includegraphics [width=0.5\textwidth]{include/figures/fischer_figure}%
+	\caption{Fischer's protocol}
+	\label{fig:fischer}
+\end{figure}  
+
+Fischer's protocol assures mutual exclusion by bounding the execution
+times of the instructions. It can be applied to a number of processes accessing a
+shared variable. Fig. \ref{fig:fischer}  shows the operation of a process.
+The location \emph{critical} indicates that the process is in the critical
+section. The value of the shared variable $id$ ranges between 0 and $n$,
+where $n$ denotes the number of processes. The model also contains a 
+clock variable $x_i$ for each process where $i \in \{1 \ldots n\}$ denotes the
+identifier of the process. The constant $k$ is a parameter of the automaton.
+
+The examined property (mutual exclusion) can be formulated as an input of the reachability problem, where the system is network of $n$ instances of the depicted automata and the reachable states are when at least two of them are in the critical section. 
+
 \subsubsection{CSMA/CD protocol}
 
+Carrier sense multiple access with collision detection (CSMA/CD) is a media access control method used in Ethernet technology. The stations are communicating through a medium that can only maintain one transmission. They can sense if the medium is busy, but there is a certain amount of propagation delay (denoted with $\sigma$), so it is possible that another station started transmission since the last information, and collision can occur. In this case the medium broadcasts a jam signal, and the stations pick a random time between 0 and $2\sigma$ time units to try transmission again.
+
+The examined property (collision detection) can be formulated as an input of the reachability problem, where the system consists of one medium and $n$ stations ($n \geq 2$) and the reachable states are when at least two of them are transmitting and at least one of them has been transmitting since at least $2\sigma$ time units -- i.e. the collision was not detected.
+
 \subsubsection{Token Ring FDDI Protocol}
+
+Token ring and FDDI protocal are actually two distinct protocols, that are based on the same idea: a ring network of server stations, with a token travelling around the ring. The server owning the token is allowed to communicate, but only within certain time limits to ensure fairness: first, synchronous transmission happens, that is only allowed for at most \emph{sa} time limits (\emph{sa} is the previously agreed timebound of synchronous communication) and then assynchronous transmission can happen until the station exceeds \emph{ttrt}, which is the \emph{tartget token rotation time}: the time passed since the previous transmission of the same station.
+
+The examined property (token exclusiveness) can be formulated as an input of the reachability problem, where the system consists of one token ring and $n$ stations ($n \geq 2$) and the reachable states are when at least two of them are owning the token.
+
+
+\todo{Nagyon jó lenne csütörtökön megcsinálni a többit!}
 
 
 
 \subsection{Results}
+
+
 \todo{Grafikonok + mit mértünk épp, mivel, mi lett az eredménye}
 
 \subsection{Evaluation}
