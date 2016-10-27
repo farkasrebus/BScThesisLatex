@@ -27,6 +27,24 @@ Finally, the only task of the refinement phase is to refine the current abstract
 
 \todo{A pseudocode is provided to demonstrate implementability.}
 
+\begin{algorithm}
+\KwIn{$\langle L,l_0,E,I \rangle$, $l_{err} \in L$}
+\KwOut{$\sigma=l_0 \xrightarrow{t_0} l_1 \xrightarrow{t_1} \cdots \xrightarrow{t_n} l_{err}$ if $l_{err}$ is reachable, \emph{No} otherwise}
+\BlankLine
+$\mathcal{A} \leftarrow \langle L,l_0,E,I \rangle \setminus \mathcal{C}$  \tcc*{initial abstraction}
+\While{true}{
+	$\sigma \leftarrow reachable(\mathcal{A},l_{err})$ \tcc*{model checking}
+	\eIf{$\not\exists \sigma$\tcc*{no counterexample is found}}
+	{\KwRet{\emph{No}}\tcc*{unreachable}}
+	{$C \leftarrow refinementset(\mathcal{A},\sigma)$  \tcc*{analysis} 
+		\eIf(\tcc*[f]{No refinement set, because feasible}){$c=\emptyset$}{\KwRet{$\sigma$}\;}
+		{$\mathcal{A} \leftarrow refine(\mathcal{A},C,\langle L,l_0,E,I \rangle)$\tcc*{Abstract automaton is refined by $C$}}
+	 }
+}
+\caption{Automaton-based refinement}
+\end{algorithm}
+
+
 In the following sections techniques are enumerated that can be used in this realization of the CEGAR-loop: two reachability algorithms, an approach for calculating the clocks to include, and the algorithm for refining the automaton are presented. Algorithms are presented on the automaton in Figure \ref{fig:loopinfinite} with $l_{err}=\text{\emph{end}}$ to ease understanding. From now on $\mathcal{A}$ will refer to that particular timed automaton.
 
 \subsubsection{Zone graph exploration} 

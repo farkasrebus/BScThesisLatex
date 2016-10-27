@@ -2,11 +2,11 @@
 
 \section{Environment}
 
-\subsection{\ttmc}
+\subsection{The \ttmcfw}
 
-\ttmc\ is a framework developed by the \bmemit\ that offers model checking algorithms for various models, such as programs and statecharts. The models are described by domain specific languages, and translated to common formalisms, including the state transition system, the control flow automaton, and the timed automaton. Besides formalisms, abstract domains and frameworks for common model checking approaches are also implemented. \ttmc \  an SMT solver called Z3\footnote{https://github.com/Z3Prover}, that is able to recognize various first order theories, such as difference logic.
+\ttmc\ is an extensible, configurable verification framework developed by the \bmemit\ that offers model checking algorithms for various models, such as programs and statecharts. The models are described by domain specific languages, and translated to common formalisms, including the state transition system, the control flow automaton, and the timed automaton. Besides formalisms, abstract domains and frameworks for common model checking approaches are also implemented. \ttmc\ uses an SMT solver called \textsc{Z3}\footnote{https://github.com/Z3Prover}, that is able to recognize various first order theories, such as difference logic.
 
-I have decided to extend \ttmc\ with the presented configurable framework for model checking timed automata. The implemented framework relies on the model checker's extended timed automaton representation: the \emph{Timed Control Flow Automaton}, Z3 interface, and a modified version (modifications described in chapter \ref{chap:timed_cegar}) of the zone implementation described in \cite{bengtsson2004timed}.
+I have decided to extend the \ttmcfw\ with the presented configurable framework for model checking timed automata. The implemented framework relies on the model checker's extended timed automaton representation: the \emph{Timed Control Flow Automaton}, Z3 interface, and a modified version (modifications described in chapter \ref{chap:timed_cegar}) of the zone implementation described in \cite{bengtsson2004timed}.
 
 \subsection{Achitecture}
 
@@ -27,7 +27,7 @@ The output of the algorithm can be an execution trace by which $l_{err}$ is reac
 
 \section{Measurements}
 
-The goal of the measurements is to evaluate the designed algorithm's performance and scalability, and draw conclusions about what combination of algorithms are effective. The inputs are scalable automata chosen from Uppaal's benchmark data\footnote{https://www.it.uu.se/research/group/darts/uppaal/benchmarks/}. Uppaal supports extensions of the timed automaton formalism (network automata with synchronization channels) that are not implemented in \ttmc, but can be transformed to the timed control flow automata formalism. This transformation was performed before the measurements.
+The goal of the measurements is to evaluate the designed algorithm's performance and scalability, and draw conclusions about what combination of algorithms are effective. The inputs are scalable automata chosen from Uppaal's benchmark data\footnote{https://www.it.uu.se/research/group/darts/uppaal/benchmarks/}. Uppaal supports extensions of the timed automaton formalism (network automata with synchronization channels) that are not implemented in the \ttmcfw, but can be transformed to the timed control flow automata formalism. This transformation was performed before the measurements.
 
 Measurements were performed on a personal computer with a core i5 processor. The program was operating on a maximum of 4GB memory, however, this wasn't fully used, as it was the solver that run out of memory in most cases.
 

@@ -2,9 +2,9 @@
 
 This chapter concludes the contributions of this paper and presents my future goals.
 
-\section{Contribution}
+\section{Contributions}
 
-I have developed a configurable framework for CEGAR-based reachability analysis of timed automata extended with discrete variables. The framework provides two different realizations of the CEGAR-loop: one, where the refinement is based on the automaton and one, where it is the state space that gets refined.
+I have developed a configurable framework for CEGAR-based reachability analysis of timed automata extended with discrete variables. The framework provides two different realizations of the CEGAR-loop: one, where the refinement is based on the automaton and one, where the state space is being abstracted and refined.
 
 In the framework I have collected various techniques that can be used during the described realizations of the CEGAR-loop. My algorithmic contributions include
 \begin{itemize}
@@ -14,17 +14,17 @@ In the framework I have collected various techniques that can be used during the
 	\item two methods for calculating the precision to refine the zones on an execution trace in order to decide if it is feasible:
 	\begin{itemize}
 		\item one, that is based on the \emph{unsat core} function of SMT solvers and
-		\item one that is based on the \emph{activity} property of clock variables and
+		\item one, that is based on the \emph{activity} property of clock variables and
 	\end{itemize}
 	\item a method for calculating the state space of a timed automaton with different precisions along the zones.
 \end{itemize}
 
 As a result the framework currently provides six different algorithms for reachability analysis of timed automata, but it is extensible.
 
-I have implemented the presented framework to \ttmc\ and I have demonstrated the efficiency of the implemented algorithms with measurements.
+I have implemented the presented framework in the \ttmcfw\ and I have demonstrated the efficiency of the implemented algorithms with measurements.
 
 \section{Future work}
 
-The first and most obvious advancement option is to extend the framework with new modules, abstract zone graph representations and abstraction techniques, such as predicate abstraction \cite{Graf97a}. I would also like to introduce algorithms that apply abstraction to the discrete variables as well as the clock variables and I would like to create algorithms, that combine different abstraction techniques, to eliminate spurious counterexamples in earlies phases of the verification.
+The first and most obvious improvement option is to extend the framework with new modules, abstract zone graph representations and abstraction techniques, such as predicate abstraction \cite{Graf97a}. I would also like to introduce algorithms that apply abstraction to the discrete variables as well as the clock variables and I would like to create algorithms, that combine different abstraction techniques, to eliminate spurious counterexamples in early phases of the verification.
 
-I would also like to perform exhaustive benchmarks to see what combination of techniques is the best for different kinds of timed automata and I would like to measure the performance of the algorithms on industrially relevant examples.
+I would also like to perform exhaustive benchmarking to see what combination of techniques is the most efficient for different kinds of timed automata and I would like to measure the performance of the algorithms on industrially relevant examples.
