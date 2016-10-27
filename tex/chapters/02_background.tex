@@ -23,7 +23,7 @@ Propositional logic (or zeroth order logic) is concerned with the study of formu
 The (boolean) satisfiability problem (SAT, for short) can be defined as follows \cite{biere2009handbook}.
 \begin{description}
 	\item[Input]: A propositional logic formula $\varphi$.
-	\item[Output]: \emph{Yes} if $\varphi$ is satisfiabile (i.e. it is possible to ground the variables appearing in $\varphi$ to truth symbols so that $\varphi$ is evaluated true), \emph{No} otherwise.
+	\item[Output]: \emph{Yes} if $\varphi$ is satisfiable (i.e. it is possible to ground the variables appearing in $\varphi$ to truth symbols so that $\varphi$ is evaluated true), \emph{No} otherwise.
 \end{description}
 
 SAT is NP-complete \cite{Cook71} but in practice there are efficient solvers \cite{oai:hal.archives-ouvertes.fr:hal-00868244}.
@@ -63,7 +63,7 @@ Since the framework presented in this paper relies on a SAT (SMT) solver (as it 
 
 Formal verification is the act of proving the correctness or incorrectness of a system in a mathematically precise way. Model checking is an automatic formal verification technique, where the system has to be represented by a formal model, and the requirements of the system has to be a property of the system formally defined as logical formulae \cite{clarke_em-etal:1999a}. Verification can be performed by proving that the system (represented by the formal model) satisfies that property.
 
-\subsection{Modeling formalisms}
+\subsection{Modelling formalisms}
 It is important to find the appropriate representation of the model i.e. the appropriate formalism in order to be able to model and check the property. This paper focuses on \emph{behavior properties} examined on \emph{behavioral models}. 
 
 In formal verification behaviour is often represented with state-based formalisms: the system's behaviour is partitioned to a (not necessarily finite) set of \emph{states} (the \emph{state space}), that is complete and excluding -- i.e. at any given time the system is in exactly one of the states. The state of the system determines the possible behaviours. Because of this, it is important to choose the granularity of the state space in a way that it can be decided what behaviour is possible and what is not, solely based on the system's current state.
@@ -156,7 +156,7 @@ The system's operation starts from the control location $l_0$, and the variables
 	Operation starts in state $\langle \text{\emph{start}}, x=0, l=0\rangle$. When the system changes its state it can only take edge \emph{start} $\to$ \emph{loop}, resulting in state $\langle \text{\emph{loop}} x=2, l=0 \rangle$. Edge  \emph{loop} $\to$ \emph{end} is not enabled, but the system can take the loop edge resulting in state $\langle \text{\emph{loop}} x=4, l=1\rangle$. The edge to \emph{end} is still not enabled, but after taking the loop edge again ($\langle \text{\emph{loop}} x=16, l=2\rangle$) it becomes enabled. The system may keep taking the loop edge up to three times (after which the invariant prohibits it, because it would increase $l$), or transition to \emph{end}.
 \end{example}
 
-\subsection{Reachability Analysis}
+\subsection{Reachability analysis}
 During formal verification, one of the most important questions is reachability: deciding whether a system can step into a given state. In many cases, the state in question represents an erroneous state and the desired outcome of model checking is that it is unreachable. The problem can be defined as follows.
 \begin{description}
 	\item[Input]: A system $S$ and a state $s_{err}$.
@@ -215,7 +215,7 @@ The idea of state space exploration is to systematically list all possible state
 
 One of the simplest ways to explore the state space is to construct a search-tree. The root of the tree is the initial state $s_0$ of the system. The state space is explored by iteratively choosing a leaf with a state $s$ of the tree, and introducing a new edge for all possible enabled transitions $(s,s')$ pointing to a new node with a state $s'$. This way, all possible execution traces are explored, but states may appear more than once if there are more execution traces to reach them.
 
-It is also possible to construct a state graph, where the state space is explored similarly, except one state can only appear once. This helps reducing the size of the graph, however (in case of an infinite state space) it still might be infinite. Infinite statspaces can never be completely explored this way (by explicit exploration), however, sometimes, when small counterexamples are expected, it is not necessary.
+It is also possible to construct a state graph, where the state space is explored similarly, except one state can only appear once. This helps reducing the size of the graph, however (in case of an infinite state space) it still might be infinite. Infinite state spaces can never be completely explored this way (by explicit exploration), however, sometimes, when small counterexamples are expected, it is not necessary.
 
 Consider the \emph{bounded reachability problem}.
 \begin{description}
@@ -301,11 +301,11 @@ The conjunction of the resulting set of constraints is handed to a solver. If it
 \end{example}
 
 
-\section{Verification of Timed Systems}
+\section{Verification of timed systems}
 
 The timed automaton is a common formalism for modelling timed systems. It is an extension of the finite automaton with clock variables. In this section clock variables and timed automata are introduced, an algorithm is described (and the implementation briefly explained) for deciding reachability, and information is provided on the complexity of the problem.
 
-\subsection{Basic Definitions}
+\subsection{Basic definitions}
 
 
 In order to properly define timed automata, first the idea of \emph{clock variables} must be explained. In case of untimed systems, the values of the variables always remain the same between two modifications. However, this is not the case for clock variables (clocks, for short).

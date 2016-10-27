@@ -2,7 +2,7 @@
 
 This chapter presents a configurable framework for CEGAR-based reachability analysis of timed automata. First, the goal of the framework is explained, than the used algorithms and techniques are enumerated and finally, the extensibility of the framework presented. 
 
-\section{Generic CEGAR Framework}
+\section{Generic CEGAR framework}
 
 The key idea of the framework is to provide various techniques for each phases of the CEGAR-loop, by using correspondent parts of CEGAR-based reachability algorithms. Most of these algorithms already exist (mostly for other formalisms, and they have to be adapted to timed automata), but some of them are new contributions. The created modules can then be combined to form new algorithms (that is, the technique used in each phase of CEGAR can be provided by different algorithms), and choosing the most efficient parts of the original algorithms can result in an even more efficient algorithm than the original ones. 
 
@@ -222,7 +222,7 @@ In each iteration a node $n=\langle l, z_{C} \rangle \in N_u$ for some $C$ is ch
 
 \todo{pszeudokód}
 
-\subsubsection{Trace Activity-based precision calculation}
+\subsubsection{Trace activity-based precision calculation}
 
 \begin{figure}[h]
 	\centering
@@ -231,7 +231,7 @@ In each iteration a node $n=\langle l, z_{C} \rangle \in N_u$ for some $C$ is ch
 	%\label{fig:cegarssp}
 \end{figure}
 
-The task of the analysis phase is to determine the precision of each zones on a given counterexample. The abstraction \emph{activity} as described in Section \ref{sec:acitivity} is able to assign a set of clocks for each locations of the automaton, without affecting its behaviour. Assigning $act(l)$ for each node $n=\langle l, z_{C} \rangle$ would be a good solution of the task, however it can be made more efficient by considering the fact that we are only considering an execution trace, and we only need to know if it is feasible.
+The task of the analysis phase is to determine the precision of each zones on a given counterexample. The abstraction \emph{activity} as described in Section \ref{sec:acitivity} is able to assign a set of clocks for each locations of the automaton, without affecting its behaviour. Assigning $act(l)$ for each node $n=\langle l, z_{C} \rangle$ would be a good solution of the task, however it can be made more efficient by considering the fact that we are only examining an execution trace, and we only need to know if it is feasible.
 
 Based on \emph{activity} a new abstraction can be introduced, called \emph{trace activity} $Act_\sigma(n): N \to 2^\mathcal{C}$ which does the same thing as activity, except for a trace: it assigns precisions to nodes (not locations in this case, because the same location may appear multiple times ion a trace with different activity). The algorithm calculating trace activity operates the following way.
 

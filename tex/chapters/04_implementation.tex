@@ -63,7 +63,7 @@ Carrier sense multiple access with collision detection (CSMA/CD) is a media acce
 
 The examined property (collision detection) can be formulated as an input of the reachability problem, where the system consists of one medium and $n$ stations ($n \geq 2$) and the reachable states are when at least two of them are transmitting and at least one of them has been transmitting since at least $2\sigma$ time units -- i.e. the collision was not detected.
 
-\subsubsection{Token Ring FDDI Protocol}
+\subsubsection{Token ring FDDI protocol}
 
 Token ring and FDDI protocal are actually two distinct protocols, that are based on the same idea: a ring network of server stations, with a token travelling around the ring. The server owning the token is allowed to communicate, but only within certain time limits to ensure fairness: first, synchronous transmission happens, that is only allowed for at most \emph{sa} time limits (\emph{sa} is the previously agreed timebound of synchronous communication) and then assynchronous transmission can happen until the station exceeds \emph{ttrt}, which is the \emph{tartget token rotation time}: the time passed since the previous transmission of the same station.
 
