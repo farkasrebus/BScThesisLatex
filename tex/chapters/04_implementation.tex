@@ -29,8 +29,7 @@ The output of the algorithm can be an execution trace by which $l_{err}$ is reac
 
 The goal of the measurements is to evaluate the designed algorithm's performance and scalability, and draw conclusions about what combination of algorithms are effective. The inputs are scalable automata chosen from Uppaal's benchmark data\footnote{https://www.it.uu.se/research/group/darts/uppaal/benchmarks/}. Uppaal supports extensions of the timed automaton formalism (network automata with synchronization channels) that are not implemented in the \ttmcfw, but can be transformed to the timed control flow automata formalism. This transformation was performed before the measurements.
 
-Measurements were performed on a personal computer with a core i5 processor. The program was operating on a maximum of 4GB memory, however, this wasn't fully used, as it was the solver that run out of memory in most cases.
-
+Measurements were performed on a personal computer with a 2.60 GHz core i5 processor. The program was operating on a maximum of 4GB memory, however, this was not fully used, as it was the solver that run out of memory in most cases.
 %\todo{Célok ismertetése, mérések bemutatása. Mit akarunk mérni, mivel fogjuk összehasonlítani, milyen bemeneteken, és miért.}
 
 \subsection{Inputs}
@@ -69,17 +68,71 @@ Token ring and FDDI protocal are actually two distinct protocols, that are based
 
 The examined property (token exclusiveness) can be formulated as an input of the reachability problem, where the system consists of one token ring and $n$ stations ($n \geq 2$) and the reachable states are when at least two of them are owning the token.
 
-
-\todo{Nagyon jó lenne csütörtökön megcsinálni a többit!}
-
-
-
 \subsection{Results}
 
+This section presents the performed measurements and their results.
 
-\todo{Grafikonok + mit mértünk épp, mivel, mi lett az eredménye}
+\subsubsection{Token ring FDDI measurements}
 
-\subsection{Evaluation}
+The Token ring protocol is a special input, since the examined safety property can be proven solely based on the structure of the automaton, thus the analysis of the initial abstraction is able to prove the property and refinement is not necessary. This proves how useful abstraction is, but the measurements on this automaton can only compare the efficiency of the pathfinding algorithms, that are almost the same in all presented algorithms (breadth first search and depth first search).
 
-\todo{Miérések eredményének összesítése, mit tudtunk meg ebből.}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{include/figures/diag_tokenfddi}
+	\caption{Results of measurements on the token ring example}
+	\label{fig:tokendiag}
+\end{figure}
+
+The algorithms were executed on the timed automata representations of token rings consisting of $2^n$ stations ($2 \leq n \leq 11$), and their execution times were measured. Each algorithms on each input were run 15 times and the average the execution times was calculated. The results are depicted in Figure \ref{fig:tokendiag}. The execution times were roughly the same, all in $\mathcal{O}(n^2)$, as it is expected from pathfinding algorithms, however, these measurements did not include the algorithm that uses a bounded model checker.
+
+\subsubsection{Bounded model checker measurements}
+
+The algorithm that uses a bounded model checker can not be compared to the other algorithms, because it scales with different characteristics. To demonstrate this I have executed the algorithm with on token ring protocol of different sizes, 15 times each and calculated the average runtime. The bound was set to 50 each time.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{include/figures/diag_bound_station}
+	\caption{Results of measurements with different number of stations}
+	\label{fig:tokenboundstations}
+\end{figure}
+
+Figure \ref{fig:tokenboundstations} depicts the result of the measurements. It is seen, that the execution times do not grow (although it is interesting how the execution times decrease -- this is probably caused by some environmental characteristics). On the other hand, the bound has a great influence on the runtime. To demonstrate this, I have executed the algorithm with different bound values on the timed automaton model of the token ring of three stations -- 15 times each. The bound varied between 5 and 50.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{include/figures/diag_bound}
+	\caption{Results of measurements with different bounds}
+	\label{fig:tokenbound}
+\end{figure}
+
+The results of the measurements are depicted in Figure \ref{fig:tokenbound}. The scale on the vertical axis is logarithmic, and the trendline is parabolic. This means that the complexity of this algorithm is greater, than exponential in the value of the bound.
+
+\subsubsection{Measurements on Fischer and CSMA/CD protocols}
+
+The other algorithms were measured on timed automata representations of Fischer and CSMA/CD protocols, six times each. Memory problems occured at the Fischer protocol of four processes and the CSMA/CD protocol of five stations. One of the algorithms couldn't run on the CSMA/CD protocol of four stations either.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{include/figures/diag_fischcsma}
+	\caption{Results of measurements on Fischer and CSMA/CD protocols}
+	\label{fig:mesurements}
+\end{figure}
+
+The results of the measurements are depicted in Figure \ref{fig:mesurements}. The models are denoted by Fisch$n$ and CSMA$n$ for the Fischer protocol and the CSMA/CD protocol of $n$ participants, respectively. The abbreviations denote the algorithms, that are composed the following way:
+
+\begin{itemize}
+	\item A denotes abstraction-based refinement, 
+	\item Z denotes zone graph exploration,
+	\item S denotes state space based,
+	\item T can denote tree representation it it's the second and trace activity-based precision calculation if it's the last one,
+	\item G denotes graph representation, and
+	\item U denotes unsat core-based precision calculation.
+\end{itemize}
+
+For example SGU denotes state space-based abstraction, where the abstraction of the zone graph is a regular graph (not a tree) and the precision is calculated based on the unsat core of the counterexamples. This algorithm run out of memory when executed on the timed automaton representation of four stations communicating with CSMA/CD protocol.
+
+
+%\subsection{Evaluation}
+
+%\todo{Miérések eredményének összesítése, mit tudtunk meg ebből.}
 

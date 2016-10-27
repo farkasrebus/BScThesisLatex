@@ -25,27 +25,26 @@ The task of the analysis phase is to check if the trace found is feasible in the
 
 Finally, the only task of the refinement phase is to refine the current abstraction of the automaton, by extending it with the given set of clock variables (and the constraints they appear in). The task is straightforward, and so there is only one technique for this phase of the CEGAR-loop (in case of automaton refinement).
 
-\todo{A pseudocode is provided to demonstrate implementability.}
-
 \begin{algorithm}
-\KwIn{$\langle L,l_0,E,I \rangle$, $l_{err} \in L$}
-\KwOut{$\sigma=l_0 \xrightarrow{t_0} l_1 \xrightarrow{t_1} \cdots \xrightarrow{t_n} l_{err}$ if $l_{err}$ is reachable, \emph{No} otherwise}
-\BlankLine
-$\mathcal{A} \leftarrow \langle L,l_0,E,I \rangle \setminus \mathcal{C}$  \tcc*{initial abstraction}
-\While{true}{
-	$\sigma \leftarrow reachable(\mathcal{A},l_{err})$ \tcc*{model checking}
-	\eIf{$\not\exists \sigma$\tcc*{no counterexample is found}}
-	{\KwRet{\emph{No}}\tcc*{unreachable}}
-	{$C \leftarrow refinementset(\mathcal{A},\sigma)$  \tcc*{analysis} 
-		\eIf(\tcc*[f]{No refinement set, because feasible}){$c=\emptyset$}{\KwRet{$\sigma$}\;}
-		{$\mathcal{A} \leftarrow refine(\mathcal{A},C,\langle L,l_0,E,I \rangle)$\tcc*{Abstract automaton is refined by $C$}}
-	 }
-}
-\caption{Automaton-based refinement}
+	\KwIn{$\mathcal{A}_\mathcal{C}=\langle L,l_0,E,I \rangle$, $l_{err} \in L$}
+	\KwOut{$\sigma=l_0 \xrightarrow{t_0} l_1 \xrightarrow{t_1} \cdots \xrightarrow{t_n} l_{err}$ if $l_{err}$ is reachable, \emph{No} otherwise}
+	\BlankLine
+	$\mathcal{A} \leftarrow \mathcal{A}_\mathcal{C} \setminus \mathcal{C}$  \tcc*{initial abstraction}
+	\While{\emph{true}}{
+		$\sigma \leftarrow$ reachable($\mathcal{A},l_{err}$) \tcc*{model checking}
+		\eIf(\tcc*[f]{no counterexample is found}){$\not\exists \sigma$}
+		{\KwRet{\emph{No}}\tcc*{unreachable}}
+		{$C \leftarrow$ refinementset($\mathcal{A},\sigma$)  \tcc*{analysis} 
+			\eIf(\tcc*[f]{No refinement set, because feasible}){$c=\emptyset$}{\KwRet{$\sigma$}\;}
+			{$\mathcal{A} \leftarrow$ refine($\mathcal{A},C,\mathcal{A}_\mathcal{C}$)\tcc*{automaton is refined by $C$}}
+		}
+	}
+	\caption{Automaton-based refinement} \label{alg:ceraraut}
 \end{algorithm}
 
 
-In the following sections techniques are enumerated that can be used in this realization of the CEGAR-loop: two reachability algorithms, an approach for calculating the clocks to include, and the algorithm for refining the automaton are presented. Algorithms are presented on the automaton in Figure \ref{fig:loopinfinite} with $l_{err}=\text{\emph{end}}$ to ease understanding. From now on $\mathcal{A}$ will refer to that particular timed automaton.
+Algorithm \ref{alg:ceraraut} provides pseudocode for the described approach. Functions \emph{reachable()}, \emph{refinementset()} and \emph{refine()} are components that can be chosen from the techniques described in
+the following sections, where two reachability algorithms, an approach for calculating the clocks to include, and the algorithm for refining the automaton are presented. Algorithms are demonstrated on the automaton in Figure \ref{fig:loopinfinite} with $l_{err}=\text{\emph{end}}$ to ease understanding. From now on $\mathcal{A}$ will refer to that particular timed automaton.
 
 \subsubsection{Zone graph exploration} 
 
@@ -88,7 +87,7 @@ This allows us to use a SMT-solver to decide if a possible execution trace of a 
 
 The problem with this model checker is that there may be infinitely many execution traces. Thus, this model checker can only be used as a \emph{bounded} model checker.
 
-\todo{A pseudocode is provided to demonstrate implementability.}
+%\todo{A pseudocode is provided to demonstrate implementability.}
 
 
 \subsubsection{Unsat core-based clock selection}
@@ -118,9 +117,6 @@ Solvers can be useful, not only to decide if a given set of constraints is satis
 
 Given an original automaton $\mathcal{A}$ an abstract automaton $\mathcal{A'}$ and a set of clock variables to be added $C \subseteq \mathcal{C}$, the task is to refine $\mathcal{A'}$ so that each clock $c \in C$ appears in it. The task is to decide which of the guards, resets and invariants to include. Resets are easy to add: the ones that reset clocks in $C$ should be included, others don't. Guards and invariants are clock constraints -- conjunctive formulae of atomic constraints bounding the value of the clocks or the difference of two clocks. Decision can be made for each atomic formula one by one: those in which only clocks in $\mathcal{A'}$ or $C$ appear -- that is, difference constraints are only included if both clocks appear in $\mathcal{A'}$ or $C$.
 
-
-
-
 \subsection{State space-based refinement}
 
 \begin{figure} 
@@ -145,9 +141,25 @@ As for the second part, calculating the correct zones can be performed by the st
 
 The task of the refinement phase is to modify the current abstraction of the zone graph according to the states calculated in the analysis phase.
 
-\todo{A pseudocode is provided to demonstrate implementability.}
+\begin{algorithm}
+	\KwIn{$\mathcal{A}=\langle L,l_0,E,I \rangle$, $l_{err} \in L$}
+	\KwOut{$\sigma=l_0 \xrightarrow{t_0} l_1 \xrightarrow{t_1} \cdots \xrightarrow{t_n} l_{err}$ if $l_{err}$ is reachable, \emph{No} otherwise}
+	\BlankLine
+	$\mathcal{G} \leftarrow$ inital($\mathcal{A}$) \tcc*{initial abstraction}
+	\While{\emph{true}}{
+		$\sigma \leftarrow$ path($\mathcal{G},l_0,l_{err},\mathcal{A}$) \tcc*{model checking}
+		\eIf(\tcc*[f]{no counterexample is found}){$\not\exists \sigma$}
+		{\KwRet{\emph{No}}\tcc*{unreachable}}
+		{$P \leftarrow$ prec($\mathcal{A},\sigma$)  \;
+		 $T \leftarrow$ calculateTrace($\sigma,P$) \tcc*{analysis}
+			\eIf(\tcc*[f]{feasible trace}){$\exists \langle l_{err},z\rangle \in$ nodes($T$) for some $z \neq \emptyset$}{\KwRet{$\sigma$} \;}
+			{$\mathcal{G} \leftarrow$ refine($\mathcal{G},T$)\tcc*{state space is refined accoring to $T$}}
+		}
+	}
+	\caption{State space-based refinement} \label{alg:cerarssp}
+\end{algorithm}
 
-In the following sections techniques are enumerated that can be used in this realization of the CEGAR-loop: two abstractions of the zone graph are presented, and algorithms are shown, mentioning the state space representation-dependent behaviours of model checking and refinement. Only those of these modules can be used interchangeably, that are defined for the same representation.
+Algorithm \ref{alg:cerarssp} provides pseudocode for the described approach. Function \emph{initial}, \emph{path} and \emph{refine} are state space representation-dependent. Functions \emph{prec()},  and \emph{calculateTrace()} are components that can be chosen from the techniques described in the following sections, where two abstractions of the zone graph are presented, and algorithms are shown, mentioning the state space representation-dependent behaviours of model checking and refinement. Only those of the presented techniques can be used interchangeably, that are defined for the same representation.
 
 
 %\section{Modules}
@@ -238,7 +250,30 @@ In each iteration a node $n=\langle l, z_{C} \rangle \in N_u$ for some $C$ is ch
 	Exploration of $\mathcal{A}$'s abstract state space starts by exploring $n_0$, that is performed by introducing a new (unexplored node) $n_1=\langle \text{\emph{loop}}, z_\emptyset \rangle$ with a downward edge $n_0 \to n_1$. The erroneous location is not explored yet so the iteration continues. Location \emph{loop} has two outgoing edges. The loop edge introduces $n_2=\langle \text{\emph{loop}}, z_\emptyset \rangle$ with a downward edge $n_1 \to n_2$. Edge \emph{loop} $\to$ \emph{end} introduces $n_3=\langle \text{\emph{end}}, z_\emptyset \rangle$ with $n_1 \to n_3$. The erroneous location is found and $\sigma= n_0 \to n_1 \to n_3$ is proposed as a counterexample.
 \end{runningExample}
 
-\todo{pszeudokód}
+\begin{algorithm}
+	\KwIn{$\mathcal{T}=\langle N_e, N_u, E^\uparrow, E^\downarrow \rangle$, $l_{err}, \mathcal{A}$}
+	\KwOut{$\sigma=l_0 \xrightarrow{t_0} l_1 \xrightarrow{t_1} \cdots \xrightarrow{t_n} l_{err}$ if $l_{err}$ is reachable in the abstract statespace, \o\ otherwise}
+	\BlankLine
+	\For{$n=\langle l,z_C \rangle \in N_u$}{
+		newnodes $\leftarrow \emptyset$ \tcc*{set of successor nodes}
+		$N_u \leftarrow N_u \setminus \{n\}$ \;
+		$N_e \leftarrow N_e \cup \{n\}$ \tcc*{node marked as explored}	
+		\eIf(\tcc*[f]{$n'$ contains all states of $n$}){$\exists n'=\langle l,z'_C \rangle \in N_e$ such that $z_C \subseteq z'_C$}
+		{ $E^\uparrow \leftarrow E^\uparrow \cup \{(n,n')\}$ \;}
+		{\For{$e=(l,a,g,l') \in E(\mathcal{A})$}{
+				$n' \leftarrow \langle l',z_\emptyset \rangle$ \;
+				newnodes $\leftarrow$ newnodes $\cup \{n'\}$ \;
+				$N_u \leftarrow N_u \cup \{n'\}$ \;	
+				$E^\downarrow \leftarrow E^\downarrow\cup \{(n,n')\}$ \;
+		}
+		}
+		\If(\tcc*[f]{$l_{err}$ reached}){$\exists n'=\langle l_{err}, z_\emptyset\rangle \in$ newnodes}{\KwRet{trace($n'$)}\;}
+	}
+	\KwRet{\o} \tcc*{$l_{err}$ is unreachable}
+	\caption{An implementation of of function \emph{path}} \label{alg:path}
+\end{algorithm}
+
+Algorithm \ref{alg:path} provides pseudocode for the presented method. Function \emph{trace} calculates the sequence of downwards arrows through wich the node is reached from the root of $\mathcal{T}$. 
 
 \subsubsection{Trace activity-based precision calculation}
 
@@ -303,7 +338,7 @@ The correct zones on the trace are calculated. It is important to consider that 
 	The refinement of trace $\sigma$ results in $\langle \text{\emph{start}}, z_\emptyset \rangle \to \langle \text{\emph{loop}}, x=y \leq 10 \rangle$.
 \end{runningExample}
 
-\todo{pszeudokód az eddigiekről}
+%\todo{pszeudokód az eddigiekről}
 
 
 \subsubsection{State space refinement}
@@ -339,7 +374,7 @@ is not satisfied -- the transition is not enabled. The corresponding edge is rem
 	\[\langle \text{\emph{start}}, z_\emptyset \rangle \to \langle \text{\emph{loop}}, x=y \leq 10 \rangle \to \langle \text{\emph{loop}}, z_\emptyset \rangle \to \langle \text{\emph{end}}, z_\emptyset \rangle\]
 \end{runningExample}
 
-\todo{pszeudokód?}
+%\todo{pszeudokód?}
 
 Incoming edges that are not on the trace are also important in case of tree representation, however, because of the tree nature of $T$, the other incoming edges of a node $n$ can only be upwards edges, representing that all states represented by some node $n'$ are also represented by $n$. Obviously, this may not be true, after refining the zone in the node, and because of this the edge $n' \to n$ is removed, and $n'$ is marked as unexplored.
 
@@ -353,7 +388,7 @@ Containment can also be checked here, just as in case of the graph representatio
 	\[ \langle \text{\emph{start}}, z_\emptyset \rangle \to \langle \text{\emph{loop}}, x=y \leq 10 \rangle \to \langle \text{\emph{loop}}, z_\emptyset \rangle\] 
 \end{runningExample}
 
-\todo{pszeudokód?}
+%\todo{pszeudokód?}
    
 
 
@@ -383,9 +418,10 @@ Figure \ref{fig:cegartafin} depicts the presented techniques for automaton-based
 
 The presented framework is extensible in may ways. New techniques can be added to the framework and combined with existing ones, e.g. an online pathfinding algorithm can be studied in place of the current depth first search algorithm represented by the graph exploration module. New representations can be defined for state space-based refinement (e.g. zones can be represented by \emph{potential graphs} \cite{conf/sas/GangeNSSS16}), and even a new aspect of abstraction can be introduced with it's own CEGAR-loop realization (e.g. abstraction can be applied to locations \cite{kemper2007sat}).
 
+A total of six algorithms can be composed of the presented techniques. Two of them apply abstraction to the clock variables of the automaton, similarly to the algorithms presented in papers \cite{dierks2007automatic, he2010compositional,okano2011clock}, while the other four apply abstraction directly to the state space. 
+
 
 %\todo{Kis szöveg meg sok sok ábra az elkészült algoritmusokról, a kombinálhatóságról, valamint a keretrendszer kiterjesztési lehetőségeiről}
-
 %\subsection{Timed automaton-based refinement with sat based mocdel checker}
 %\subsection{Timed automaton-based refinement with sat based mocdel checker}
 

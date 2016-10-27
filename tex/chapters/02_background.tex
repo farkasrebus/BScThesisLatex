@@ -8,7 +8,7 @@ Mathematical logic is useful for deciding correctness of systems. This section p
 
 \subsection{Propositional logic}
 
-Propositional logic (or zeroth order logic) is concerned with the study of formulae of boolean variables, and deciding whether they are true or false. Propositional formulae are composed of \emph{truth symbols} $\top$ (true) and $\bot$ (false),  and propositional \emph{variables} $p,q, \dots$ with the use of \emph{logical connectives}. A formula $\varphi$ can be an \emph{atom} (a truth symbol or a variable) or can be constructed from other logical formulae with the following connectives:
+Propositional logic is concerned with the study of formulae of boolean variables, and deciding whether they are true or false under a given assignment. Propositional formulae are composed of \emph{truth symbols} $\top$ (true) and $\bot$ (false),  and propositional \emph{variables} $p,q, \dots$ with the use of \emph{logical connectives}. A formula $\varphi$ can be an \emph{atom} (a truth symbol or a variable) or can be constructed from other logical formulae with the following connectives:
 
 \begin{itemize}
 	\item negation: $\neg\varphi$ is evaluated true iff $\varphi$ is evaluated false (formal equivalent of 'not'),
@@ -30,9 +30,11 @@ SAT is NP-complete \cite{Cook71} but in practice there are efficient solvers \ci
 
 \subsection{First order logic}
 
-Propositional logic is useful, however, sometimes its expressive power is not enough. First order logic is a extends propositional logic with predicates, functions and the quantifiers $\exists$ (existential quantifier) and $\forall$ (universal quantifier). While propositional logic formulae could only be evaluated to truth values, first order logic formulae can be evaluated to numbers, functions or any abstract concept.
+Propositional logic is useful, however, sometimes its expressive power is not enough. First order logic is a extends propositional logic with predicate symbols, function symbols and quantifiers $\exists$ (existential quantifier) and $\forall$ (universal quantifier). 
 
-The basic elements of first order logic are \emph{terms}. Variables and constants (0-ary functions) are terms, as well as $n$-ary functions applied to $n$ terms. In first order logic an atom can be $\top, \bot$ or an a $n$-ary predicate applied to $n$ terms. Formulae are constructed by applying connectives (the same as in case of propositional logic) and quantifiers to atoms.
+%While propositional logic formulae could only be evaluated to truth values, first order logic formulae can be evaluated to numbers, functions or any abstract concept.
+
+The basic elements of first order logic are \emph{terms}. Variables and constant symbols (0-ary function symbols) are terms, as well as $n$-ary functions applied to $n$ terms. In first order logic an atom can be $\top, \bot$ or an a $n$-ary predicate symbol applied to $n$ terms. Formulae are constructed by applying connectives (the same as in case of propositional logic) and quantifiers to atoms.
 
 The satisfiability problem can be extended to first order logic formulae, but it is undecidable \cite{Church36a,Turing36}. However, there is a variant of the problem that is applicable, and solvable for most practical problems. The key idea is to formalize structures.
 
@@ -54,14 +56,14 @@ In many practical theories, SMT becomes decidable \cite{series/txtcs/KroeningS08
 
 \subsection{Difference logic}
 
-An atom in (integer) difference logic is a logical expression of the form $x-y<n$ or $x-y \leq n$ where $x$ and $y$ are variables defined over $\mathds{Z}$ and $n$ is a constant. A difference logic formula $\varphi$ is a conjunction of one ore more atoms. In case of difference logic, satisfiability is not only decidable, but polynomial \cite{series/txtcs/KroeningS08}.
+An atom in (integer) difference logic is a logical expression of the form $x-y<n$ or $x-y \leq n$ where $x$ and $y$ are variables defined over $\mathds{Z}$ and $n$ is a constant. A difference logic formula $\varphi$ is a conjunction of one ore more atoms. In case of difference logic, satisfiability is not only decidable, but decidable in polynomial time \cite{series/txtcs/KroeningS08}.
 
 Since the framework presented in this paper relies on a SAT (SMT) solver (as it is explained in Chapter \ref{chap:impl}), this paper does not address the algorithms for deciding satisfiability (if it is decidable). For more information on satisfiability, the reader is referred to \cite{books/daglib/0019162}.
 
 
 \section{Formal verification}
 
-Formal verification is the act of proving the correctness or incorrectness of a system in a mathematically precise way. Model checking is an automatic formal verification technique, where the system has to be represented by a formal model, and the requirements of the system has to be a property of the system formally defined as logical formulae \cite{clarke_em-etal:1999a}. Verification can be performed by proving that the system (represented by the formal model) satisfies that property.
+Formal verification is the act of proving the correctness or incorrectness of a system in a mathematically precise way. Model checking is an automatic formal verification technique based on systematic state space traversal of system, where the system has to be represented by a formal model, and the requirements of the system has to be a property of the system formally defined as logical formulae \cite{clarke_em-etal:1999a}. Verification can be performed by proving that the system (represented by the formal model) satisfies that property.
 
 \subsection{Modelling formalisms}
 It is important to find the appropriate representation of the model i.e. the appropriate formalism in order to be able to model and check the property. This paper focuses on \emph{behavior properties} examined on \emph{behavioral models}. 
@@ -70,7 +72,7 @@ In formal verification behaviour is often represented with state-based formalism
 
 \subsubsection{Finite automata}
 
-The finite automaton (plural: automata)  is one of the most common formalisms for modelling behavior. This way the system is described by a finite set of possible states, and a set of steps defining the system's state changes.
+The formalism of finite automata  is one of the most common formalisms for modelling behaviour. This way the system is described by a finite set of possible states, and a set of steps defining the system's state changes.
 
 \begin{dfn}
 	Formally a \emph{finite automaton}, or state machine $\mathcal{A}$ is a tuple $\langle S,s_0,T \rangle$ where
@@ -211,7 +213,7 @@ Even if reachability is undecidable (or just inefficient), there are many method
 	The \emph{state space} of a system is the set of states that are reachable from the initial state by a sequence of enabled transitions. 
 \end{dfn}
 
-The idea of state space exploration is to systematically list all possible states in the state space. If the erroneous state is found, the system is proven to be incorrect. Otherwise if all possible states are listed (in case of a finite state space) and no erroneous state is found, the system is proven to be correct. (In case of an infinite state space this process may never terminate.)
+The idea of state space exploration is to systematically enumerate all possible states in the state space. If the erroneous state is found, the system is proven to be incorrect. Otherwise if all possible states are listed (in case of a finite state space) and no erroneous state is found, the system is proven to be correct. (In case of an infinite state space this naive procedure will never terminate.)
 
 One of the simplest ways to explore the state space is to construct a search-tree. The root of the tree is the initial state $s_0$ of the system. The state space is explored by iteratively choosing a leaf with a state $s$ of the tree, and introducing a new edge for all possible enabled transitions $(s,s')$ pointing to a new node with a state $s'$. This way, all possible execution traces are explored, but states may appear more than once if there are more execution traces to reach them.
 
@@ -227,7 +229,7 @@ This problem is decidable, even for finite automata with variables. Even so, exp
 
 \subsection{CEGAR}
 
-One of the possible approaches to perform more efficient model checking is to use abstraction \cite{Clarke:1994:MCA}. A less detailed system model is constructed that hides unimportant parts of the behavior providing a model of complex state space overapproximating the original one. The idea of counterexample guided abstraction refinement (CEGAR) \cite{clarke2003counterexample} is to apply 
+One of the possible approaches to perform model checking more efficiently is to use abstraction \cite{Clarke:1994:MCA}. A less detailed system model is constructed that hides unimportant parts of the behavior providing a model of complex state space overapproximating the original one. The idea of counterexample guided abstraction refinement (CEGAR) \cite{clarke2003counterexample} is to apply 
 model checking to this simpler model, and then examine the results on the original one. The idea is illustrated in
 Figure \ref{fig:cegar}.
 
@@ -251,7 +253,7 @@ unreachable in the abstract model, it is unreachable in the original model
 as well. Otherwise the model checker produces an abstract counterexample -- an execution trace demonstrating how the abstract
 system can reach the target state. 
 
-Overapproximation brings such behaviours to the system that are not feasible in the original one. Because of this, the counterexample may not be a valid trace in the real system, so it has to be examined.
+Overapproximation admits behaviours of the system that are not feasible in the original one. Because of this, the counterexample may not be a valid trace in the real system, so it has to be examined.
 If it turns out to be a feasible counterexample, the target state is reachable. Otherwise
 the abstract system has to be refined -- hidden details of the original system have to be reintroduced to the model. The goal of the refinement is to modify the abstract
 system so that it remains an abstraction of the original one, but the spurious
@@ -274,7 +276,7 @@ When constructing a CEGAR-based algorithm the most important decision to make is
  	Consider again automaton $\mathcal{A}$ depicted in Figure \ref{fig:efaex}. Eliminating all variables results in the previous finite automaton depicted in Figure \ref{fig:faex}.
  \end{example}
 
-Model checking can be performed by state space exploration for example, however, there are countless other ways.
+Model checking can be performed by state space exploration for example, however, there are several other ways.
 
  \begin{example}
  	In the first iteration model the state space exploration of $\mathcal{A}$ will result in $G(\mathcal{A})$, where the counterexample found can be e.g. $\sigma = \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$.
