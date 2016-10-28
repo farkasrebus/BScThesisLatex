@@ -132,13 +132,13 @@ The algorithm denoted by SGU run out of memory when executed on the timed automa
 
 \subsection{Evaluation}
 
-The performed measurements are not exhaustive, thus one should not come to far-reaching conclusions. However there are some observations worth mentioning.
+The performed measurements are not exhaustive, thus one should not come to far-reaching conclusions. However, there are some observations worth mentioning.
 
-From the CSMA/CD examples it can be concluded that automaton-based refinement (algorithm AZ) does not scale well. The cause of this can be explained by considering automaton based refinement as a special case of state space-based refinement where the calculated precision assigns the same set of clock variables to each nodes, and that refines the complete graph not just a trace. Automaton based-refinement recovers so much of the hidden information that it prevents efficient model checking.
+From the CSMA/CD examples it can be concluded that automaton-based refinement (algorithm AZ) does not scale well. The cause of this can be explained by considering automaton based refinement as a special case of state space-based refinement where the calculated precision assigns the same set of clock variables to each node, and that refines the complete graph not just a trace. Automaton based-refinement recovers so much of the hidden information that it prevents efficient model checking.
 
-Out of the algorithms with state space-based refinement, the ones denoted by STT and SGT seem to perform better than the others. STT may be a bit more efficient, but their values are roughly the same. This is surprising, because the abstract state space representation is different in the two algorithms, and many of the techniques used in the algorithm are representation-dependent. It is interesting that the efficiency of two algorithms using different graph representations is almost the same.
+Out of the algorithms with state space-based refinement, the ones denoted by STT and SGT seem to perform better than the others. STT may be a bit more efficient, but their results are roughly the same. This is surprising, because the abstract state space representation is different in the two algorithms, and many of the techniques used in the algorithm are representation-dependent. It is interesting that the efficiency of two algorithms using different graph representations is almost the same.
 
-Algorithm STU performs well on the CSMA/CD inputs, but it does not seem to be the case for the Fischer examples. However, it is worth mentioning that STU is the only algorithm that has been successfully run on the Fischer protocol of four participants in the performed measurements. On the other hand, algorithm SGU hasn't performed well on either type of the test cases.
+Algorithm STU performs well on the CSMA/CD inputs, but this does not seem to be the case for the Fischer examples. However, it is worth mentioning that STU is the only algorithm that has been successfully ran on the Fischer protocol of four participants in the performed measurements. On the other hand, algorithm SGU hasn't performed well on either type of the test cases.
 
 In conclusion, out of the presented algorithms STT seems to be the most efficient, and SGU seems to be the least efficient one. Measurements also suggest that state space based refinement may be generally more efficient than automaton based refinement.
 
