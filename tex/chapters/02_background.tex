@@ -253,7 +253,7 @@ unreachable in the abstract model, it is unreachable in the original model
 as well. Otherwise the model checker produces an abstract counterexample -- an execution trace demonstrating how the abstract
 system can reach the target state. 
 
-Overapproximation admits behaviours of the system that are not feasible in the original one. Because of this, the counterexample may not be a valid trace in the real system, so it has to be examined.
+Overapproximation admits behaviours of the system that are not feasible in the original one and the counterexample may not be a valid trace in the real system, so it has to be examined.
 If it turns out to be a feasible counterexample, the target state is reachable. Otherwise
 the abstract system has to be refined -- hidden details of the original system have to be reintroduced to the model. The goal of the refinement is to modify the abstract
 system so that it remains an abstraction of the original one, but the spurious
