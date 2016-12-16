@@ -6,7 +6,7 @@ This chapter presents a configurable framework for CEGAR-based reachability anal
 
 The key idea of the framework is to provide various techniques for each phases of the CEGAR-loop, by using correspondent parts of CEGAR-based reachability algorithms. Most of these algorithms already exist (mostly for other formalisms, and they have to be adapted to timed automata), but some of them are new contributions. The created modules can then be combined to form new algorithms (that is, the technique used in each phase of CEGAR can be provided by different algorithms), and choosing the most efficient parts of the original algorithms can result in an even more efficient algorithm than the original ones. 
 
-The architecture of the framework is illustrated in Figures \ref{fig:cegaraut} and \ref{fig:cegarssp}. There are two different realizations of the CEGAR-loop, because the framework supports two distinct ways to apply abstraction to timed automata. While the first approach (Figure \ref{fig:cegaraut}) is based on eliminating clock variables (see Section \ref{sec:cegarex}):  starting from a finite automaton (without any clock variables) the current automaton gets extended with some clocks in each iteration -- and the \emph{automaton} is the base of refinement, the other (Figure \ref{fig:cegarssp}) is based on the refinement of the \emph{state space} itself. Only techniques of the same approach are interchangeable -- hence the two realizations.
+The architecture of the framework is illustrated in Figures \ref{fig:cegaraut} and \ref{fig:cegarssp}. There are two different realizations of the CEGAR-loop, because the framework supports two distinct ways to apply abstraction to timed automata. While the first approach (Figure \ref{fig:cegaraut}) is based on eliminating clock variables (see Section \ref{sec:cegarex1}):  starting from a finite automaton (without any clock variables) the current automaton gets extended with some clocks in each iteration -- and the \emph{automaton} is the base of refinement, the other (Figure \ref{fig:cegarssp}) is based on the refinement of the \emph{state space} itself (see Section \ref{sec:cegarex2}), and includes multiple types of abstract state space representations. Only techniques operating on the same representation are interchangeable -- hence the two realizations.
 
 \subsection{Automaton-based refinement}
 
@@ -66,7 +66,7 @@ The reachability-checking algorithm described in Section \ref{sec:tareach} is an
 	%\label{fig:cegarssp}
 \end{figure}
 
-Satisfiability-based model checking as introduced in Section \ref{sec:cegarex} can be directly applied to timed automata -- the only necessary change is to define a transformation that can turn a counterexample (an execution trace) into an SMT-problem.
+Satisfiability-based model checking as introduced in Section \ref{sec:cegarex1} can be directly applied to timed automata -- the only necessary change is to define a transformation that can turn a counterexample (an execution trace) into an SMT-problem.
 
 The idea is to separate discrete transitions from time transitions. Consider a counterexample sequence $\sigma = l_0 \xrightarrow{t_0} l_1 \xrightarrow{t_1} \cdots \xrightarrow{t_n} l_{err}$.  This representation of $\sigma$ hides the fact that it is important how much time the system spends in each location -- i.e. delay transitions. Let us denote the amount of time spent in $l_i$ by $d_i$. This way $\sigma$ can be defined by $\sigma = l_0 \xrightarrow{d_0} \xrightarrow{t_0} l_1 \xrightarrow{d_1} \xrightarrow{t_1} \cdots \xrightarrow{d_n} \xrightarrow{t_n} l_{err}$. In this representation $\xrightarrow{d_i}$ can be considered a special kind of transition that increases $v(c)$ for each $c \in \mathcal{C}$ by $d_i$. Based on this the SMT formula can be constructed.
 
@@ -117,7 +117,11 @@ Solvers can be useful, not only to decide if a given set of constraints is satis
 
 Given an original automaton $\mathcal{A}$ an abstract automaton $\mathcal{A'}$ and a set of clock variables to be added $C \subseteq \mathcal{C}$, the task is to refine $\mathcal{A'}$ so that each clock $c \in C$ appears in it. The task is to decide which of the guards, resets and invariants to include. Resets are easy to add: the ones that reset clocks in $C$ should be included, others don't. Guards and invariants are clock constraints -- conjunctive formulae of atomic constraints bounding the value of the clocks or the difference of two clocks. Decision can be made for each atomic formula one by one: those in which only clocks in $\mathcal{A'}$ or $C$ appear -- that is, difference constraints are only included if both clocks appear in $\mathcal{A'}$ or $C$.
 
-\subsection{State space-based refinement}
+\subsection{Predicate abstraction}
+
+In case of state space-based refinement, the representation of the state space has a defining role. In case of predicate abstraction the state space is represented with a graph where nodes contain a location and a finite set of (satisfiable) predicates representing a set of states satisfying the predicates, and edges represent transitions of the original automaton. From now on this graph shall be called the \emph{predicate graph}. In case of timed systems, the set 
+
+\subsection{Zone graph-based refinement}
 
 \begin{figure} 
 	\centering
@@ -127,7 +131,7 @@ Given an original automaton $\mathcal{A}$ an abstract automaton $\mathcal{A'}$ a
 \end{figure}
 
 
-In case of state space-based refinement, the representation of the state space has a defining role. In the proposed framework, the state space is represented by zone graphs -- this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the state space without considering clock variables (and in some cases discrete variables, too), and to refine the state space -- trace by trace -- by deciding which of the clock variables to include for each of the zones on that path. After that the graph is refined (clocks are included in the zones), and during the refinement it turns out whether the counterexample is feasible or not. Figure \ref{fig:cegarssp} depicts the architecture of this approach.
+ In this approach, the state space is represented by zone graphs -- this is common for all algorithms. However, the abstraction of the zone graph can be performed various ways. In this framework, the main idea is to explore the state space without considering clock variables (and in some cases discrete variables, too), and to refine the state space -- trace by trace -- by deciding which of the clock variables to include for each of the zones on that path. After that the graph is refined (clocks are included in the zones), and during the refinement it turns out whether the counterexample is feasible or not. Figure \ref{fig:cegarssp} depicts the architecture of this approach.
 
 Because of the different approaches of abstraction, constructing the initial abstraction is not as straightforward as it was in case of automaton-refinement. All that can be said is that it is some sort of abstraction of the state space derived from the automaton without including clock variables.
 

@@ -264,13 +264,11 @@ The algorithm terminates when no more
 counterexamples are found or when a feasible trace is
 presented leading to the erroneous state.
 
-\subsubsection{Example} \label{sec:cegarex}
+There are many ways CEGAR can be implemented. The most important difference is the way abstraction is applied to the system. It determines the class of algorithms that can be used for model checking, the nature of the counterexample, and how it can be analyzed, and the possibilities for refinement. Two approaches are presented here that can be applied to a wide range of formalisms.
 
-There are many ways CEGAR can be implemented. An approach is presented here that can be applied to a wide range of formalisms.
+\subsubsection{Example 1} \label{sec:cegarex1}
 
-When constructing a CEGAR-based algorithm the most important decision to make is the way abstraction is applied to the system. It determines the class of algorithms that can be used for model checking, the nature of the counterexample, and how it can be analyzed, and the possibilities for refinement. 
-
- Abstraction can be applied to many aspects of a model. An abstraction method commonly used for formalisms operating on variables is to reduce the number of variables in the model, by simply ignoring some of them \cite{Clarke:1994:MCA}. The initial abstraction of the model can be the same model without any variables.
+An abstraction method commonly used for formalisms operating on variables is to reduce the number of variables in the model, by simply ignoring some of them \cite{Clarke:1994:MCA}. The initial abstraction of the model can be the same model without any variables.
  
  \begin{example}
  	Consider again automaton $\mathcal{A}$ depicted in Figure \ref{fig:efaex}. Eliminating all variables results in the previous finite automaton depicted in Figure \ref{fig:faex}.
@@ -279,7 +277,7 @@ When constructing a CEGAR-based algorithm the most important decision to make is
 Model checking can be performed by state space exploration for example, however, there are several other ways.
 
  \begin{example}
- 	In the first iteration model the state space exploration of $\mathcal{A}$ will result in $G(\mathcal{A})$, where the counterexample found can be e.g. $\sigma = \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$.
+ 	In the first iteration the state space exploration of $\mathcal{A}$ will result in $G(\mathcal{A})$, where the counterexample found can be e.g. $\sigma = \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$.
  \end{example}
  
  A common way of checking whether a counterexample  is feasible is by transforming it into a first order logic formula, and handing it to a solver \cite{BCCZ99}. If it is satisfiable, the error location is reachable, and the system is incorrect. Consider for example the case of the extended finite automaton. The counterexample is a trace $\sigma = l_0 \xrightarrow{e_0} l_1 \xrightarrow{e_1} \cdots \xrightarrow{e_n} l_{n+1}=l_{err}$.
@@ -301,6 +299,26 @@ The conjunction of the resulting set of constraints is handed to a solver. If it
 \begin{example}
 	The formula $\varphi = x_0=0 \wedge l_0=0 \wedge x_1=2 \wedge l_1=l_0 \wedge l_1 \leq 5 \wedge x_1 \geq 16$ is obviously unsatisfiable, because $x_1=2 \wedge x_1 \geq 16$ is unsatisfiable in itself. If the automaton's current abstraction is extended with the variable $x$ with all of its assignments, and all constraints in guards and invariants that $x$ appears but $l$ doesn't, this counterexample won't be found anymore.
 \end{example}
+
+\subsubsection{Example 2} \label{sec:cegarex2}
+
+Another possible approach is to apply the abstraction directly to the state space of the model. The difficulty in this is that the state space is unknown and the abstraction of the state space has to be yielded solely from the model and the examined property. In case of automaton-based formalisms, a simple solution is to start from the location graph of the automaton. This is an abstraction of the state space, because a node $l$ of the graph represents all states the system can take in location $l$, and an edge $e(l,l')$ can represents all transitions from the represented states of $l$ to $l'$ using $e$ in the automaton.
+
+ \begin{example}
+ 	Consider again automaton $\mathcal{A}$ depicted in Figure \ref{fig:efaex}. The location graph is the previous finite automaton depicted in Figure \ref{fig:faex}.
+ 	
+ 	\emph{Note:} The initial abstraction is graphically the same as in case of the previous approach, but the interpretation is different.
+ \end{example}
+
+Since this approach operates on an abstraction of the state graph, model checking can be performed by a pathfinding algorithm. This will result in an execution trace, that has to be examined to decide if it is feasible, and if it turns out to be a spurious counterexample, the abstract state space has to be refined. Refinement divides the abstract states to smaller parts. Graphically this means some node $n$ representing the states $S$ are replicated (with each new node representing a subset of $S$), along with their edges -- but only if the represented transition is still valid. That is, when node $n$ representing states $S$ is refined to nodes $n_1,n_2,\dots$ representing states $S_1,S_2,\dots \subset S$ an edge $s$ from $n$ to another node $n'$ representing states $S'$ is only replicated to $n_1 \to n'$ if there exists some $s \in S_1$ and $s' \in S'$ such that $s'$ can be reached from $s$ through a transition represented by $e$. (Incoming edges to $n$ can be handled similarly).
+
+A task of the analysis phase is to determine the information to refine the nodes, based on the spurious counterexample, such that it is eliminated. A possible approach is to find the invalid transition of the spurious counterexample and derive a predicate that is true in the preceding state, and implies that the transition is invalid. (Solvers can be useful for performing this automatically.) This approach is called \emph{predicate abstraction}.
+
+ \begin{example}
+ 	Consider the counterexample $\sigma = \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$. Transition \emph{loop} $\to$ \emph{end} is obviously not satisfiable since in location \emph{loop} $x<16$. Dividing the node \emph{loop} by this results in two nodes: $l_1=\langle \text{\emph{loop}}, x<16$ (where the predicate holds) and $l_2=\langle \text{\emph{loop}}, x \geq 16$ (where the predicate does not hold in any represented states).
+ 	
+ 	Trivially the edge \emph{start} $\to$ \emph{loop} should only reappear pointing to $l_1$, and edge \emph{loop} $\to$ \emph{end} should only reappear pointing to $l_2$, but there are four ways the new versions of the loop edge can be positioned ($l_1 \to l_1$, $l_1 \to l_2$,$l_2 \to l_1$, and $l_2 \to l_2$). Edge $l_1 \to l_1$ should appear since if $x=0$ (note, at this point the only known fact about $x$ is that it is less than 16) $x'=0<16$ where $x'$ is the value of $x$ after the transition. Similarly $l_2 \to l_2$ is also valid since if $x=16$, then $x'=256 \geq 16$. Edge $l_1 \to l_2$ is also valid, since if $x=4<16$, then $x'=16 \geq 16$, but there is no such $x \geq 16$ that yields $x'<16$, thus this edge should not be created. 
+ \end{example}
 
 
 \section{Verification of timed systems}
