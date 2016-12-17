@@ -4,7 +4,7 @@ This chapter concludes the contributions of this paper and presents my future go
 
 \section{Contributions}
 
-I have developed a configurable framework for CEGAR-based reachability analysis of timed automata extended with discrete variables. The framework provides two different realizations of the CEGAR-loop: one, where the refinement is based on the automaton and one, where the state space is being abstracted and refined.
+I have developed a configurable framework for CEGAR-based reachability analysis of timed automata extended with discrete variables. The framework provides three different realizations of the CEGAR-loop: one, where the refinement is based on the automaton, one, wherepredicate abstraction is used, and one, where the zone graph is being abstracted and refined.
 
 In the framework I have collected various techniques that can be used during the described realizations of the CEGAR-loop. My algorithmic contributions include
 \begin{itemize}
@@ -20,7 +20,7 @@ In the framework I have collected various techniques that can be used during the
 	\item a method for calculating the state space of a timed automaton with different precisions along the zones.
 \end{itemize}
 
-As a result the framework currently provides six different algorithms for reachability analysis of timed automata, but it is extensible.
+As a result the framework currently provides seven different algorithms for reachability analysis of timed automata, but it is extensible.
 
 I have implemented the presented framework in the \ttmcfw\ and I have demonstrated the efficiency of the implemented algorithms with measurements.
 
