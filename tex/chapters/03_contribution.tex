@@ -1,6 +1,6 @@
 \chapter{Configurable Timed CEGAR} \label{chap:timed_cegar}
 
-This chapter presents a configurable framework for CEGAR-based reachability analysis of timed automata. First, the goal of the framework is explained, than the used algorithms and techniques are enumerated and finally, the extensibility of the framework presented. 
+This chapter presents a configurable framework for CEGAR-based reachability analysis of timed automata. First, the goal of the framework is explained, than the used algorithms and techniques are enumerated and finally, the extensibility of the framework is presented. 
 
 \section{Generic CEGAR framework}
 
@@ -133,7 +133,7 @@ In case of timed systems, the nodes of the predicate graph contain a location an
 Figure \ref{fig:cegarpred} depicts the architecture of the algorithm discussed in this section. First, an initial abstraction of the state space is created. Model checking can be applied by searching for a path from the initial node to the node containing the error location in the current abstraction of the state space.
 The found execution trace can then be analysed. The task of this phase is to decide if it is valid and if it is not, to choose a node and calculate a predicate to refine it, in order to eliminate the spurious counterexample.
 
-As mentioned in Section \ref{sec:cegarex2} the initial predicate graph is the location graph of the automaton. It is possible to start the algorithm with an empty set at each node, however there are constraints that can be used as initial predicates: the invariants of the locations.
+As mentioned in Section \ref{sec:cegarex2} the initial predicate graph is the location graph of the automaton. It is possible to start the algorithm with an empty set of predicates at each node, however there are constraints that can be used as initial predicates: the invariants of the locations.
 
 \begin{figure} 
 	\centering
@@ -170,7 +170,7 @@ The task of the model checking phase is to find traces from $l_0$ to $l_{err}$. 
 	%\label{fig:cegarssp}
 \end{figure}
 
-As in case of automaton-based refinement SMT solvers can be used to decide if an execution case is valid. If it is not, the following task of the analysis phase is to choose a node to refine, by finding out which is the first invalid transition on te trace. This can be performed by iteratively giving a part of the formula to the solver, that only represents the first $i$ transitions ($0 \leq i \leq n$).
+As in case of automaton-based refinement SMT solvers can be used to decide if an execution trace is valid. If it is not, the following task of the analysis phase is to choose a node to refine, by finding out which is the first invalid transition on te trace. This can be performed by iteratively giving a part of the formula to the solver, that only represents the first $i$ transitions ($0 \leq i \leq n$).
 
 \begin{runningExample}
 	We have already seen that the formula $\varphi$ is unsatisfiable. Checking which of the transitions is the first invalid one can be performed by first checking if the first transition is enabled. The formula $\varphi_0=x_0=0 \wedge y_0=0 \wedge x_0'=x_0+d_0 \wedge y_0'=y_0+d_0 \wedge x_1'=x_1+d_1 \wedge y_1'=y_1+d_1 \wedge x_1=0 \wedge y_1=0 \wedge x_1 \leq 10 \wedge x_1' \leq 10 \wedge y_1' \geq 20$ is handed to the solver and it turns out to be satisfiable. Thus, the first transition is valid.
@@ -204,7 +204,7 @@ The next task is to check the edges of the original node and decide which of the
 
 Let $p(n)$ denote the set of predicates of node $n$. An original edge with guard $g$ and reset $r$ from node $n$ to $n'$ can be checked similarly to when a transition in a trace is checked: first, for each clock, three variable is defined -- one for its value in $n$, one for its value after the transition and one for its value after the delay. A variable for the value of the delay should also be defined.
 
-After defining the variables, the trivial constrains must be defined: all of the defined variables are at least 0 and the value of a clock after the delay equals the sum of its value before the delay and the value of the delay. Similarly as before the guard can be turned to an SMT constraint as well as the reset, operating on the corresponding SMT variables. This time it is not necessary to check if the valuation after the transition satisfies the invariant (since the analysis phase can check that), instead it should be checked if the valuation after the delay satisfies $p(n')$. If the created formula is satisfiable, the edge is valid.
+After defining the variables, the trivial constrains must be defined: all of the defined variables are at least 0 and the value of a clock after the delay equals the sum of its value before the delay and the value of the delay. Similarly as before the guard can be turned to an SMT constraint as well as the reset, operating on the corresponding SMT variables. This time it is not necessary to check if the valuation after the transition satisfies the invariant (since the analysis phase can check that), instead it should be checked if the valuation before transition satisfies $p(n)$ an if the valuation after the delay satisfies $p(n')$. If the created formula is satisfiable, the edge is valid.
 
 \begin{figure} 
 	\centering
