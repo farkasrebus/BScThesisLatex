@@ -119,14 +119,117 @@ Given an original automaton $\mathcal{A}$ an abstract automaton $\mathcal{A'}$ a
 
 \subsection{Predicate abstraction}
 
-In case of state space-based refinement, the representation of the state space has a defining role. In case of predicate abstraction the state space is represented with a graph where nodes contain a location and a finite set of (satisfiable) predicates representing a set of states satisfying the predicates, and edges represent transitions of the original automaton. From now on this graph shall be called the \emph{predicate graph}. In case of timed systems, the set 
+In case of state space-based refinement, the representation of the state space has a defining role. In case of predicate abstraction the state space is represented with a graph where nodes contain a location and a finite set of (satisfiable) predicates representing a set of states satisfying the predicates, and edges represent transitions of the original automaton. From now on this graph shall be called the \emph{predicate graph}.
 
-\subsection{Zone graph-based refinement}
+In case of timed systems, the nodes of the predicate graph contain a location and a set of valuations reachable in the location, similarly to the zone graph. Another similarity is that the states represented by the nodes of the predicate graph also include delay transitions -- i.e. an edge $n \to n'$ of a predicate graph means that for some $s \in S, s' \in S', d \in \mathds{N}, e \in E$ (where $S$ and $S'$ are the states represented by $n$ and $n'$, respectively) applying the discrete transition represented by $e$ to $s$ and applying a delay of $d$ time units to the result, results in $s'$.
+
+\begin{figure} 
+	\centering
+	\includegraphics[width=.7\textwidth]{include/figures/cegar_pred}
+	\caption{Predicate abstraction}
+	\label{fig:cegarpred}
+\end{figure}
+
+Figure \ref{fig:cegarpred} depicts the architecture of the algorithm discussed in this section. First, an initial abstraction of the state space is created. Model checking can be applied by searching for a path from the initial node to the node containing the error location in the current abstraction of the state space.
+The found execution trace can then be analysed. The task of this phase is to decide if it is valid and if it is not, to choose a node and calculate a predicate to refine it, in order to eliminate the spurious counterexample.
+
+As mentioned in Section \ref{sec:cegarex2} the initial predicate graph is the location graph of the automaton. It is possible to start the algorithm with an empty set at each node, however there are constraints that can be used as initial predicates: the invariants of the locations.
+
+\begin{figure} 
+	\centering
+	\includegraphics[width=.7\textwidth]{include/figures/runex_pred_init}
+	\caption{Initial predicate graph}
+	\label{fig:predinit}
+\end{figure}
+
+\begin{runningExample}
+	The initial abstraction of $\mathcal{A}$ is depicted in Figure \ref{fig:predinit}.
+\end{runningExample}
+
+\subsubsection{Pathfinding}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.7\textwidth]{include/figures/modules_ssp_mc}
+	%\caption{State space-based refinement}
+	%\label{fig:cegarssp}
+\end{figure}
+
+The task of the model checking phase is to find traces from $l_0$ to $l_{err}$. In case of the graph representation, where $l_{err}$ appears in the node  $\langle l_{err}, z_{\emptyset} \rangle$ even in the initial abstraction, model checking becomes a pathfinding problem from $\langle l_{0}, z_{\emptyset} \rangle$ to $\langle l_{err}, z_{\emptyset} \rangle$ in the abstract zone graph. This can be performed by any pathfinding algorithm.
+
+\begin{runningExample}
+	Pathfinding in $\mathcal{A}$'s initial abstraction finds the previously mentioned counterexample $\sigma= \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$.
+\end{runningExample}
+
+\subsubsection{Interpolant calculation}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.7\textwidth]{include/figures/pred_modules_anal}
+	%\caption{State space-based refinement}
+	%\label{fig:cegarssp}
+\end{figure}
+
+As in case of automaton-based refinement SMT solvers can be used to decide if an execution case is valid. If it is not, the following task of the analysis phase is to choose a node to refine, by finding out which is the first invalid transition on te trace. This can be performed by iteratively giving a part of the formula to the solver, that only represents the first $i$ transitions ($0 \leq i \leq n$).
+
+\begin{runningExample}
+	We have already seen that the formula $\varphi$ is unsatisfiable. Checking which of the transitions is the first invalid one can be performed by first checking if the first transition is enabled. The formula $\varphi_0=x_0=0 \wedge y_0=0 \wedge x_0'=x_0+d_0 \wedge y_0'=y_0+d_0 \wedge x_1'=x_1+d_1 \wedge y_1'=y_1+d_1 \wedge x_1=0 \wedge y_1=0 \wedge x_1 \leq 10 \wedge x_1' \leq 10 \wedge y_1' \geq 20$ is handed to the solver and it turns out to be satisfiable. Thus, the first transition is valid.
+	
+	The next task is to check if the second transition is valid, but that would mean we would have to hand $\varphi_1=\varphi$ to the solver and we already know that it is unsatisfiable. Hence, we know the second transition is the (first) invalid transition on this trace.
+\end{runningExample}
+
+The next task is to calculate the predicate to refine. For this we can use another function of an SMT solvers -- the so-called \emph{interpolant}.
+Let $\varphi_s$ be a conjunctive formula of logical constraints that are satisfiable and $\varphi_u$ another conjunctive formula of logical constraints such that  $\varphi_s \wedge \varphi_u$ is unsatifiable. The solver can derive a formula $I(\varphi_s, \varphi_u)$ that $\varphi_s$ implies but is in contradiction with $\varphi_u$, and only contains variables appearing in both $\varphi_s$  and $\varphi_u$ -- an interpolant.
+
+If we set $\varphi_s$ the longest fraction of $\varphi$ that was satisfiable ($\varphi_i$) and $\varphi_u$ the fraction representing the next transition (with which it became unsatisfiable), $I(\varphi_s, \varphi_u)$ will be a formula only containing the common variables of the formula representing the first $i$ transitions and $t_{i+1}$ -- that is, the variables representing the values of the clocks at node $n_{i+1}$ of the trace. Thus, the node to refine is $n_{i+1}$ and the predicate is the derived interpolant (transformed back to the original clock variables).
+
+\begin{runningExample}
+	The solver calculates $I(\varphi_0,\varphi)= y_1 \leq 10$. Thus the node \emph{loop} has to be refined by predicate $y \leq 10$.
+\end{...}
+
+It is important to know that this only works if the reason the transition was invalid is because the guard wasn't satisfied. Otherwise since $\varphi_u$ is unsatisfied in itself and $I= \emptyset$. In this case the predicate graph can be refined by removing the corresponding edge.
+
+\subsection{Predicate graph refinement}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.7\textwidth]{include/figures/pred_modules_ref}
+	%\caption{State space-based refinement}
+	%\label{fig:cegarssp}
+\end{figure}
+
+The task of the refinement is to refine the given node $n$ of the graph based on the predicate $p$. To perform this, $n$ is divided into nodes $n_s$ and $n_u$ and $p$ is added to the set of predicates in $n_s$ and $\neg p$ is added to the set of predicates in $n_u$.
+
+The next task is to check the edges of the original node and decide which of the new nodes can they point to and from. This can also be performed using logical formulae.
+
+Let $p(n)$ denote the set of predicates of node $n$. An original edge with guard $g$ and reset $r$ from node $n$ to $n'$ can be checked similarly to when a transition in a trace is checked: first, for each clock, three variable is defined -- one for its value in $n$, one for its value after the transition and one for its value after the delay. A variable for the value of the delay should also be defined.
+
+After defining the variables, the trivial constrains must be defined: all of the defined variables are at least 0 and the value of a clock after the delay equals the sum of its value before the delay and the value of the delay. Similarly as before the guard can be turned to an SMT constraint as well as the reset, operating on the corresponding SMT variables. This time it is not necessary to check if the valuation after the transition satisfies the invariant (since the analysis phase can check that), instead it should be checked if the valuation after the delay satisfies $p(n')$. If the created formula is satisfiable, the edge is valid.
+
+\begin{figure} 
+	\centering
+	\includegraphics[width=.7\textwidth]{include/figures/runex_pred_ref}
+	\caption{Refined predicate graph}
+	\label{fig:predref}
+\end{figure}
+
+\begin{runningExample}
+	First the node $ \langle \text{\emph{loop}}, x \leq 10 \rangle$ is divided into nodes $ n_\leq = \langle \text{\emph{loop}}, x \leq 10 \wedge y \leq 10 \rangle$ and $n_> \langle \text{\emph{loop}}, x \leq 10 \wedge y>10 \rangle$.
+	
+	After this, the edges can be checked. The new version of edge \emph{start} $\to$ \emph{loop} can only point to $n_\leq$ and the new version of edge \emph{loop} $\to$ \emph{end} can only point from $n_>$, eliminating the spurious counterexample.
+	
+	The loop edge can point from $n_\leq$ to itself (if the value of the delay is 0), or to $n_>$ (if the value of the delay is greater than 0) and from $n_>$ to itself, but not to $n_\leq$, since the transition never decreases the value of $y$.
+	
+	The result can be seen in Figure \ref{fig:predref}.
+	
+\end{runningExample}
+
+\subsection{Zone-based refinement}
 
 \begin{figure} 
 	\centering
 	\includegraphics[width=.7\textwidth]{include/figures/alg_arch_ssp}
-	\caption{State space-based refinement}
+	\caption{Zone-based refinement}
 	\label{fig:cegarssp}
 \end{figure}
 
@@ -240,11 +343,7 @@ Initially, the graph contains only one, unexplored node $\langle l, z_{\emptyset
 	%\label{fig:cegarssp}
 \end{figure}
 
-The task of the model checking phase is to find traces from $l_0$ to $l_{err}$. In case of the graph representation, where $l_{err}$ appears in the node  $\langle l_{err}, z_{\emptyset} \rangle$ even in the initial abstraction, model checking becomes a pathfinding problem from $\langle l_{0}, z_{\emptyset} \rangle$ to $\langle l_{err}, z_{\emptyset} \rangle$ in the abstract zone graph. This can be performed by any pathfinding algorithm.
-
-\begin{runningExample}
-	Pathfinding in $\mathcal{A}$'s initial abstraction finds the previously mentioned counterexample $\sigma= \text{\emph{start}} \to \text{\emph{loop}} \to \text{\emph{end}}$.
-\end{runningExample}
+In case of the graph representation, state space exploration can be performed by a pathfinding algorithm, similarly to the predicate graph.
 
 In case of the tree representation, $l_{err}$ does not appear in the graph and the state space exploration has to be continued until a node $\langle l_{err}, z_{\emptyset} \rangle$ appears. State space exploration has to be performed the following way.
 
@@ -404,25 +503,32 @@ Containment can also be checked here, just as in case of the graph representatio
 
 \section{Result}
 
-\begin{figure}[h]
+\begin{figure}
 	\centering
 	\includegraphics[width=.8\textwidth]{include/figures/cegar_ta_complete}
 	\caption{Automaton-based refinement}
 	\label{fig:cegartafin}
 \end{figure}
 
-Figure \ref{fig:cegartafin} depicts the presented techniques for automaton-based refinement and Figure \ref{fig:cegarsspfin} depicts the presented techniques for state space refinement. In the latter case state space representation-dependent modules are marked with the same colours. Precision and zone calculation are not state space representation-dependent algorithms and can be combined with any of the other colours.
+\begin{figure}
+	\centering
+	\includegraphics[width=.9\textwidth]{include/figures/pred_modules}
+	\caption{Predicate abstraction}
+	\label{fig:cegarpredmodules}
+\end{figure}
 
-\begin{figure}[h]
+\begin{figure}
 	\centering
 	\includegraphics[width=.9\textwidth]{include/figures/cegar_ssp_complete}
-	\caption{Statespace-based refinement}
+	\caption{Zone-based refinement}
 	\label{fig:cegarsspfin}
 \end{figure}
 
+Figure \ref{fig:cegartafin} depicts the presented techniques for automaton-based refinement, Figure \ref{fig:cegarpredmodules} depicts the presented techniques for predicate abstraction, and Figure \ref{fig:cegarsspfin} depicts the presented techniques for zone refinement. In the latter case state space representation-dependent modules are marked with the same colours. Precision and zone calculation are not state space representation-dependent algorithms and can be combined with any of the other colours.
+
 The presented framework is extensible in may ways. New techniques can be added to the framework and combined with existing ones, e.g. an online pathfinding algorithm can be studied in place of the current depth first search algorithm represented by the graph exploration module. New representations can be defined for state space-based refinement (e.g. zones can be represented by \emph{potential graphs} \cite{conf/sas/GangeNSSS16}), and even a new aspect of abstraction can be introduced with it's own CEGAR-loop realization (e.g. abstraction can be applied to locations \cite{kemper2007sat}).
 
-A total of six algorithms can be composed of the presented techniques. Two of them apply abstraction to the clock variables of the automaton, similarly to the algorithms presented in papers \cite{dierks2007automatic, he2010compositional,okano2011clock}, while the other four apply abstraction directly to the state space. 
+A total of seven algorithms can be composed of the presented techniques. Two of them apply abstraction to the clock variables of the automaton, similarly to the algorithms presented in papers \cite{dierks2007automatic, he2010compositional,okano2011clock}, one of them uses predicate abstraction, while the remaining four apply abstraction to the zone graph. 
 
 
 %\todo{Kis szöveg meg sok sok ábra az elkészült algoritmusokról, a kombinálhatóságról, valamint a keretrendszer kiterjesztési lehetőségeiről}
