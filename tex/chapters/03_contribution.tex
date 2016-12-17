@@ -6,7 +6,7 @@ This chapter presents a configurable framework for CEGAR-based reachability anal
 
 The key idea of the framework is to provide various techniques for each phases of the CEGAR-loop, by using correspondent parts of CEGAR-based reachability algorithms. Most of these algorithms already exist (mostly for other formalisms, and they have to be adapted to timed automata), but some of them are new contributions. The created modules can then be combined to form new algorithms (that is, the technique used in each phase of CEGAR can be provided by different algorithms), and choosing the most efficient parts of the original algorithms can result in an even more efficient algorithm than the original ones. 
 
-The architecture of the framework is illustrated in Figures \ref{fig:cegaraut} and \ref{fig:cegarssp}. There are two different realizations of the CEGAR-loop, because the framework supports two distinct ways to apply abstraction to timed automata. While the first approach (Figure \ref{fig:cegaraut}) is based on eliminating clock variables (see Section \ref{sec:cegarex1}):  starting from a finite automaton (without any clock variables) the current automaton gets extended with some clocks in each iteration -- and the \emph{automaton} is the base of refinement, the other (Figure \ref{fig:cegarssp}) is based on the refinement of the \emph{state space} itself (see Section \ref{sec:cegarex2}), and includes multiple types of abstract state space representations. Only techniques operating on the same representation are interchangeable -- hence the two realizations.
+The architecture of the framework is illustrated in Figures \ref{fig:cegaraut}, \ref{fig:cegarpred} and \ref{fig:cegarssp}. There are three different realizations of the CEGAR-loop, because the framework supports distinct ways to apply abstraction to timed automata. While the first approach (Figure \ref{fig:cegaraut}) is based on eliminating clock variables (see Section \ref{sec:cegarex1}):  starting from a finite automaton (without any clock variables) the current automaton gets extended with some clocks in each iteration -- and the \emph{automaton} is the base of refinement, the other approaches (Figures \ref{fig:cegarpred} and \ref{fig:cegarssp}) are based on the refinement of the \emph{state space} itself (see Section \ref{sec:cegarex2}), and include multiple types of abstract state space representations. Only techniques operating on the same abstract state space representation are interchangeable -- hence the different interpretations.
 
 \subsection{Automaton-based refinement}
 
@@ -185,11 +185,11 @@ If we set $\varphi_s$ the longest fraction of $\varphi$ that was satisfiable ($\
 
 \begin{runningExample}
 	The solver calculates $I(\varphi_0,\varphi)= y_1 \leq 10$. Thus the node \emph{loop} has to be refined by predicate $y \leq 10$.
-\end{...}
+\end{runningExample}
 
 It is important to know that this only works if the reason the transition was invalid is because the guard wasn't satisfied. Otherwise since $\varphi_u$ is unsatisfied in itself and $I= \emptyset$. In this case the predicate graph can be refined by removing the corresponding edge.
 
-\subsection{Predicate graph refinement}
+\subsubsection{Predicate graph refinement}
 
 \begin{figure}[h]
 	\centering
@@ -214,7 +214,7 @@ After defining the variables, the trivial constrains must be defined: all of the
 \end{figure}
 
 \begin{runningExample}
-	First the node $ \langle \text{\emph{loop}}, x \leq 10 \rangle$ is divided into nodes $ n_\leq = \langle \text{\emph{loop}}, x \leq 10 \wedge y \leq 10 \rangle$ and $n_> \langle \text{\emph{loop}}, x \leq 10 \wedge y>10 \rangle$.
+	First the node $ \langle \text{\emph{loop}}, x \leq 10 \rangle$ is divided into nodes $ n_\leq = \langle \text{\emph{loop}}, x \leq 10 \wedge y \leq 10 \rangle$ and $n_> = \langle \text{\emph{loop}}, x \leq 10 \wedge y>10 \rangle$.
 	
 	After this, the edges can be checked. The new version of edge \emph{start} $\to$ \emph{loop} can only point to $n_\leq$ and the new version of edge \emph{loop} $\to$ \emph{end} can only point from $n_>$, eliminating the spurious counterexample.
 	

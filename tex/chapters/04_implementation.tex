@@ -83,11 +83,11 @@ The Token ring protocol is a special input, since the examined safety property c
 	\label{fig:tokendiag}
 \end{figure}
 
-The algorithms were executed on the timed automata representations of token rings consisting of $2^n$ stations ($2 \leq n \leq 11$), and their execution times were measured. Each algorithms on each input was run 15 times and the average the execution times was calculated. The results are depicted in Figure \ref{fig:tokendiag}. The execution times were roughly the same, all in $\mathcal{O}(n^2)$, as it is expected from pathfinding algorithms, however, these measurements did not include the algorithm that uses a bounded model checker.
+The algorithms were executed on the timed automata representations of token rings consisting of $2^n$ stations ($2 \leq n \leq 11$), and their execution times were measured. Each algorithms on each input was run 15 times and the average of the execution times was calculated. The results are depicted in Figure \ref{fig:tokendiag}. The execution times were roughly the same, all in $\mathcal{O}(n^2)$, as it is expected from pathfinding algorithms, however, these measurements did not include the algorithm that uses a bounded model checker.
 
 \subsubsection{Bounded model checker measurements}
 
-The algorithm that uses a bounded model checker can not be compared to the other algorithms, because it scales with different characteristics. To demonstrate this I have executed the algorithm with on token ring protocol of different sizes, 15 times each and calculated the average runtime. The bound was set to 50 each time.
+The algorithm that uses a bounded model checker can not be compared to the other algorithms, because it scales with different characteristics. To demonstrate this I have executed the algorithm on the token ring protocol of different sizes, 15 times each and calculated the average runtime. The bound was set to 50 each time.
 
 \begin{figure}
 	\centering
@@ -121,11 +121,12 @@ The other algorithms were measured on timed automata representations of Fischer 
 The results of the measurements are depicted in Figure \ref{fig:mesurements}. The models are denoted by Fisch$n$ and CSMA$n$ for the Fischer protocol and the CSMA/CD protocol of $n$ participants, respectively. The abbreviations denote the algorithms, that are composed the following way:
 
 \begin{itemize}
-	\item AZ denotes abstraction-based refinement with zone graph exploration
-	\item STU denotes state space-based refinement operating on the tree representation of the abstract zone graph where the precisions of the zones are based on the unsat core of the trace,
-	\item SGU denotes state space based refinement operating on the graph representation of the abstract zone graph where the precisions of the zones are based on the unsat core of the trace,
-	\item STT denotes state space-based refinement operating on the tree representation of the abstract zone graph where the precisions of the zones are based on the trace activity, and
-	\item SGT denotes state space based refinement operating on the graph representation of the abstract zone graph where the precisions of the zones are based on the trace activity.
+	\item STU denotes zone-based state space refinement operating on the tree representation of the abstract zone graph where the precisions of the zones are based on the unsat core of the trace,
+	\item SGU denotes zone-based state space refinement operating on the graph representation of the abstract zone graph where the precisions of the zones are based on the unsat core of the trace,
+	\item STT denotes zone-based state space refinement operating on the tree representation of the abstract zone graph where the precisions of the zones are based on the trace activity, and
+	\item SGT denotes zone-based state space refinement operating on the graph representation of the abstract zone graph where the precisions of the zones are based on the trace activity.
+	\item SP denotes predicate abstraction-based state space refinement
+	\item AZ denotes automaton-based refinement with zone graph exploration
 \end{itemize}
 
 The algorithm denoted by SGU run out of memory when executed on the timed automaton representation of four stations communicating with CSMA/CD protocol -- hence the red colour.
@@ -134,11 +135,13 @@ The algorithm denoted by SGU run out of memory when executed on the timed automa
 
 The performed measurements are not exhaustive, thus one should not come to far-reaching conclusions. However, there are some observations worth mentioning.
 
-From the CSMA/CD examples it can be concluded that automaton-based refinement (algorithm AZ) does not scale well. The cause of this can be explained by considering automaton based refinement as a special case of state space-based refinement where the calculated precision assigns the same set of clock variables to each node, and that refines the complete graph not just a trace. Automaton based-refinement recovers so much of the hidden information that it prevents efficient model checking.
+From the measurements it can be concluded that automaton-based refinement (algorithm AZ) does not scale well. The cause of this can be explained by considering automaton based refinement as a special case of state space-based refinement where the calculated precision assigns the same set of clock variables to each node, and that refines the complete graph not just a trace. Automaton based-refinement recovers so much of the hidden information that it prevents efficient model checking.
 
-Out of the algorithms with state space-based refinement, the ones denoted by STT and SGT seem to perform better than the others. STT may be a bit more efficient, but their results are roughly the same. This is surprising, because the abstract state space representation is different in the two algorithms, and many of the techniques used in the algorithm are representation-dependent. It is interesting that the efficiency of two algorithms using different graph representations is almost the same.
+Out of the algorithms with zone-based refinement, the ones denoted by STT and SGT seem to perform better than the others. STT may be a bit more efficient, but their results are roughly the same. This is surprising, because the abstract state space representation is different in the two algorithms, and many of the techniques used in the algorithm are representation-dependent. It is interesting that the efficiency of two algorithms using different graph representations is almost the same.
 
-Algorithm STU performs well on the CSMA/CD inputs, but this does not seem to be the case for the Fischer examples. However, it is worth mentioning that STU is the only algorithm that has been successfully ran on the Fischer protocol of four participants in the performed measurements. On the other hand, algorithm SGU hasn't performed well on either type of the test cases.
+Algorithm STU performs well on the CSMA/CD inputs, but this does not seem to be the case for the Fischer examples. On the other hand, algorithm SGU did not perform well on either type of the test cases.
+
+The performance of algorithm SP is worse than that of AZ in the CSMA/CD protocol, but it runs the most efficiently on the Fischer examples (this algorithm terminaten on Fisch4 in 50 seconds). This seems to be the most interesting result.
 
 In conclusion, out of the presented algorithms STT seems to be the most efficient, and SGU seems to be the least efficient one. Measurements also suggest that state space based refinement may be generally more efficient than automaton based refinement.
 
