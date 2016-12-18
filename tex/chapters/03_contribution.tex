@@ -119,7 +119,7 @@ Given an original automaton $\mathcal{A}$ an abstract automaton $\mathcal{A'}$ a
 
 \subsection{Predicate abstraction}
 
-In case of state space-based refinement, the representation of the state space has a defining role. In case of predicate abstraction the state space is represented with a graph where nodes contain a location and a finite set of (satisfiable) predicates representing a set of states satisfying the predicates, and edges represent transitions of the original automaton. From now on this graph shall be called the \emph{predicate graph}.
+In case of state space-based refinement, the representation of the state space has a defining role. In case of predicate abstraction \cite{Graf97a} the state space is represented with a graph where nodes contain a location and a finite set of (satisfiable) predicates representing a set of states satisfying the predicates, and edges represent transitions of the original automaton. From now on this graph shall be called the \emph{predicate graph}.
 
 In case of timed systems, the nodes of the predicate graph contain a location and a set of valuations reachable in the location, similarly to the zone graph. Another similarity is that the states represented by the nodes of the predicate graph also include delay transitions -- i.e. an edge $n \to n'$ of a predicate graph means that for some $s \in S, s' \in S', d \in \mathds{N}, e \in E$ (where $S$ and $S'$ are the states represented by $n$ and $n'$, respectively) applying the discrete transition represented by $e$ to $s$ and applying a delay of $d$ time units to the result, results in $s'$.
 
@@ -170,7 +170,7 @@ The task of the model checking phase is to find traces from $l_0$ to $l_{err}$. 
 	%\label{fig:cegarssp}
 \end{figure}
 
-As in case of automaton-based refinement SMT solvers can be used to decide if an execution trace is valid. If it is not, the following task of the analysis phase is to choose a node to refine, by finding out which is the first invalid transition on te trace. This can be performed by iteratively giving a part of the formula to the solver, that only represents the first $i$ transitions ($0 \leq i \leq n$).
+As in case of automaton-based refinement SMT solvers can be used to decide if an execution trace is valid. If it is not, the following task of the analysis phase is to choose a node to refine, by finding out which is the first invalid transition on the trace. This can be performed by iteratively giving a prefix of the formula to the solver, that only represents the first $i$ transitions ($0 \leq i \leq n$).
 
 \begin{runningExample}
 	We have already seen that the formula $\varphi$ is unsatisfiable. Checking which of the transitions is the first invalid one can be performed by first checking if the first transition is enabled. The formula $\varphi_0=x_0=0 \wedge y_0=0 \wedge x_0'=x_0+d_0 \wedge y_0'=y_0+d_0 \wedge x_1'=x_1+d_1 \wedge y_1'=y_1+d_1 \wedge x_1=0 \wedge y_1=0 \wedge x_1 \leq 10 \wedge x_1' \leq 10 \wedge y_1' \geq 20$ is handed to the solver and it turns out to be satisfiable. Thus, the first transition is valid.
@@ -178,8 +178,8 @@ As in case of automaton-based refinement SMT solvers can be used to decide if an
 	The next task is to check if the second transition is valid, but that would mean we would have to hand $\varphi_1=\varphi$ to the solver and we already know that it is unsatisfiable. Hence, we know the second transition is the (first) invalid transition on this trace.
 \end{runningExample}
 
-The next task is to calculate the predicate to refine. For this we can use another function of an SMT solvers -- the so-called \emph{interpolant}.
-Let $\varphi_s$ be a conjunctive formula of logical constraints that are satisfiable and $\varphi_u$ another conjunctive formula of logical constraints such that  $\varphi_s \wedge \varphi_u$ is unsatifiable. The solver can derive a formula $I(\varphi_s, \varphi_u)$ that $\varphi_s$ implies but is in contradiction with $\varphi_u$, and only contains variables appearing in both $\varphi_s$  and $\varphi_u$ -- an interpolant.
+The next task is to calculate the predicate to refine. For this we can use another function of an SMT solvers -- the so-called \emph{interpolation}.
+Let $\varphi_s$ be a conjunctive formula of logical constraints that are satisfiable and $\varphi_u$ another formula of logical constraints such that  $\varphi_s \wedge \varphi_u$ is unsatifiable. The solver can derive a formula $I(\varphi_s, \varphi_u)$ that $\varphi_s$ implies but is in contradiction with $\varphi_u$, and only contains variables appearing in both $\varphi_s$  and $\varphi_u$ -- an interpolant.
 
 If we set $\varphi_s$ the longest fraction of $\varphi$ that was satisfiable ($\varphi_i$) and $\varphi_u$ the fraction representing the next transition (with which it became unsatisfiable), $I(\varphi_s, \varphi_u)$ will be a formula only containing the common variables of the formula representing the first $i$ transitions and $t_{i+1}$ -- that is, the variables representing the values of the clocks at node $n_{i+1}$ of the trace. Thus, the node to refine is $n_{i+1}$ and the predicate is the derived interpolant (transformed back to the original clock variables).
 

@@ -26,7 +26,7 @@ The (boolean) satisfiability problem (SAT, for short) can be defined as follows 
 	\item[Output]: \emph{Yes} if $\varphi$ is satisfiable (i.e. it is possible to ground the variables appearing in $\varphi$ to truth symbols so that $\varphi$ is evaluated true), \emph{No} otherwise.
 \end{description}
 
-SAT is NP-complete \cite{Cook71} but in practice there are efficient solvers \cite{oai:hal.archives-ouvertes.fr:hal-00868244}.
+Although SAT is NP-complete in theory \cite{Cook71}, modern SAT solvers can solve large problems in practical applications \cite{oai:hal.archives-ouvertes.fr:hal-00868244}.
 
 \subsection{First order logic}
 
@@ -52,7 +52,7 @@ The \emph{Satisfiability Modulo Theories} problem (SMT for short) can be defined
 	\item[Output]: \emph{Yes} if $\varphi$ is satisfiable in $\mathcal{T}$, \emph{No} otherwise.
 \end{description}
 
-In many practical theories, SMT becomes decidable \cite{series/txtcs/KroeningS08}.
+In many practical theories (e.g. linear arithmetic, that is often used in software development) SMT becomes decidable \cite{series/txtcs/KroeningS08}. In my work I use difference logic which is one of the theories where satisfiability is decidable.
 
 \subsection{Difference logic}
 
@@ -266,7 +266,7 @@ presented leading to the erroneous state.
 
 There are many ways CEGAR can be implemented. The most important difference is the way abstraction is applied to the system. It determines the class of algorithms that can be used for model checking, the nature of the counterexample, and how it can be analyzed, and the possibilities for refinement. Two approaches are presented here that can be applied to a wide range of formalisms.
 
-\subsubsection{Automaton Abstraction Example} \label{sec:cegarex1}
+\subsubsection{Automaton abstraction example} \label{sec:cegarex1}
 
 An abstraction method commonly used for formalisms operating on variables is to reduce the number of variables in the model, by simply ignoring some of them \cite{Clarke:1994:MCA}. The initial abstraction of the model can be the same model without any variables.
  
@@ -300,7 +300,7 @@ The conjunction of the resulting set of constraints is handed to a solver. If it
 	The formula $\varphi = x_0=0 \wedge l_0=0 \wedge x_1=2 \wedge l_1=l_0 \wedge l_1 \leq 5 \wedge x_1 \geq 16$ is obviously unsatisfiable, because $x_1=2 \wedge x_1 \geq 16$ is unsatisfiable in itself. If the automaton's current abstraction is extended with the variable $x$ with all of its assignments, and all constraints in guards and invariants that $x$ appears but $l$ doesn't, this counterexample won't be found anymore.
 \end{example}
 
-\subsubsection{State Space Abstraction Example} \label{sec:cegarex2}
+\subsubsection{State space abstraction example} \label{sec:cegarex2}
 
 Another possible approach is to apply the abstraction directly to the state space of the model. The difficulty in this is that the state space is unknown and the abstraction of the state space has to be yielded solely from the model and the examined property. In case of automaton-based formalisms, a simple solution is to start from the location graph of the automaton. This is an abstraction of the state space, because a node $l$ of the graph represents all states the system can take in location $l$, and an edge $e(l,l')$ can represents all transitions from the represented states of $l$ to $l'$ using $e$ in the automaton.
 
@@ -622,7 +622,7 @@ As it was mentioned, reachability for timed automata without discrete variables 
 
 \section{Objectives}
 
-The goal of this paper is to provide an extensible framework for CEGAR-based algorithms deciding reachability of timed automata extended with discrete variables. Since reachability is undecidable for this type of timed automata, termination of the algorithms is not always guaranteed.
+The goal of this thesis is to provide an extensible framework for CEGAR-based algorithms deciding reachability of timed automata extended with discrete variables. Since reachability is undecidable for this type of timed automata, termination of the algorithms is not always guaranteed.
 
 %\subsection{CEGAR}
 %\subsubsection{Abstraction}

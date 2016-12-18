@@ -29,7 +29,7 @@ The output of the algorithm can be an execution trace by which $l_{err}$ is reac
 
 The goal of the measurements is to evaluate the designed algorithm's performance and scalability, and draw conclusions about what combination of algorithms are efficient. The inputs are scalable automata chosen from Uppaal's benchmark data\footnote{https://www.it.uu.se/research/group/darts/uppaal/benchmarks/}. Uppaal supports extensions of the timed automaton formalism (network automata with synchronization channels) that are not implemented in the \ttmcfw, but can be transformed to the timed control flow automata formalism. This transformation was performed before the measurements.
 
-Measurements were performed on a personal computer with a 2.60 GHz core i5 processor. The program was operating on a maximum of 4GB memory, however, this was not fully used, as it was the solver that run out of memory in most cases.
+Measurements were performed on a personal computer with a 2.60 GHz Core i5 processor. The program was operating on a maximum of 4GB memory, however, this was not fully used, as it was the solver that run out of memory in most cases.
 %\todo{Célok ismertetése, mérések bemutatása. Mit akarunk mérni, mivel fogjuk összehasonlítani, milyen bemeneteken, és miért.}
 
 \subsection{Inputs}
@@ -83,7 +83,7 @@ The Token ring protocol is a special input, since the examined safety property c
 	\label{fig:tokendiag}
 \end{figure}
 
-The algorithms were executed on the timed automata representations of token rings consisting of $2^n$ stations ($2 \leq n \leq 11$), and their execution times were measured. Each algorithms on each input was run 15 times and the average of the execution times was calculated. The results are depicted in Figure \ref{fig:tokendiag}. The execution times were roughly the same, all in $\mathcal{O}(n^2)$, as it is expected from pathfinding algorithms, however, these measurements did not include the algorithm that uses a bounded model checker.
+The algorithms were executed on the timed automata representations of token rings consisting of $2^n$ stations ($2 \leq n \leq 11$), and their execution times were measured. Each algorithms on each input was run 15 times and the average of the execution times was calculated. The results are depicted in Figure \ref{fig:tokendiag}. The execution times were roughly the same, all in $\mathcal{O}(n^2)$, as it is expected from pathfinding algorithms (note, the scale on the horizontal axis is logarithmic), however, these measurements did not include the algorithm that uses a bounded model checker.
 
 \subsubsection{Bounded model checker measurements}
 
@@ -96,7 +96,7 @@ The algorithm that uses a bounded model checker can not be compared to the other
 	\label{fig:tokenboundstations}
 \end{figure}
 
-Figure \ref{fig:tokenboundstations} depicts the result of the measurements. It can be seen, that the execution times do not grow (although it is interesting how the execution times decrease -- this is probably caused by some environmental characteristics). On the other hand, the bound has a great influence on the runtime. To demonstrate this, I have executed the algorithm with different bound values on the timed automaton model of the token ring of three stations -- 15 times each. The bound varied between 5 and 50.
+Figure \ref{fig:tokenboundstations} depicts the result of the measurements. It can be seen, that the execution times do not grow (although it is interesting how the execution times decrease -- this is probably caused by some environmental characteristics or some inner heuristics of the solver). On the other hand, the bound has a great influence on the runtime. To demonstrate this, I have executed the algorithm with different bound values on the timed automaton model of the token ring of three stations -- 15 times each. The bound varied between 5 and 50.
 
 \begin{figure}
 	\centering
@@ -123,10 +123,10 @@ The results of the measurements are depicted in Figure \ref{fig:mesurements}. Th
 \begin{itemize}
 	\item STU denotes zone-based state space refinement operating on the tree representation of the abstract zone graph where the precisions of the zones are based on the unsat core of the trace,
 	\item SGU denotes zone-based state space refinement operating on the graph representation of the abstract zone graph where the precisions of the zones are based on the unsat core of the trace,
-	\item STT denotes zone-based state space refinement operating on the tree representation of the abstract zone graph where the precisions of the zones are based on the trace activity, and
-	\item SGT denotes zone-based state space refinement operating on the graph representation of the abstract zone graph where the precisions of the zones are based on the trace activity.
-	\item SP denotes predicate abstraction-based state space refinement
-	\item AZ denotes automaton-based refinement with zone graph exploration
+	\item STT denotes zone-based state space refinement operating on the tree representation of the abstract zone graph where the precisions of the zones are based on the trace activity,
+	\item SGT denotes zone-based state space refinement operating on the graph representation of the abstract zone graph where the precisions of the zones are based on the trace activity,
+	\item SP denotes predicate abstraction-based state space refinement, and
+	\item AZ denotes automaton-based refinement with zone graph exploration.
 \end{itemize}
 
 The algorithm denoted by SGU run out of memory when executed on the timed automaton representation of four stations communicating with CSMA/CD protocol -- hence the red colour.
@@ -141,7 +141,7 @@ Out of the algorithms with zone-based refinement, the ones denoted by STT and SG
 
 Algorithm STU performs well on the CSMA/CD inputs, but this does not seem to be the case for the Fischer examples. On the other hand, algorithm SGU did not perform well on either type of the test cases.
 
-The performance of algorithm SP is worse than that of AZ in the CSMA/CD protocol, but it runs the most efficiently on the Fischer examples (this algorithm terminaten on Fisch4 in 50 seconds). This seems to be the most interesting result.
+The performance of algorithm SP is worse than that of AZ in the CSMA/CD protocol, but it runs the most efficiently on the Fischer examples (this algorithm terminated on Fisch4 in 50 seconds). This seems to be the most interesting result.
 
 In conclusion, out of the presented algorithms STT seems to be the most efficient, and SGU seems to be the least efficient one. Measurements also suggest that state space based refinement may be generally more efficient than automaton based refinement.
 
